@@ -1,0 +1,16 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: node
+    tag: "12"
+
+inputs:
+  - name: trovamascherine
+
+caches:
+  - path: trovamascherine/web/node_modules
+
+run:
+  path: trovamascherine/api/ci/metarpheus-diff.sh

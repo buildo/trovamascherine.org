@@ -1,0 +1,16 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: node
+    tag: "12"
+
+inputs:
+  - name: trovamascherine
+
+run:
+  dir: trovamascherine/web
+  path: yarn
+  args:
+    - preversion

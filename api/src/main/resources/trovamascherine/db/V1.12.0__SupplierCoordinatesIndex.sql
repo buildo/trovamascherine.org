@@ -1,0 +1,1 @@
+CREATE INDEX CONCURRENTLY supplier_coordinates_idx ON supplier USING GIST (coordinates);

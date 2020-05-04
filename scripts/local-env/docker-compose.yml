@@ -1,0 +1,66 @@
+version: "3.7"
+services:
+  nginx:
+    image: nginx:alpine
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+    ports:
+      - 80:80
+    depends_on:
+      - trovamascherine-web
+      - trovamascherine-api
+
+  db:
+    volumes:
+      - ./config/db-users-dev.sql:/docker-entrypoint-initdb.d/01-db-users-dev.sql
+      - ./config/create-schemas.sql:/docker-entrypoint-initdb.d/02-create-schemas.sql
+    image: postgis/postgis:10-3.0-alpine
+    ports:
+      - 9001:5432
+    environment:
+      POSTGRES_DB: trovamascherine
+      POSTGRES_PASSWORD: trovamascherine
+    command: -c 'max_connections=512'
+
+  trovamascherine-web:
+    build:
+      context: ../../web
+      dockerfile: deploy/Dockerfile
+    env_file:
+      - config/envfile-base
+      - config/envfile-secret
+    depends_on:
+      - trovamascherine-api
+
+  trovamascherine-api:
+    build:
+      context: ../../api
+      dockerfile: Dockerfile-api
+    restart: always
+    env_file:
+      - config/envfile-base
+      - config/envfile-secret
+    command: sh -c '/usr/bin/wait-for db:5432 -t 120 -- /usr/bin/java -cp /srv/api.jar trovamascherine.Boot'
+
+  trovamascherine-notifications:
+    build:
+      context: ../../api
+      dockerfile: Dockerfile-notifications
+    restart: always
+    env_file:
+      - config/envfile-base
+      - config/envfile-secret
+    environment:
+      TROVAMASCHERINE_DB_MIGRATE: "false"
+    command: sh -c '/usr/bin/wait-for db:5432 -t 120 -- /usr/bin/java -cp /srv/api.jar trovamascherine.NotificationBoot'
+
+  trovamascherine-fixtures:
+    build:
+      context: ../../api
+      dockerfile: Dockerfile-fixtures
+    env_file:
+      - config/envfile-base
+      - config/envfile-secret
+    command: sh -c '/usr/bin/wait-for trovamascherine-api:8080 -t 240 -- /usr/bin/java -cp /srv/fixtures.jar trovamascherine.fixtures.Boot'
+    environment:
+      TROVAMASCHERINE_DB_LOCATIONS: "trovamascherine/fixtures/db"

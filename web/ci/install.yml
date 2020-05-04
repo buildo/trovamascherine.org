@@ -1,0 +1,24 @@
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: node
+    tag: "12"
+
+inputs:
+  - name: trovamascherine
+
+outputs:
+  - name: trovamascherine
+
+run:
+  dir: trovamascherine/web
+  path: bash
+  args:
+    - -c
+    - |
+      GREEN='\033[0;32m'
+      CLEAR='\033[0m'
+      yarn --no-progress
+      echo -e "${GREEN}project dependencies installed${CLEAR}"
