@@ -3,14 +3,15 @@ import { Subtitle } from "../Text/Subtitle";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as O from "fp-ts/lib/Option";
 import { SupplierData } from "../../domain";
+import * as classes from "./Address.treat";
 
 export type Props = Omit<SupplierData, "supplies"> & {
-  className?: string;
+  dark?: true;
 };
 
 export function Address(props: Props) {
   return (
-    <Subtitle size={2} className={props.className}>
+    <Subtitle size={2} className={props.dark ? classes.dark : undefined}>
       {props.address}
       {pipe(
         props.city,

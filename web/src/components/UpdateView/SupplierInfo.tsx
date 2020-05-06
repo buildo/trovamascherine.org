@@ -8,7 +8,6 @@ import { SupplierData } from "../../domain";
 import { Address } from "./Address";
 import { LastUpdate } from "./LastUpdate";
 import { Space } from "../Space/Space";
-import cx from "classnames";
 import { useIsMobile } from "../../useMatchMedia";
 import * as classes from "./SupplierInfo.treat";
 
@@ -18,17 +17,14 @@ export function SupplierInfo(props: Props) {
   const formatMessage = useFormatMessage();
   const isMobile = useIsMobile();
   return (
-    <Box
-      column
-      className={cx(classes.info, { [classes.infoMobile]: isMobile })}
-    >
+    <Box column className={classes.info} width={!isMobile ? 400 : undefined}>
       <Title size={2}>
         {pipe(
           props.name,
           getOrElse(() => formatMessage("SupplierInfo.unknownSupplier"))
         )}
       </Title>
-      <Address {...props} className={classes.address} />
+      <Address {...props} dark />
       <Space units={4} />
       <LastUpdate
         value={props.lastUpdatedOn}

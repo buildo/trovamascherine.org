@@ -18,7 +18,7 @@ import { useAPI } from "../../useAPI";
 import { eqString } from "fp-ts/lib/Eq";
 import * as RD from "../../RemoteData";
 import { Footer } from "../Footer/Footer";
-import { ThankYou } from "./ThankYou";
+import { UpdateSummary } from "./UpdateSummary";
 import { GenericError } from "../GenericError/GenericError";
 import { Loading } from "../Loading/Loading";
 import { Header } from "../Header/Header";
@@ -31,6 +31,11 @@ import { InfoIcon } from "../Icons/InfoIcon";
 import { SupplyInfoModal } from "./SupplyInfoModal";
 import { useIsMobile } from "../../useMatchMedia";
 import cx from "classnames";
+import { Title } from "../Text/Title";
+import { FormattedMessage, useFormatMessage } from "../../intl";
+import { Space } from "../Space/Space";
+import { Address } from "./Address";
+import { Button } from "../Button/Button";
 
 type Props = {
   token: NonEmptyString;
@@ -78,6 +83,7 @@ function fromAPISupplies(
 export function UpdateView(props: Props): JSX.Element {
   const supplierData = useAPI(getSupplierDataByToken, props.token, eqString);
   const isMobile = useIsMobile();
+  const formatMessage = useFormatMessage();
   const [showInfoModal, setShowInfoModal] = React.useState(false);
   const [status, setStatus] = React.useState<
     | { status: "form" }
@@ -171,22 +177,46 @@ export function UpdateView(props: Props): JSX.Element {
       return (
         <Box column height="100%">
           <Header />
-          {isMobile ? (
-            <ThankYou
-              values={status.values}
-              supplier={O.some(status.supplier)}
-              back={() => window.location.reload()}
-            />
-          ) : (
-            <Box grow>
-              <SupplierInfo {...status.supplier} />
-              <ThankYou
-                values={status.values}
-                supplier={O.none}
-                back={() => window.location.reload()}
-              />
+          <Box grow column={isMobile}>
+            {!isMobile && <SupplierInfo {...status.supplier} />}
+            <Box
+              column
+              hAlignContent="center"
+              className={cx(classes.thankYou, {
+                [classes.thankYouMobile]: isMobile,
+              })}
+            >
+              <Title size={2}>
+                <FormattedMessage id="UpdateView.thankYou" />
+              </Title>
+              <Space units={10} />
+              {isMobile && (
+                <>
+                  {pipe(
+                    status.supplier.name,
+                    O.map(name => (
+                      <>
+                        <Title size={3}>{name}</Title>
+                        <Space units={4} />
+                      </>
+                    )),
+                    O.toNullable
+                  )}
+                  <Address {...status.supplier} />
+                </>
+              )}
+              <UpdateSummary values={status.values} />
+              <Space units={10} />
+              <Box>
+                <Button
+                  variant="primary"
+                  action={() => window.location.reload()}
+                  label={formatMessage("ThankYou.back")}
+                  size="medium"
+                />
+              </Box>
             </Box>
-          )}
+          </Box>
 
           <Footer />
         </Box>

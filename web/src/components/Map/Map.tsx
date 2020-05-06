@@ -20,6 +20,10 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import InfoButton from "../InfoButton";
 import { InfoModal } from "../InfoModal/InfoModal";
 import PharmacyModalContent from "../PharmacyModalContent";
+import * as D from "io-ts/lib/Decoder";
+import { pipe } from "fp-ts/lib/pipeable";
+import { option } from "fp-ts";
+import { LocalStorage } from "../../util/LocalStorage";
 
 const mapbox_api = config.mapboxApiKey;
 
@@ -79,18 +83,33 @@ interface IMapProps {
   mapSearchResults: Array<SupplierData>;
 }
 
+const MapState = D.type({
+  latitude: D.number,
+  longitude: D.number,
+  zoom: D.number,
+});
+
+const mapStateKey = "mapState";
+
+function getCurrentMapState(): IMapState["currentMapState"] {
+  return pipe(
+    LocalStorage.getItem(mapStateKey, MapState),
+    option.getOrElse(() => ({
+      // default coordinates: Asti
+      latitude: 44.9,
+      longitude: 8.206944,
+      zoom: 14,
+    }))
+  );
+}
+
 export default class Map extends React.Component<IMapProps, IMapState> {
   state: IMapState = {
     viewport: {
       width: 400,
       height: 400,
     },
-    currentMapState: {
-      // default coordinates: Asti
-      latitude: 44.9,
-      longitude: 8.206944,
-      zoom: 14,
-    },
+    currentMapState: getCurrentMapState(),
     isInfoModalOpen: false,
     isDetailsModalOpen: false,
     currentVisibleMarkers: {},
@@ -128,12 +147,14 @@ export default class Map extends React.Component<IMapProps, IMapState> {
   };
 
   onViewportChange = (viewport: ViewportProps) => {
-    const { width, height, ...other } = viewport;
+    const { width, height, ...mapState } = viewport;
 
     this.setState({
       viewport: { width, height },
-      currentMapState: { ...other },
+      currentMapState: mapState,
     });
+
+    LocalStorage.setItem(mapStateKey, mapState);
   };
 
   onInteractionStateChange = (extraState: ExtraState) => {

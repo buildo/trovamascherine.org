@@ -28,7 +28,9 @@ export function ModalPortal(props: Props) {
       document.body.style.top = "";
       window.scrollTo(0, parseInt(scrollY || "0") * -1);
 
-      document.body.removeChild(domNode);
+      if (document.body.contains(domNode)) {
+        document.body.removeChild(domNode);
+      }
     };
   }, [domNode]);
 

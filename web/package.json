@@ -65,5 +65,5 @@
     "@typescript-eslint/parser": "2.29.0",
     "@typescript-eslint/typescript-estree": "2.29.0"
   },
-  "proxy": "https://www.trovamascherine.org"
+  "proxy": "https://staging.trovamascherine.org"
 }
