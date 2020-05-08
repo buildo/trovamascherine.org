@@ -28,6 +28,8 @@ case class DBConfig(
 case class NotificationsConfig(
   schedule: String,
   afternoonSchedule: String,
+  welcomeSchedule: String,
+  welcomeAttachmentPath: String,
   url: String,
   from: String,
   subject: String,

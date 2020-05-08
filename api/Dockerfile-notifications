@@ -15,6 +15,8 @@ EXPOSE 8080
 
 COPY --from=build /srv/api/target/scala-2.12/root.jar /srv/api.jar
 
+ADD src/main/resources/welcomeFile.pdf /srv/api/welcomeFile.pdf
+
 ADD wait-for /usr/bin/
 
 CMD /usr/bin/java -cp /srv/api.jar trovamascherine.NotificationBoot

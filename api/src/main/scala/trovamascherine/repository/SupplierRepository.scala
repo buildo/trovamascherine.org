@@ -34,6 +34,8 @@ trait SupplierRepository {
   def listEnabled(): Future[List[(UUID, String)]]
   def listEnabledWithToken(): Future[Either[String, List[(UUID, String, Option[String])]]]
   def acceptTerms(supplierId: UUID): Future[Either[String, Unit]]
+  def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[String]]]
+  def setWelcomeEmailsSent(emails: List[String]): Future[Either[String, Unit]]
 }
 
 object SupplierConverters {
@@ -194,5 +196,28 @@ object SupplierRepository extends Recoverable {
             .map(_ => ()),
         )
       }
+
+      override def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[String]]] =
+        recoverToEither {
+          db.run(
+              SupplierTable
+                .filter(s => s.enabled === true && s.welcomeEmailSent === false)
+                .map(_.email)
+                .take(limit)
+                .result,
+            )
+            .map(_.toList)
+        }
+
+      override def setWelcomeEmailsSent(emails: List[String]): Future[Either[String, Unit]] =
+        recoverToEither {
+          db.run(
+            SupplierTable
+              .filter(_.email.inSetBind(emails))
+              .map(_.welcomeEmailSent)
+              .update(true)
+              .map(_ => ()),
+          )
+        }
     }
 }

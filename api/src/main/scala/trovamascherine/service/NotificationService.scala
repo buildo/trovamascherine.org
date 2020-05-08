@@ -6,8 +6,12 @@ import java.time.format.DateTimeFormatter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.EitherT
 import cats.instances.future._
+import cats.instances.list._
+import cats.instances.either._
+import cats.syntax.traverse._
+import cats.syntax.either._
+import cats.data.EitherT
 
 import akka.actor.ActorSystem
 import akka.actor.ActorSystem
@@ -31,6 +35,7 @@ class NotificationService(
 )(implicit ec: ExecutionContext, ac: ActorSystem, am: ActorMaterializer)
     extends HashModule
     with Logging {
+  val attachments = new Attachments(config)
   val mailer = mailo.Mailo(
     new S3MailData,
     new MailgunClient,
@@ -57,6 +62,46 @@ class NotificationService(
         params = Map("url" -> s"${config.url}$token"),
       ),
     )
+
+  private[this] def sendWelcomeEmail(
+    email: String,
+  ): Future[Either[MailError, MailResult]] =
+    mailer.send(
+      Mail(
+        to = email,
+        from = config.from,
+        subject = "Benvenuti in TrovaMascherine!",
+        templateName = "welcome.html",
+        params = Map.empty,
+        attachments = List(attachments.welcome),
+      ),
+    )
+
+  private[this] def sendWelcomeEmailsHelper(
+    emails: List[String],
+  ): Future[Either[String, List[String]]] =
+    emails
+      .foldLeft(
+        Future.successful(Nil: List[Either[String, String]]),
+      ) { (f, email) =>
+        for {
+          oldResults <- f
+          emailResult <- sendWelcomeEmail(email)
+        } yield {
+          emailResult.map(_ => email).leftMap(_.message) :: oldResults
+        }
+      }
+      .map(_.sequence)
+
+  def sendWelcomeEmails() = {
+    val limit = 100
+    for {
+      emails <- EitherT(supplierRepo.listWelcomeEmailNotSent(limit))
+      _ = logger.info(s"sending ${emails.length} welcome emails")
+      sentEmails <- EitherT(sendWelcomeEmailsHelper(emails))
+      _ <- EitherT(supplierRepo.setWelcomeEmailsSent(sentEmails))
+    } yield ()
+  }
 
   def sendEmails() = {
     EitherT(supplierRepo.listEnabledWithToken()).map { suppliersToEmail =>

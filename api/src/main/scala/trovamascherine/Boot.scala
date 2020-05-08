@@ -68,6 +68,7 @@ object NotificationBoot extends FlywayMigrations with Logging {
 
     logger.info(s"scheduled morning emails for ${config.notifications.schedule}")
     logger.info(s"scheduled afternoon emails for ${config.notifications.afternoonSchedule}")
+    logger.info(s"scheduled welcome emails for ${config.notifications.welcomeSchedule}")
 
     val database = Database.forConfig("db")
     val authRepository = AuthRepository.create(database)
@@ -81,9 +82,11 @@ object NotificationBoot extends FlywayMigrations with Logging {
 
     val resetTokenAndSendEmailsTask = task { notificationService.resetTokenAndSendEmails() }
     val sendEmailsTask = task { notificationService.sendEmails() }
+    val welcomeTask = task { notificationService.sendWelcomeEmails() }
 
     resetTokenAndSendEmailsTask.executes(config.notifications.schedule)
     sendEmailsTask.executes(config.notifications.afternoonSchedule)
+    welcomeTask.executes(config.notifications.welcomeSchedule)
     ()
   }
 }
