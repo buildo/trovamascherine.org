@@ -9,35 +9,38 @@ import { StatsView } from "./components/StatsView/StatsView";
 import { WelcomeModal } from "./components/WelcomeModal/WelcomeModal";
 import { CreditsView } from "./components/CreditsView/CreditsView";
 import { history } from "./history";
+import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
 
 export function App() {
   return (
-    <IntlProvider>
-      {pipe(
-        parse(history.location),
-        fold(
-          () => (
-            <>
-              <MapView />
-              <WelcomeModal />
-            </>
-          ),
-          () => (
-            <>
-              <StatsView />
-              <WelcomeModal />
-            </>
-          ),
-          supplierId => (
-            <>
-              <DetailsView supplierId={supplierId} />
-              <WelcomeModal />
-            </>
-          ),
-          token => <UpdateView token={token} />,
-          () => <CreditsView />
-        )
-      )}
-    </IntlProvider>
+    <ErrorBoundary>
+      <IntlProvider>
+        {pipe(
+          parse(history.location),
+          fold(
+            () => (
+              <>
+                <MapView />
+                <WelcomeModal />
+              </>
+            ),
+            () => (
+              <>
+                <StatsView />
+                <WelcomeModal />
+              </>
+            ),
+            supplierId => (
+              <>
+                <DetailsView supplierId={supplierId} />
+                <WelcomeModal />
+              </>
+            ),
+            token => <UpdateView token={token} />,
+            () => <CreditsView />
+          )
+        )}
+      </IntlProvider>
+    </ErrorBoundary>
   );
 }

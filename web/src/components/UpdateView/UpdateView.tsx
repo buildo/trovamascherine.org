@@ -19,10 +19,10 @@ import { eqString } from "fp-ts/lib/Eq";
 import * as RD from "../../RemoteData";
 import { Footer } from "../Footer/Footer";
 import { UpdateSummary } from "./UpdateSummary";
-import { GenericError } from "../GenericError/GenericError";
+import { GenericError } from "../Error/GenericError";
 import { Loading } from "../Loading/Loading";
 import { Header } from "../Header/Header";
-import { InvalidTokenError } from "../GenericError/InvalidTokenError";
+import { InvalidTokenError } from "../Error/InvalidTokenError";
 import { isNone, fold, option } from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { sequenceS } from "fp-ts/lib/Apply";
@@ -98,7 +98,12 @@ export function UpdateView(props: Props): JSX.Element {
 
   switch (status.status) {
     case "error":
-      return <GenericError retry={() => window.location.reload()} />;
+      return (
+        <GenericError
+          retry={() => window.location.reload()}
+          error={new Error("Update failed")}
+        />
+      );
     case "form":
       return pipe(
         supplierData,
@@ -114,7 +119,10 @@ export function UpdateView(props: Props): JSX.Element {
             return err === "InvalidToken" ? (
               <InvalidTokenError />
             ) : (
-              <GenericError retry={() => window.location.reload()} />
+              <GenericError
+                retry={() => window.location.reload()}
+                error={new Error(err)}
+              />
             );
           },
           supplier => {

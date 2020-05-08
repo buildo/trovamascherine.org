@@ -106,8 +106,8 @@ function getCurrentMapState(): IMapState["currentMapState"] {
 export default class Map extends React.Component<IMapProps, IMapState> {
   state: IMapState = {
     viewport: {
-      width: 400,
-      height: 400,
+      width: 0,
+      height: 0,
     },
     currentMapState: getCurrentMapState(),
     isInfoModalOpen: false,

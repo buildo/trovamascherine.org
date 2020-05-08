@@ -16,8 +16,11 @@
   "UpdateViewForm.invariato": "(invariato)",
   "UpdateViewForm.buttonLabel": "Conferma e aggiorna disponibilità",
   "UpdateViewForm.errorAcceptance": "È necessario accettare per proseguire",
-  "ErrorStatus.message": "Qualcosa è andato storto",
-  "ErrorStatus.retry": "Riprova",
+  "GenericError.message": "Qualcosa è andato storto",
+  "GenericError.retry": "Riprova",
+  "GenericError.bugReportLinkLabel": "Richiedi supporto via mail",
+  "GenericError.bugReportSubject": "Bug Report",
+  "GenericError.bugReportBody": "Ho riscontrato il seguente errore: ({errorName}) {errorMessage}. Descrivo di seguito le azioni che stavo compiendo sulla piattaforma:",
   "Loading.message": "caricamento...",
   "SupplierInfo.unknownSupplier": "(farmacia sconosciuta)",
   "SupplierInfo.firstUpdate": "Questo è il tuo primo aggiornamento",
@@ -55,5 +58,5 @@
   "PharmacistModal.content2": "Scrivi il nome e l’indirizzo della farmacia a ",
   "PharmacistModal.content3": " per essere aggiunto sulla mappa o per avere maggiori informazioni sul progetto TrovaMascherine.",
   "PharmacistModal.emailSubject": "Vorrei iscrivere la mia farmacia al portale TrovaMascherine",
-  "PharmacistModal.emailBody": "Buongiorno, vorrei che la mia farmacia venisse mostrata gratuitamente sul portale TrovaMascherine.org. I miei contatti sono NOME E COGNOME, NOME FARMACIA, INDIRIZZO FARMACIA, EMAIL FARMACIA."
+  "PharmacistModal.emailBody": "Buongiorno, vorrei che la mia farmacia venisse mostrata gratuitamente sul portale TrovaMascherine.org utilizzando questo indirizzo mail per ricevere notifiche via mail. Inviando questa mail dichiaro di aver letto e compreso i termini e condizioni del servizio e la privacy policy, accettandone il contenuto. I miei contatti sono NOME E COGNOME, NOME FARMACIA."
 }

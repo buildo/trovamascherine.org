@@ -5,7 +5,7 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { fold } from "../../RemoteData";
 import Map from "../Map";
 import { Loading } from "../Loading/Loading";
-import { GenericError } from "../GenericError/GenericError";
+import { GenericError } from "../Error/GenericError";
 import { FormattedMessage } from "../../intl";
 import { Box } from "../Box/Box";
 import { pharmacistCTA, pharmacistCTAContainer } from "./MapView.treat";
@@ -18,7 +18,12 @@ export function MapView() {
     mapSearchResults,
     fold(
       () => <Loading />,
-      () => <GenericError retry={() => window.location.reload()} />,
+      error => (
+        <GenericError
+          retry={() => window.location.reload()}
+          error={new Error(String(error))}
+        />
+      ),
       data => (
         <>
           <Map mapSearchResults={data} />
