@@ -3,7 +3,7 @@ import { Box } from "../Box/Box";
 import * as classes from "./UpdateViewForm.treat";
 import { TextField } from "../Field/TextField";
 import { Title } from "../Text/Title";
-import { useFormatMessage } from "../../intl";
+import { useFormatMessage, FormattedMessage } from "../../intl";
 import * as O from "fp-ts/lib/Option";
 import { Space } from "../Space/Space";
 import { Button } from "../Button/Button";
@@ -194,21 +194,27 @@ export function UpdateViewForm(props: Props) {
   const labels = pipe(
     {
       mascherineFFP: ([
-        formatMessage("UpdateViewForm.labelMascherineFFP"),
+        <FormattedMessage
+          tagName="span"
+          id="UpdateViewForm.labelMascherineFFP"
+        />,
       ] as Children[]).concat(changed.mascherineFFP ? [changedLabel] : []),
       mascherineChirurgiche: ([
-        formatMessage("UpdateViewForm.labelMascherineChirurgiche"),
+        <FormattedMessage
+          tagName="span"
+          id="UpdateViewForm.labelMascherineChirurgiche"
+        />,
       ] as Children[]).concat(
         changed.mascherineChirurgiche ? [changedLabel] : []
       ),
-      gel: ([formatMessage("UpdateViewForm.labelGel")] as Children[]).concat(
-        changed.gel ? [changedLabel] : []
-      ),
+      gel: ([
+        <FormattedMessage tagName="span" id="UpdateViewForm.labelGel" />,
+      ] as Children[]).concat(changed.gel ? [changedLabel] : []),
       guanti: ([
-        formatMessage("UpdateViewForm.labelGuanti"),
+        <FormattedMessage tagName="span" id="UpdateViewForm.labelGuanti" />,
       ] as Children[]).concat(changed.guanti ? [changedLabel] : []),
       scanner: ([
-        formatMessage("UpdateViewForm.labelScanner"),
+        <FormattedMessage tagName="span" id="UpdateViewForm.labelScanner" />,
       ] as Children[]).concat(changed.scanner ? [changedLabel] : []),
     },
     R.map(labels => intercalateChildren(<>&nbsp;</>, labels))

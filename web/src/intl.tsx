@@ -22,8 +22,15 @@ export function useFormatMessage(): (
 export function FormattedMessage(props: {
   id: LocaleKey;
   values?: Record<string, PrimitiveType>;
+  tagName?: keyof JSX.IntrinsicElements;
 }) {
-  return <FormattedMessage_ id={props.id} values={props.values} />;
+  return (
+    <FormattedMessage_
+      tagName={props.tagName}
+      id={props.id}
+      values={props.values}
+    />
+  );
 }
 
 export function IntlProvider(props: { children: Children }) {

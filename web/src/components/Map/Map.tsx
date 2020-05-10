@@ -7,7 +7,10 @@ import ReactMapGL, {
   InteractiveMapProps,
   Source,
   Layer,
+  PointerEvent,
 } from "react-map-gl";
+
+import { GeoJSONSource } from "mapbox-gl";
 
 import { SupplierData } from "../../domain";
 import * as classes from "./Map.treat";
@@ -65,11 +68,7 @@ type IMapState = {
     width: number;
     height: number;
   };
-  currentMapState: {
-    latitude: number;
-    longitude: number;
-    zoom: number;
-  };
+  currentMapState: Partial<ViewportProps>;
   isInfoModalOpen: boolean;
   isDetailsModalOpen: boolean;
   selectedSupplier?: SupplierData;
@@ -95,10 +94,10 @@ function getCurrentMapState(): IMapState["currentMapState"] {
   return pipe(
     LocalStorage.getItem(mapStateKey, MapState),
     option.getOrElse(() => ({
-      // default coordinates: Asti
-      latitude: 44.9,
-      longitude: 8.206944,
-      zoom: 14,
+      // default coordinates: Rome with zoom level Italy
+      latitude: 41.902782,
+      longitude: 12.496366,
+      zoom: 5,
     }))
   );
 }
@@ -116,6 +115,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
   };
 
   mapBoxRef: any = undefined;
+  private _sourceRef: React.RefObject<Source> = React.createRef<Source>();
 
   componentDidMount() {
     window.addEventListener("resize", this._resize);
@@ -217,6 +217,38 @@ export default class Map extends React.Component<IMapProps, IMapState> {
     this.filterVisibleMarkerDebounced();
   };
 
+  _onClick = (event: PointerEvent) => {
+    const feature = event.features[0];
+    if (!feature || !this._sourceRef.current) {
+      return;
+    }
+    const clusterId = feature.properties.cluster_id;
+
+    const mapboxSource: GeoJSONSource = (this
+      ._sourceRef as any).current.getSource();
+
+    mapboxSource.getClusterExpansionZoom(
+      clusterId,
+      (err: string, zoom: number) => {
+        if (err) {
+          return;
+        }
+        const currentViewPort = {
+          ...this.state.viewport,
+          ...this.state.currentMapState,
+        };
+
+        this.onViewportChange({
+          ...(currentViewPort as ViewportProps),
+          longitude: feature.geometry.coordinates[0],
+          latitude: feature.geometry.coordinates[1],
+          zoom,
+          transitionDuration: 500,
+        });
+      }
+    );
+  };
+
   render() {
     const { isDetailsModalOpen, selectedSupplier } = this.state;
 
@@ -231,6 +263,8 @@ export default class Map extends React.Component<IMapProps, IMapState> {
           onLoad={this.onMapLoad}
           mapStyle={MAPBOX_MAP_STYLE}
           asyncRender
+          onClick={this._onClick}
+          interactiveLayerIds={["pharmacy-clusters"]}
           getRef={a => (this.mapBoxRef = a)}
         >
           <Source
@@ -239,6 +273,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
             cluster={true}
             clusterRadius={100}
             data={this.state.sourceGeoJSON}
+            ref={this._sourceRef}
           >
             <Layer
               id="visible-pharmacy"
@@ -260,6 +295,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
 
             <Layer
               type="circle"
+              id="pharmacy-clusters"
               paint={{
                 "circle-radius": 28,
                 "circle-color": "#fff",
