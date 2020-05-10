@@ -7,34 +7,55 @@ import { Title } from "../Text/Title";
 import { Text } from "../Text/Text";
 import { Label } from "../Text/Label";
 import { Link } from "../Link/Link";
+import { useFormatMessage } from "../../intl";
 
 type Props = {
   onDismiss: () => unknown;
 };
 
 export function SupplyInfoModal(props: Props): JSX.Element {
+  const formatMessage = useFormatMessage();
   return (
-    <Modal onDismiss={O.some(props.onDismiss)}>
+    <Modal
+      title={formatMessage("SupplyInfoModal.title")}
+      onDismiss={O.some(props.onDismiss)}
+    >
       <Box column width="100%">
         <Title size={3}>Mascherine</Title>
-        <Space units={4} />
+        <Space units={2} />
+        <Title size={5}>Chirurgiche e di “comunità”</Title>
+        <Space units={2} />
         <Text size={2}>
           Inserire la somma delle unità - non delle confezioni - di mascherine
-          chirurgiche, mascherine FFP2, mascherine FFP3 disponibili alla vendita
-          nella farmacia.
-        </Text>
-        <Text size={2}>
+          chirurgiche e di “comunità” disponibili alla vendita nella farmacia.
           Non inserire le mascherine non disponibili alla vendita, pre-ordinate
           da clienti e/o non conformi con gli standard di protezione approvati
           dall’INAIL.
         </Text>
-        <Space units={8} />
+        <Space units={4} />
         <Label size={2}>
-          Esempio: la farmacia ha 70 mascherine chirurgiche disponibili alla
-          vendita, 30 mascherine FFP2 e 0 mascherine FFP3. La farmacia ha anche
-          un ordine da parte di un cliente di 20 mascherine FFP2 da ritirare in
-          giornata. Inserire nel campo dati: 60 (70 mascherine chirurgiche + 30
-          FFP2 - 20 pre-ordinate)
+          Esempio: La farmacia ha 1000 mascherine chirurgiche e 2000 mascherine
+          di comunità. La farmacia ha anche un ordine da parte di un cliente per
+          500 mascherine chirurgiche da ritirare in giornata. Inserire nel campo
+          dati: 2500 (1000 mascherine chirurgiche + 2000 di comunità - 500
+          pre-ordinate)
+        </Label>
+        <Space units={4} />
+        <Title size={5}>FFP1, FFP2, FFP3</Title>
+        <Space units={2} />
+        <Text size={2}>
+          Inserire la somma delle unità - non delle confezioni - di mascherine
+          FFP1, FFP2, FFP3, con o senza valvola, disponibili alla vendita nella
+          farmacia. Non inserire le mascherine non disponibili alla vendita,
+          pre-ordinate da clienti e/o non conformi con gli standard di
+          protezione approvati dall’INAIL.
+        </Text>
+        <Space units={4} />
+        <Label size={2}>
+          Esempio: La farmacia ha 500 mascherine FFP2 e 400 FFP3. La farmacia ha
+          anche un ordine da parte di un cliente per 300 mascherine FFP2 da
+          ritirare in giornata. Inserire nel campo dati: 600 (500 mascherine
+          FFP2 + 400 FFP3 - 300 pre-ordinate)
         </Label>
 
         <Space units={10} />

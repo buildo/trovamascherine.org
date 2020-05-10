@@ -1,11 +1,11 @@
-package trovamascherine.db
+package trovamascherine.persistence.db
 
 import org.apache.logging.log4j.scala.Logging
 import org.flywaydb.core.Flyway
 import cats.data.NonEmptyList
 import pureconfig._
 
-import trovamascherine.config.DBConfig
+import trovamascherine.persistence.config.DBConfig
 
 trait FlywayMigrations extends Logging {
   implicit def camelCaseHint[T]: ProductHint[T] =

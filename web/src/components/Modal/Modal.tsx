@@ -9,6 +9,7 @@ import { Box } from "../Box/Box";
 import { pipe } from "fp-ts/lib/pipeable";
 import { CloseIcon } from "../Icons/CloseIcon";
 import { Space } from "../Space/Space";
+import { Title } from "../Text/Title";
 
 type Props = CommonProps & {
   /**
@@ -16,6 +17,8 @@ type Props = CommonProps & {
    * Providing `none` means the `Modal` is not dismissable
    */
   onDismiss: Option<() => unknown>;
+  /** Modal title */
+  title: string;
   /** Modal content */
   children: Children;
 };
@@ -24,7 +27,11 @@ export function Modal(props: Props) {
   const dismissIcon = pipe(
     props.onDismiss,
     O.map(onDismiss => (
-      <Box className={classes.dismissIcon} onClick={onDismiss}>
+      <Box
+        vAlignContent="center"
+        className={classes.dismissIcon}
+        onClick={onDismiss}
+      >
         <CloseIcon width={24} height={24} />
       </Box>
     )),
@@ -49,13 +56,16 @@ export function Modal(props: Props) {
               e.stopPropagation();
             }}
           >
-            <Box vAlignContent="center" className={classes.header}>
+            <Box width="100%" vAlignContent="top" className={classes.header}>
+              <Title size={4}>{props.title}</Title>
               <Space grow />
+              <Space units={2} />
               {dismissIcon}
             </Box>
-            <Box grow shrink basis="100%" className={classes.content}>
+            <Box grow shrink className={classes.content}>
               {props.children}
             </Box>
+            <Box width="100%" className={classes.footer} />
           </Box>
         </Box>
       </div>

@@ -70,7 +70,7 @@ class NotificationService(
       Mail(
         to = email,
         from = config.from,
-        subject = "Benvenuti in TrovaMascherine!",
+        subject = "Conferma iscrizione farmacia al portale TrovaMascherine",
         templateName = "welcome.html",
         params = Map.empty,
         attachments = List(attachments.welcome),

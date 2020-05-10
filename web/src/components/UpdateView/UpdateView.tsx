@@ -41,19 +41,30 @@ type Props = {
   token: NonEmptyString;
 };
 
+type HandledGood = Exclude<Good, "Mascherina">;
+type HandledSupplyData = Omit<SupplyData, "good"> & {
+  good: HandledGood;
+};
+function isHandledSupply(supply: SupplyData): supply is HandledSupplyData {
+  return supply.good !== "Mascherina";
+}
+
 function toAPISupplies(values: Values): Array<SupplyData> {
   return [
-    { good: "Mascherina", quantity: values.mascherine },
+    { good: "MascherinaFFP", quantity: values.mascherineFFP },
+    { good: "MascherinaChirurgica", quantity: values.mascherineChirurgiche },
     { good: "Gel", quantity: values.gel },
     { good: "Guanti", quantity: values.guanti },
     { good: "Termoscanner", quantity: values.scanner },
   ];
 }
 
-function fromAPIGood(good: Good): keyof Values {
+function fromAPIGood(good: HandledGood): keyof Values {
   switch (good) {
-    case "Mascherina":
-      return "mascherine";
+    case "MascherinaFFP":
+      return "mascherineFFP";
+    case "MascherinaChirurgica":
+      return "mascherineChirurgiche";
     case "Gel":
       return "gel";
     case "Guanti":
@@ -67,12 +78,18 @@ function fromAPISupplies(
   supplies: Array<SupplyData>
 ): RD.RemoteData<GetSupplierDataByTokenError, Values> {
   return pipe(
-    supplies.reduce(
+    supplies.filter(isHandledSupply).reduce(
       (acc, s) => ({
         ...acc,
         [fromAPIGood(s.good)]: s.quantity,
       }),
-      { mascherine: 0, gel: 0, guanti: 0, scanner: 0 }
+      {
+        mascherineFFP: 0,
+        mascherineChirurgiche: 0,
+        gel: 0,
+        guanti: 0,
+        scanner: 0,
+      }
     ),
     Values.decode,
     RD.fromEither,
@@ -211,6 +228,7 @@ export function UpdateView(props: Props): JSX.Element {
                     O.toNullable
                   )}
                   <Address {...status.supplier} />
+                  <Space units={10} />
                 </>
               )}
               <UpdateSummary values={status.values} />

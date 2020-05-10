@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Modal } from "../Modal/Modal";
 import { some } from "fp-ts/lib/Option";
-import { Title } from "../Text/Title";
 import { FormattedMessage, useFormatMessage } from "../../intl";
 import { Text } from "../Text/Text";
 import { Space } from "../Space/Space";
@@ -16,12 +15,11 @@ type Props = {
 export function PharmacistCTAModal(props: Props) {
   const formatMessage = useFormatMessage();
   return (
-    <Modal onDismiss={some(props.onDismiss)}>
+    <Modal
+      title={formatMessage("PharmacistModal.title")}
+      onDismiss={some(props.onDismiss)}
+    >
       <Box column width="100%">
-        <Title size={3}>
-          <FormattedMessage id="PharmacistModal.title" />
-        </Title>
-        <Space units={3} />
         <Text size={1}>
           <FormattedMessage id="PharmacistModal.content1" />
         </Text>

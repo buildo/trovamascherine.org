@@ -7,13 +7,13 @@ import java.sql.Timestamp
 import scala.concurrent.{ExecutionContext, Future}
 
 import trovamascherine.error.Recoverable
-import trovamascherine.db.Tables.{
+import trovamascherine.persistence.db.Tables.{
   Supplier => SupplierTable,
   GoodSupply => GoodSupplyTable,
   SupplierToken => SupplierTokenTable,
 }
-import trovamascherine.db.Tables.{GoodSupplyRow, SupplierRow, SupplierTokenRow}
-import trovamascherine.db.Tables.profile.api._
+import trovamascherine.persistence.db.Tables.{GoodSupplyRow, SupplierRow, SupplierTokenRow}
+import trovamascherine.persistence.db.Tables.profile.api._
 import trovamascherine.model._
 
 trait SupplierRepository {

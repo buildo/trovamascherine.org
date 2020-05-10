@@ -28,7 +28,8 @@ type Props = {
 };
 
 type FormState = {
-  mascherine: string;
+  mascherineFFP: string;
+  mascherineChirurgiche: string;
   gel: string;
   guanti: string;
   scanner: string;
@@ -48,7 +49,8 @@ const PositiveFromString = t.brand(
 
 export const Values = t.type(
   {
-    mascherine: t.number,
+    mascherineFFP: t.number,
+    mascherineChirurgiche: t.number,
     gel: t.number,
     guanti: t.number,
     scanner: t.number,
@@ -62,7 +64,8 @@ type Errors = Record<keyof FormState, O.Option<string>>;
 
 function error<K extends keyof Errors>(k: K, message: string): Errors {
   return {
-    mascherine: O.none,
+    mascherineFFP: O.none,
+    mascherineChirurgiche: O.none,
     gel: O.none,
     guanti: O.none,
     scanner: O.none,
@@ -79,7 +82,8 @@ const errorSemigroup: Semigroup<O.Option<string>> = {
     ),
 };
 const errorsSemigroup: Semigroup<Errors> = getStructSemigroup({
-  mascherine: errorSemigroup,
+  mascherineFFP: errorSemigroup,
+  mascherineChirurgiche: errorSemigroup,
   gel: errorSemigroup,
   guanti: errorSemigroup,
   scanner: errorSemigroup,
@@ -92,9 +96,15 @@ function validateForm(
 ): E.Either<Errors, Values> {
   return pipe(
     sequenceS(E.getValidation(errorsSemigroup))({
-      mascherine: pipe(
-        PositiveFromString.decode(formState.mascherine),
-        E.mapLeft(() => error("mascherine", errorMessages.mascherine))
+      mascherineFFP: pipe(
+        PositiveFromString.decode(formState.mascherineFFP),
+        E.mapLeft(() => error("mascherineFFP", errorMessages.mascherineFFP))
+      ),
+      mascherineChirurgiche: pipe(
+        PositiveFromString.decode(formState.mascherineChirurgiche),
+        E.mapLeft(() =>
+          error("mascherineChirurgiche", errorMessages.mascherineChirurgiche)
+        )
       ),
       gel: pipe(
         PositiveFromString.decode(formState.gel),
@@ -115,8 +125,9 @@ function validateForm(
         )
       ),
     }),
-    E.map(({ mascherine, gel, guanti, scanner }) => ({
-      mascherine,
+    E.map(({ mascherineFFP, mascherineChirurgiche, gel, guanti, scanner }) => ({
+      mascherineFFP,
+      mascherineChirurgiche,
       gel,
       guanti,
       scanner,
@@ -124,10 +135,19 @@ function validateForm(
   );
 }
 
+function FieldSet(props: { children: Children }) {
+  return (
+    <Box column className={classes.fieldSet}>
+      {props.children}
+    </Box>
+  );
+}
+
 export function UpdateViewForm(props: Props) {
   const formatMessage = useFormatMessage();
   const [formState, setFormState] = React.useState<FormState>({
-    mascherine: String(props.previousValues.mascherine),
+    mascherineFFP: String(props.previousValues.mascherineFFP),
+    mascherineChirurgiche: String(props.previousValues.mascherineChirurgiche),
     gel: String(props.previousValues.gel),
     guanti: String(props.previousValues.guanti),
     scanner: String(props.previousValues.scanner),
@@ -143,15 +163,19 @@ export function UpdateViewForm(props: Props) {
     setFormState(s => ({ ...s, [field]: value }));
   };
   const changed = {
-    mascherine:
-      formState.mascherine === String(props.previousValues.mascherine),
+    mascherineFFP:
+      formState.mascherineFFP === String(props.previousValues.mascherineFFP),
+    mascherineChirurgiche:
+      formState.mascherineChirurgiche ===
+      String(props.previousValues.mascherineChirurgiche),
     gel: formState.gel === String(props.previousValues.gel),
     guanti: formState.guanti === String(props.previousValues.guanti),
     scanner: formState.scanner === String(props.previousValues.scanner),
   };
   function onSubmit() {
     const validated = validateForm(formState, {
-      mascherine: formatMessage("UpdateViewForm.errorMascherine"),
+      mascherineFFP: formatMessage("UpdateViewForm.errorMascherine"),
+      mascherineChirurgiche: formatMessage("UpdateViewForm.errorMascherine"),
       gel: formatMessage("UpdateViewForm.errorGel"),
       guanti: formatMessage("UpdateViewForm.errorGuanti"),
       scanner: formatMessage("UpdateViewForm.errorScanner"),
@@ -169,9 +193,14 @@ export function UpdateViewForm(props: Props) {
   );
   const labels = pipe(
     {
-      mascherine: ([
-        formatMessage("UpdateViewForm.labelMascherine"),
-      ] as Children[]).concat(changed.mascherine ? [changedLabel] : []),
+      mascherineFFP: ([
+        formatMessage("UpdateViewForm.labelMascherineFFP"),
+      ] as Children[]).concat(changed.mascherineFFP ? [changedLabel] : []),
+      mascherineChirurgiche: ([
+        formatMessage("UpdateViewForm.labelMascherineChirurgiche"),
+      ] as Children[]).concat(
+        changed.mascherineChirurgiche ? [changedLabel] : []
+      ),
       gel: ([formatMessage("UpdateViewForm.labelGel")] as Children[]).concat(
         changed.gel ? [changedLabel] : []
       ),
@@ -198,62 +227,97 @@ export function UpdateViewForm(props: Props) {
         <input type="submit" style={{ display: "none" }} />
         <Box column>
           <Title size={3}>{formatMessage("UpdateViewForm.header")}</Title>
-          <Space units={3} />
-          <TextField
-            type="number"
-            error={pipe(
-              submittedWithInlineErrors,
-              O.chain(e => e.mascherine)
-            )}
-            value={formState.mascherine}
-            onChange={onChange("mascherine")}
-            label={labels.mascherine}
-            placeholder={formatMessage("UpdateViewForm.placeholderMascherine")}
-            clearable={O.some("0")}
-            width="100%"
-          />
-          <Space units={3} />
-          <TextField
-            type="number"
-            error={pipe(
-              submittedWithInlineErrors,
-              O.chain(e => e.gel)
-            )}
-            value={formState.gel}
-            onChange={onChange("gel")}
-            label={labels.gel}
-            placeholder={formatMessage("UpdateViewForm.placeholderGel")}
-            clearable={O.some("0")}
-            width="100%"
-          />
-          <Space units={3} />
-          <TextField
-            type="number"
-            error={pipe(
-              submittedWithInlineErrors,
-              O.chain(e => e.guanti)
-            )}
-            value={formState.guanti}
-            onChange={onChange("guanti")}
-            label={labels.guanti}
-            placeholder={formatMessage("UpdateViewForm.placeholderGuanti")}
-            clearable={O.some("0")}
-            width="100%"
-          />
-          <Space units={3} />
-          <TextField
-            type="number"
-            error={pipe(
-              submittedWithInlineErrors,
-              O.chain(e => e.scanner)
-            )}
-            value={formState.scanner}
-            onChange={onChange("scanner")}
-            label={labels.scanner}
-            placeholder={formatMessage("UpdateViewForm.placeholderScanner")}
-            clearable={O.some("0")}
-            width="100%"
-          />
+          <Space units={6} />
+          <FieldSet>
+            <Label size={1}>
+              {formatMessage("UpdateViewForm.titleMascherine")}
+            </Label>
+            <Space units={2} />
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
+                O.chain(e => e.mascherineChirurgiche)
+              )}
+              value={formState.mascherineChirurgiche}
+              onChange={onChange("mascherineChirurgiche")}
+              label={labels.mascherineChirurgiche}
+              labelSize={2}
+              placeholder={formatMessage(
+                "UpdateViewForm.placeholderMascherine"
+              )}
+              clearable={O.some("0")}
+              width="100%"
+            />
+            <Space units={2} />
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
+                O.chain(e => e.mascherineFFP)
+              )}
+              value={formState.mascherineFFP}
+              onChange={onChange("mascherineFFP")}
+              label={labels.mascherineFFP}
+              labelSize={2}
+              placeholder={formatMessage(
+                "UpdateViewForm.placeholderMascherine"
+              )}
+              clearable={O.some("0")}
+              width="100%"
+            />
+          </FieldSet>
+          <Space units={6} />
+          <FieldSet>
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
+                O.chain(e => e.gel)
+              )}
+              value={formState.gel}
+              onChange={onChange("gel")}
+              label={labels.gel}
+              labelSize={1}
+              placeholder={formatMessage("UpdateViewForm.placeholderGel")}
+              clearable={O.some("0")}
+              width="100%"
+            />
+          </FieldSet>
+          <Space units={6} />
+          <FieldSet>
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
+                O.chain(e => e.guanti)
+              )}
+              value={formState.guanti}
+              onChange={onChange("guanti")}
+              label={labels.guanti}
+              labelSize={1}
+              placeholder={formatMessage("UpdateViewForm.placeholderGuanti")}
+              clearable={O.some("0")}
+              width="100%"
+            />
+          </FieldSet>
+          <Space units={6} />
+          <FieldSet>
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
+                O.chain(e => e.scanner)
+              )}
+              value={formState.scanner}
+              onChange={onChange("scanner")}
+              label={labels.scanner}
+              labelSize={1}
+              placeholder={formatMessage("UpdateViewForm.placeholderScanner")}
+              clearable={O.some("0")}
+              width="100%"
+            />
+          </FieldSet>
           <Space units={8} />
           {props.requireAcceptance ? (
             <CheckboxField

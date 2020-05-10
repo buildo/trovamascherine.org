@@ -1,11 +1,13 @@
 import * as React from "react";
 import cx from "classnames";
-import { useFormatMessage } from "../../intl";
+import { useFormatMessage, FormattedMessage } from "../../intl";
 import { Box } from "../Box/Box";
 import { Text } from "../Text/Text";
 import * as classes from "./Footer.treat";
 import { Link } from "../Link/Link";
 import { Title } from "../Text/Title";
+import { Label } from "../Text/Label";
+import { config } from "../../config";
 
 interface IFooterProps {
   className?: string;
@@ -77,6 +79,7 @@ export function Footer(props: IFooterProps) {
         </Text>
       </Box>
       <Box
+        column
         className={cx(classes.footerBox, classes.linksBox)}
         vAlignContent="center"
       >
@@ -85,6 +88,12 @@ export function Footer(props: IFooterProps) {
             {formatMessage("Footer.credits")}
           </Link>
         </Text>
+        <Label size={2} className={classes.footerText}>
+          <FormattedMessage
+            id="Footer.appVersion"
+            values={{ version: config.appVersion }}
+          />
+        </Label>
       </Box>
     </Box>
   );

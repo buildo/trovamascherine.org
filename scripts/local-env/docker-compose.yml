@@ -61,6 +61,4 @@ services:
     env_file:
       - config/envfile-base
       - config/envfile-secret
-    command: sh -c '/usr/bin/wait-for trovamascherine-api:8080 -t 240 -- /usr/bin/java -cp /srv/fixtures.jar trovamascherine.fixtures.Boot'
-    environment:
-      TROVAMASCHERINE_DB_LOCATIONS: "trovamascherine/fixtures/db"
+    command: sh -c '/usr/bin/wait-for trovamascherine-api:8080 -t 240 -- /usr/bin/java -cp /srv/fixtures.jar trovamascherine.fixtures.Boot'    

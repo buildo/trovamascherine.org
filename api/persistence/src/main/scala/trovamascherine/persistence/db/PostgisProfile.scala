@@ -1,4 +1,4 @@
-package trovamascherine.db
+package trovamascherine.persistence.db
 
 import com.github.tminglei.slickpg._
 

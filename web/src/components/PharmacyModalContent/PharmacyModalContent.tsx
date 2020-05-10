@@ -1,14 +1,12 @@
 import React from "react";
 import { option } from "fp-ts";
 import { Box } from "../Box/Box";
-import { Title } from "../Text/Title";
-import GoodStatusDetails from "../GoodStatusDetails";
+import { GoodStatusDetails } from "../GoodStatusDetails/GoodStatusDetails";
 import { Modal } from "../Modal/Modal";
 import { SupplierData } from "../../domain";
 import * as classes from "./PharmacyModalContent.treat";
 import { pipe } from "fp-ts/lib/pipeable";
 import { toNullable, fold, isSome } from "fp-ts/lib/Option";
-import { findFirst } from "fp-ts/lib/Array";
 import { getOrElse } from "fp-ts/lib/Option";
 import { Space } from "../Space/Space";
 import { LastUpdate } from "../UpdateView/LastUpdate";
@@ -16,16 +14,18 @@ import { useFormatMessage } from "../../intl";
 import { PharmaQuestionMarkIcon } from "../Icons/PharmaQuestionMarkIcon";
 import { Label } from "../Text/Label";
 import { SupportEmailLink } from "../SupportEmailLink/SupportEmailLink";
-
-interface Supply {
-  good: "Mascherina" | "Guanti" | "Gel" | "Termoscanner";
-  quantity: number;
-}
+import { useIsMobile } from "../../useMatchMedia";
+import { quantityByGood } from "../../util/goodQuantity";
+import { sequenceS } from "fp-ts/lib/Apply";
+import { left, right } from "fp-ts/lib/Either";
+import { constant } from "fp-ts/lib/function";
 
 interface IPharmacyModalContentProps {
   onDismiss: () => unknown;
   selectedSupplier: SupplierData;
 }
+
+const defaultQuantity = constant(0);
 
 function PharmacyModalContent(props: IPharmacyModalContentProps) {
   const { selectedSupplier } = props;
@@ -34,58 +34,36 @@ function PharmacyModalContent(props: IPharmacyModalContentProps) {
   const formatMessage = useFormatMessage();
 
   const mascherina = pipe(
-    supplies,
-    findFirst(a => a.good === "Mascherina"),
-    getOrElse(() => {
-      return {
-        good: "Mascherina",
-        quantity: 0,
-      };
-    })
+    sequenceS(option.option)({
+      ffp: quantityByGood("MascherinaFFP", supplies),
+      chirurgica: quantityByGood("MascherinaChirurgica", supplies),
+    }),
+    option.fold(
+      () =>
+        pipe(
+          quantityByGood("Mascherina", supplies),
+          option.getOrElse(defaultQuantity),
+          left
+        ),
+      m => right(m)
+    )
   );
-
   const glove = pipe(
-    supplies,
-    findFirst(supply => supply.good === "Guanti"),
-    getOrElse(() => {
-      return {
-        good: "Guanti",
-        quantity: 0,
-      };
-    })
+    quantityByGood("Guanti", supplies),
+    getOrElse(defaultQuantity)
   );
-
-  const gel = pipe(
-    supplies,
-    findFirst(supply => supply.good === "Gel"),
-    getOrElse(() => {
-      return {
-        good: "Gel",
-        quantity: 0,
-      };
-    })
-  );
-
+  const gel = pipe(quantityByGood("Gel", supplies), getOrElse(defaultQuantity));
   const termoScanner = pipe(
-    supplies,
-    findFirst(supply => supply.good === "Termoscanner"),
-    getOrElse(() => {
-      return {
-        good: "Termoscanner",
-        quantity: 0,
-      };
-    })
+    quantityByGood("Termoscanner", supplies),
+    getOrElse(defaultQuantity)
   );
+
+  const isMobile = useIsMobile();
+  const space = isMobile ? <Space units={4} /> : <Space units={8} />;
 
   return (
-    <Modal onDismiss={option.some(props.onDismiss)}>
+    <Modal title={name || ""} onDismiss={option.some(props.onDismiss)}>
       <Box column width="100%">
-        {name ? (
-          <Title className={classes.pharmacyName} size={4}>
-            {name}
-          </Title>
-        ) : null}
-
         <Box className={classes.pharmacyModalContentAddress}>
           {selectedSupplier.address}
           {pipe(
@@ -104,43 +82,36 @@ function PharmacyModalContent(props: IPharmacyModalContentProps) {
             )
           )}
         </Box>
-        <Box
-          className={classes.pharmacyGoodListing}
-          hAlignContent="center"
-          vAlignContent="center"
-          width="100%"
-          column
-        >
+        <Box hAlignContent="center" width="100%" column>
           {isSome(selectedSupplier.lastUpdatedOn) ? (
             <>
-              <Box className={classes.pharmacyGoodListingRow}>
-                <GoodStatusDetails {...(mascherina as Supply)} />
-                <GoodStatusDetails {...(gel as Supply)} />
-              </Box>
-              <Box className={classes.pharmacyGoodListingRow}>
-                <GoodStatusDetails {...(glove as Supply)} />
-                <GoodStatusDetails {...(termoScanner as Supply)} />
-              </Box>
-              <Space units={5} />
+              {space}
               <LastUpdate
                 value={selectedSupplier.lastUpdatedOn}
                 fallbackMessage={formatMessage(
                   "PharmacyModalContent.neverUpdated"
                 )}
+              />
+              {space}
+              <GoodStatusDetails
+                mascherina={mascherina}
+                gel={gel}
+                glove={glove}
+                termoScanner={termoScanner}
               />
             </>
           ) : (
             <>
-              <Space units={8} />
+              {space}
               <PharmaQuestionMarkIcon width={76} height={76} />
-              <Space units={8} />
+              {space}
               <LastUpdate
                 value={selectedSupplier.lastUpdatedOn}
                 fallbackMessage={formatMessage(
                   "PharmacyModalContent.neverUpdated"
                 )}
               />
-              <Space units={5} />
+              {space}
               <Label size={2}>
                 Lavori in questa farmacia e hai problemi a caricare un
                 aggiornamento?

@@ -26,12 +26,11 @@ export function WelcomeModal() {
   };
 
   return accepted ? null : (
-    <Modal onDismiss={O.some(onDismiss)}>
+    <Modal
+      title="Benvenuta/o in trovamascherine.org!"
+      onDismiss={O.some(onDismiss)}
+    >
       <Box width="100%" column>
-        <Text size={2} className={text}>
-          Benvenuta/o in trovamascherine.org!
-        </Text>
-        <Space units={8} />
         <Text size={2} className={text}>
           <b>TrovaMascherine</b> ti permette di sapere quanti{" "}
           <b>Dispositivi di Protezione Individuale</b> (DPI) - mascherine, gel

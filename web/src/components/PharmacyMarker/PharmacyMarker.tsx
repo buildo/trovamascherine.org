@@ -2,25 +2,21 @@ import * as React from "react";
 import { Popup } from "react-map-gl";
 import { Box } from "../Box/Box";
 import GoodStatus from "../GoodStatus";
-
 import * as classes from "./PharmacyMarker.treat";
-import { findFirst } from "fp-ts/lib/Array";
-import { pipe } from "fp-ts/lib/pipeable";
-import { getOrElse } from "fp-ts/lib/Option";
 import cx from "classnames";
 import { getColorClassNameFromBucket } from "../../util/ColorBucket";
 import { PharmaQuestionMarkIcon } from "../Icons/PharmaQuestionMarkIcon";
-
-interface Supply {
-  good: "Mascherina" | "Guanti" | "Gel" | "Termoscanner";
-  quantity: number;
-}
 
 interface IPharmacyMarkerProps {
   latitude: number;
   longitude: number;
   id: string;
-  supplyData: Array<Supply>;
+  quantities: {
+    Mascherina: number;
+    Guanti: number;
+    Gel: number;
+    Termoscanner: number;
+  };
   onSelect: (id: string) => void;
   updatedOnce: boolean;
   isVisible: boolean;
@@ -30,59 +26,22 @@ function PharmacyMarker(props: IPharmacyMarkerProps) {
   if (!props.isVisible) {
     return null;
   }
-  const mascherina = pipe(
-    props.supplyData,
-    findFirst(a => a.good === "Mascherina"),
-    getOrElse(() => {
-      return {
-        good: "Mascherina",
-        quantity: 0,
-      } as Supply;
-    })
-  );
 
   const mascherinaStatus = `top-left-${getColorClassNameFromBucket(
-    mascherina
+    "Mascherina",
+    props.quantities.Mascherina
   )}`;
-
-  const glove = pipe(
-    props.supplyData,
-    findFirst(supply => supply.good === "Guanti"),
-    getOrElse(() => {
-      return {
-        good: "Guanti",
-        quantity: 0,
-      } as Supply;
-    })
-  );
-
-  const glovesStatus = `bottom-left-${getColorClassNameFromBucket(glove)}`;
-
-  const gel = pipe(
-    props.supplyData,
-    findFirst(supply => supply.good === "Gel"),
-    getOrElse(() => {
-      return {
-        good: "Gel",
-        quantity: 0,
-      } as Supply;
-    })
-  );
-  const gelStatus = `top-right-${getColorClassNameFromBucket(gel)}`;
-
-  const termoScanner = pipe(
-    props.supplyData,
-    findFirst(supply => supply.good === "Termoscanner"),
-    getOrElse(() => {
-      return {
-        good: "Termoscanner",
-        quantity: 0,
-      } as Supply;
-    })
-  );
-
+  const glovesStatus = `bottom-left-${getColorClassNameFromBucket(
+    "Guanti",
+    props.quantities.Guanti
+  )}`;
+  const gelStatus = `top-right-${getColorClassNameFromBucket(
+    "Gel",
+    props.quantities.Gel
+  )}`;
   const termoScannerStatus = `bottom-right-${getColorClassNameFromBucket(
-    termoScanner
+    "Termoscanner",
+    props.quantities.Termoscanner
   )}`;
 
   function onClick() {
@@ -123,21 +82,25 @@ function PharmacyMarker(props: IPharmacyMarkerProps) {
               <Box className={classes.pharmacyPopupRow} hAlignContent="center">
                 <GoodStatus
                   className={classes.goodStatus}
-                  {...(mascherina as Supply)}
+                  good="Mascherina"
+                  quantity={props.quantities.Mascherina}
                 />
                 <GoodStatus
                   className={classes.goodStatus}
-                  {...(gel as Supply)}
+                  good="Gel"
+                  quantity={props.quantities.Gel}
                 />
               </Box>
               <Box className={classes.pharmacyPopupRow} hAlignContent="center">
                 <GoodStatus
                   className={classes.goodStatus}
-                  {...(glove as Supply)}
+                  good="Guanti"
+                  quantity={props.quantities.Guanti}
                 />
                 <GoodStatus
                   className={classes.goodStatus}
-                  {...(termoScanner as Supply)}
+                  good="Termoscanner"
+                  quantity={props.quantities.Termoscanner}
                 />
               </Box>
             </>

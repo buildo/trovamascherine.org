@@ -19,6 +19,10 @@ export class ErrorBoundary extends React.Component<Props, State> {
     return { error: option.some(error) };
   }
 
+  componentDidCatch(error: Error, errorInfo: unknown) {
+    console.error(error, errorInfo);
+  }
+
   render() {
     return pipe(
       this.state.error,

@@ -23,6 +23,11 @@ export const subtitleSizes = styleMap({
     lineHeight: "20px",
     color: vars.grey03,
   },
+  4: {
+    fontSize: "14px",
+    lineHeight: "18px",
+    color: vars.grey03,
+  },
 });
 
 export type Size = keyof typeof subtitleSizes;

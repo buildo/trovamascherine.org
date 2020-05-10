@@ -1,11 +1,11 @@
-package trovamascherine.db
+package trovamascherine.persistence.db
 
 import scala.concurrent.duration._
 import scala.concurrent.Await
 
 import slick.sql.SqlProfile.ColumnOption
 
-import trovamascherine.config.DBConfig
+import trovamascherine.persistence.config.DBConfig
 
 object CustomizedCodeGenerator {
   import scala.concurrent.ExecutionContext.Implicits.global

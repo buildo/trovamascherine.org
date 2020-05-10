@@ -5,8 +5,8 @@ import java.util.UUID
 import scala.concurrent.{ExecutionContext, Future}
 
 import trovamascherine.error.Recoverable
-import trovamascherine.db.Tables._
-import trovamascherine.db.Tables.profile.api._
+import trovamascherine.persistence.db.Tables._
+import trovamascherine.persistence.db.Tables.profile.api._
 import trovamascherine.model._
 
 trait AuthRepository {

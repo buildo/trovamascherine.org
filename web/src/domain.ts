@@ -5,6 +5,8 @@ import { optionFromNullable } from "io-ts-types/lib/optionFromNullable";
 export const Good = t.keyof(
   {
     Mascherina: true,
+    MascherinaFFP: true,
+    MascherinaChirurgica: true,
     Guanti: true,
     Gel: true,
     Termoscanner: true,

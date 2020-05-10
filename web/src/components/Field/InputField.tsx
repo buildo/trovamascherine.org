@@ -35,6 +35,10 @@ type Props = CommonProps & {
    */
   label: Children;
   /**
+   * Size variant to use in the field label
+   */
+  labelSize: 1 | 2;
+  /**
    * Placeholder displayed inside the input when empty
    */
   placeholder: string;
@@ -64,7 +68,7 @@ export const InputField = React.forwardRef<HTMLInputElement, Props>(
         id={props.id}
         className={props.className}
       >
-        <Label size={1} id={labelID}>
+        <Label size={props.labelSize} id={labelID}>
           {props.label}
         </Label>
         <Space units={2} />

@@ -19,13 +19,13 @@ export const modalContainer = style({
 export const modal = style({
   maxHeight: `calc(100% - ${20 * vars.spaceUnit}px)`,
   maxWidth: `calc(100% - ${10 * vars.spaceUnit}px)`,
-  overflow: "hidden",
   backgroundColor: vars.white,
   borderRadius: vars.borderRadius,
 });
 
 export const header = style({
   padding: 6 * vars.spaceUnit,
+  paddingBottom: 2 * vars.spaceUnit,
 });
 
 export const dismissIcon = style({
@@ -38,8 +38,13 @@ export const dismissIcon = style({
 });
 
 export const content = style({
-  marginBottom: 8 * vars.spaceUnit,
-  paddingLeft: 8 * vars.spaceUnit,
-  paddingRight: 8 * vars.spaceUnit,
+  paddingTop: 4 * vars.spaceUnit,
+  paddingBottom: 4 * vars.spaceUnit,
+  paddingLeft: 6 * vars.spaceUnit,
+  paddingRight: 6 * vars.spaceUnit,
   overflowY: "auto",
+});
+
+export const footer = style({
+  paddingTop: 4 * vars.spaceUnit,
 });

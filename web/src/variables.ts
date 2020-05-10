@@ -35,7 +35,7 @@ export const spaceUnit = 4;
 export const borderRadius = "4px";
 
 export const fontWeightNormal = 400;
-export const fontWeightMedium = 500;
+export const fontWeightMedium = 600;
 export const fontWeightBold = 700;
 
 export const overlayBoxShadow = "0px 0px 6px #3e404d80";

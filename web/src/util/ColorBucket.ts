@@ -1,11 +1,9 @@
-import { SupplyData, Good } from "../domain";
-
 function getClassNameFromQuantity(x: number, y: number, quantity: number) {
   if (quantity === 0) {
     return "inactive";
   } else if (quantity <= x) {
     return "red";
-  } else if (quantity > x && quantity < y) {
+  } else if (quantity > x && quantity <= y) {
     return "yellow";
   } else {
     return "green";
@@ -24,6 +22,8 @@ function getStatusColorFromQuantity(x: number, y: number, quantity: number) {
   }
 }
 
+type Good = "Mascherina" | "Guanti" | "Gel" | "Termoscanner";
+
 function getBoundsFromGood(good: Good) {
   switch (good) {
     case "Mascherina": {
@@ -41,12 +41,12 @@ function getBoundsFromGood(good: Good) {
   }
 }
 
-export function getColorFromBucket(props: SupplyData) {
-  const { x, y } = getBoundsFromGood(props.good);
-  return getStatusColorFromQuantity(x, y, props.quantity);
+export function getColorFromBucket(good: Good, quantity: number) {
+  const { x, y } = getBoundsFromGood(good);
+  return getStatusColorFromQuantity(x, y, quantity);
 }
 
-export function getColorClassNameFromBucket(props: SupplyData) {
-  const { x, y } = getBoundsFromGood(props.good);
-  return getClassNameFromQuantity(x, y, props.quantity);
+export function getColorClassNameFromBucket(good: Good, quantity: number) {
+  const { x, y } = getBoundsFromGood(good);
+  return getClassNameFromQuantity(x, y, quantity);
 }

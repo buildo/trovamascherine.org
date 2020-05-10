@@ -10,8 +10,8 @@ import wiro.server.akkaHttp.FailSupport._
 
 import trovamascherine.repository._
 import trovamascherine.service._
-import trovamascherine.db.FlywayMigrations
-import trovamascherine.db.Tables.profile.api.Database
+import trovamascherine.persistence.db.FlywayMigrations
+import trovamascherine.persistence.db.Tables.profile.api.Database
 import trovamascherine.config.Config
 import trovamascherine.controller._
 import trovamascherine.error.WiroErrorResponses

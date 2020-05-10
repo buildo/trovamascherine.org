@@ -12,6 +12,7 @@ object Dependencies {
     val log4j = "2.8.2"
     val enumero = "1.3.0"
     val slickPg = "0.19.0"
+    val munit = "0.7.5"
   }
 
   val wiro = "io.buildo" %% "wiro-http-server" % V.wiro
@@ -21,7 +22,6 @@ object Dependencies {
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.9.2"
   val akkaHttp = "com.typesafe.akka" %% "akka-http" % "10.1.5"
   val akkaHttpCirce = "de.heikoseeberger" %% "akka-http-circe" % "1.22.0"
-  val scalatest = "org.scalatest" %% "scalatest" % "3.0.5" % "test"
   val catsCore = "org.typelevel" %% "cats-core" % "1.4.0"
   val slick = "com.typesafe.slick" %% "slick" % V.slick
   val slickCodegen = "com.typesafe.slick" %% "slick-codegen" % V.slick
@@ -34,6 +34,7 @@ object Dependencies {
   val cronish = "com.frograms" %% "cronish" % "0.1.5-FROGRAMS"
   val slickPg = "com.github.tminglei" %% "slick-pg" % V.slickPg
   val slickPgJts = "com.github.tminglei" %% "slick-pg_jts" % V.slickPg
+  val munit = "org.scalameta" %% "munit" % V.munit
 
   val log4jDependencies = Seq(
     "org.apache.logging.log4j" %% "log4j-api-scala" % "11.0",
@@ -42,7 +43,7 @@ object Dependencies {
     "org.apache.logging.log4j" % "log4j-core" % V.log4j % Runtime,
   )
 
-  val dependencies =
+  val rootDependencies =
     List(
       wiro,
       circeCore,
@@ -51,7 +52,6 @@ object Dependencies {
       pureconfig,
       akkaHttp,
       akkaHttpCirce,
-      scalatest,
       slick,
       slickCodegen,
       slickHikari,
@@ -63,5 +63,20 @@ object Dependencies {
       enumeroCirceSupport,
       cronish,
       mailo,
-    ) ++ log4jDependencies
+    ) ++ log4jDependencies ++ List(
+      munit,
+    ).map(_ % Test)
+
+  val persistenceDependencies = List(
+    pureconfig,
+    slick,
+    slickCodegen,
+    slickHikari,
+    slickPg,
+    slickPgJts,
+    postgresql,
+    flyway,
+    enumero,
+    enumeroCirceSupport,
+  ) ++ log4jDependencies
 }

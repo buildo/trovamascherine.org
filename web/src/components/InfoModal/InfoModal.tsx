@@ -18,12 +18,11 @@ export function InfoModal(props: Props) {
   const formatMessage = useFormatMessage();
 
   return (
-    <Modal onDismiss={option.some(props.onDismiss)}>
+    <Modal
+      title="Benvenuta/o in trovamascherine.org!"
+      onDismiss={option.some(props.onDismiss)}
+    >
       <Box width="100%" column>
-        <Text size={2} className={classes.text}>
-          Benvenuta/o in trovamascherine.org!
-        </Text>
-        <Space units={8} />
         <Text size={2} className={classes.text}>
           Trovamascherine.org è un progetto senza scopo di lucro nato con lo
           scopo di fornire, in maniera sicura, veloce e gratuita, un servizio ai
