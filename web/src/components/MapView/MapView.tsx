@@ -8,7 +8,7 @@ import { Loading } from "../Loading/Loading";
 import { GenericError } from "../Error/GenericError";
 import { FormattedMessage } from "../../intl";
 import { Box } from "../Box/Box";
-import { pharmacistCTA, pharmacistCTAContainer } from "./MapView.treat";
+import { pharmacistCTA } from "./MapView.treat";
 import { PharmacistCTAModal } from "./PharmacistCTAModal";
 
 export function MapView() {
@@ -27,19 +27,19 @@ export function MapView() {
       data => (
         <>
           <Map mapSearchResults={data} />
-          <Box hAlignContent="center" className={pharmacistCTAContainer}>
-            <Box
-              vAlignContent="center"
-              hAlignContent="center"
-              className={pharmacistCTA}
-              onClick={e => {
-                e.stopPropagation();
-                setShowPharmacistModal(true);
-              }}
-            >
-              <FormattedMessage id="MapView.pharmacyCTA" />
-            </Box>
+
+          <Box
+            vAlignContent="center"
+            hAlignContent="center"
+            className={pharmacistCTA}
+            onClick={e => {
+              e.stopPropagation();
+              setShowPharmacistModal(true);
+            }}
+          >
+            <FormattedMessage id="MapView.pharmacyCTA" />
           </Box>
+
           {showPharmacistModal && (
             <PharmacistCTAModal
               onDismiss={() => {

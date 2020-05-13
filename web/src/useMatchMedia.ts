@@ -16,6 +16,8 @@ export function useMatchMedia(query: string) {
   return matches;
 }
 
+export const isMobileMediaQuery = "(max-width: 800px)";
+
 export function useIsMobile() {
-  return useMatchMedia("(max-width: 800px)");
+  return useMatchMedia(isMobileMediaQuery);
 }

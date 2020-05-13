@@ -1,25 +1,26 @@
 import * as React from "react";
 import { Marker as ReactMapMarker } from "react-map-gl";
 
-import cx from "classnames";
-import * as classes from "./UserMarker.treat";
-
 interface IMapMarkerProps {
   latitude?: number;
   longitude?: number;
 }
 
-export default function UserMarker(props: IMapMarkerProps) {
+function _UserMarker(props: IMapMarkerProps) {
   if (props.latitude && props.longitude) {
     return (
-      <ReactMapMarker latitude={props.latitude} longitude={props.longitude}>
-        <div className={cx(classes.markerWrapper, classes.markerWrapper)}>
-          <div className={classes.markerRing} />
-          <div className={classes.marker} />
-        </div>
-      </ReactMapMarker>
+      <ReactMapMarker
+        key="location-maker"
+        className="mapboxgl-user-location-dot"
+        longitude={props.longitude}
+        latitude={props.latitude}
+        captureDrag={false}
+        captureDoubleClick={false}
+      />
     );
   } else {
     return null;
   }
 }
+
+export const UserMarker = React.memo(_UserMarker);

@@ -3,7 +3,7 @@ import * as classes from "./InfoButton.treat";
 import { InfoIcon } from "../Icons/InfoIcon";
 
 interface IInfoButtonProps {
-  onClick: any;
+  onClick: () => unknown;
 }
 
 export default function InfoButton(props: IInfoButtonProps) {

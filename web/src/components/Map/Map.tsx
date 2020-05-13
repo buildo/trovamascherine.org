@@ -1,9 +1,7 @@
 import * as React from "react";
 import ReactMapGL, {
-  NavigationControl,
   ViewportProps,
   ExtraState,
-  GeolocateControl,
   InteractiveMapProps,
   Source,
   Layer,
@@ -27,6 +25,10 @@ import * as D from "io-ts/lib/Decoder";
 import { pipe } from "fp-ts/lib/pipeable";
 import { option } from "fp-ts";
 import { LocalStorage } from "../../util/LocalStorage";
+import { Box } from "../Box/Box";
+import { GeolocateControl } from "../GeolocateControl/GeolocateControl";
+import { UserMarker } from "../UserMarker/UserMarker";
+import { QueryParams } from "../../util/QueryParams";
 
 const mapbox_api = config.mapboxApiKey;
 
@@ -69,6 +71,11 @@ type IMapState = {
     height: number;
   };
   currentMapState: Partial<ViewportProps>;
+  userPosition: {
+    latitude?: number;
+    longitude?: number;
+    accuracy?: number;
+  };
   isInfoModalOpen: boolean;
   isDetailsModalOpen: boolean;
   selectedSupplier?: SupplierData;
@@ -87,18 +94,29 @@ const MapState = D.type({
   longitude: D.number,
   zoom: D.number,
 });
+type MapState = D.TypeOf<typeof MapState>;
 
 const mapStateKey = "mapState";
 
-function getCurrentMapState(): IMapState["currentMapState"] {
+function getCurrentMapState(): MapState {
   return pipe(
-    LocalStorage.getItem(mapStateKey, MapState),
+    QueryParams.getMany(MapState),
+    option.alt(() => LocalStorage.getItem(mapStateKey, MapState)),
     option.getOrElse(() => ({
       // default coordinates: Rome with zoom level Italy
       latitude: 41.902782,
       longitude: 12.496366,
       zoom: 5,
     }))
+  );
+}
+
+function getSelectedSupplier(
+  mapSearchResults: Array<SupplierData>
+): SupplierData | undefined {
+  return mapSearchResults.find(
+    sup =>
+      sup.id === pipe(QueryParams.get("supplier", D.string), option.toUndefined)
   );
 }
 
@@ -112,6 +130,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
     isInfoModalOpen: false,
     isDetailsModalOpen: false,
     currentVisibleMarkers: {},
+    userPosition: {},
   };
 
   mapBoxRef: any = undefined;
@@ -122,6 +141,12 @@ export default class Map extends React.Component<IMapProps, IMapState> {
 
     this._resize();
     this.setGeoJSON();
+
+    const selectedSupplier = getSelectedSupplier(this.props.mapSearchResults);
+    this.setState({
+      selectedSupplier,
+      isDetailsModalOpen: !!selectedSupplier,
+    });
   }
 
   setGeoJSON = () => {
@@ -150,12 +175,21 @@ export default class Map extends React.Component<IMapProps, IMapState> {
     const { width, height, ...mapState } = viewport;
 
     this.setState({
-      viewport: { width, height },
-      currentMapState: mapState,
+      currentMapState: { ...this.state.currentMapState, ...mapState },
     });
 
-    LocalStorage.setItem(mapStateKey, mapState);
+    this.saveLastMapState(mapState);
   };
+
+  saveLastMapState = debounce((mapState: MapState) => {
+    LocalStorage.setItem(mapStateKey, mapState);
+
+    QueryParams.set({
+      latitude: mapState.latitude.toString(),
+      longitude: mapState.longitude.toString(),
+      zoom: mapState.zoom.toString(),
+    });
+  }, 500);
 
   onInteractionStateChange = (extraState: ExtraState) => {
     if (
@@ -176,6 +210,8 @@ export default class Map extends React.Component<IMapProps, IMapState> {
     )[0];
 
     this.setState({ selectedSupplier, isDetailsModalOpen: true });
+
+    QueryParams.set({ supplier: selectedSupplier.id });
   };
 
   filterVisibleMarker = () => {
@@ -243,14 +279,22 @@ export default class Map extends React.Component<IMapProps, IMapState> {
           longitude: feature.geometry.coordinates[0],
           latitude: feature.geometry.coordinates[1],
           zoom,
-          transitionDuration: 500,
+          transitionDuration: 150,
         });
       }
     );
   };
 
+  onGeolocate = (userPosition: Position) => {
+    const {
+      coords: { latitude, longitude, accuracy },
+    } = userPosition;
+
+    this.setState({ userPosition: { latitude, longitude, accuracy } });
+  };
+
   render() {
-    const { isDetailsModalOpen, selectedSupplier } = this.state;
+    const { isDetailsModalOpen, selectedSupplier, userPosition } = this.state;
 
     return (
       <div className={classes.map}>
@@ -319,33 +363,40 @@ export default class Map extends React.Component<IMapProps, IMapState> {
             />
           </Source>
 
-          <div className={classes.infoButtonWrapper}>
-            <InfoButton
-              onClick={() => {
-                this.setState({ isInfoModalOpen: true });
-              }}
-            />
-          </div>
-          <div className={classes.navigationControlWrapper}>
-            <NavigationControl showCompass={false} />
-            <GeolocateControl
-              className={classes.geolocateControlWrapper}
-              showUserLocation={false}
-              trackUserLocation={false}
-            />
-          </div>
+          <Box
+            hAlignContent="center"
+            className={classes.navigationControlWrapper}
+            vAlignContent="center"
+          >
+            <GeolocateControl onGeolocate={this.onGeolocate} />
+          </Box>
+
           <PharmacyMarkes
             currentVisibleMarkers={this.state.currentVisibleMarkers}
             mapSearchResults={this.props.mapSearchResults}
             onSelect={this.onPharmacyClick}
           />
+
+          <UserMarker
+            latitude={userPosition.latitude}
+            longitude={userPosition.longitude}
+          />
         </ReactMapGLWithAsync>
+
+        <div className={classes.infoButtonWrapper}>
+          <InfoButton
+            onClick={() => {
+              this.setState({ isInfoModalOpen: true });
+            }}
+          />
+        </div>
 
         {this.state.isInfoModalOpen && (
           <InfoModal
             onDismiss={() => this.setState({ isInfoModalOpen: false })}
           />
         )}
+
         {isDetailsModalOpen && selectedSupplier && (
           <PharmacyModalContent
             onDismiss={() => {
@@ -353,6 +404,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
                 isDetailsModalOpen: false,
                 selectedSupplier: undefined,
               });
+              QueryParams.delete("supplier");
             }}
             selectedSupplier={selectedSupplier}
           />

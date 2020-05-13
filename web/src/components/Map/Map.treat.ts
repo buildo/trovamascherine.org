@@ -1,4 +1,6 @@
 import { style } from "treat";
+import { spaceUnit } from "../../variables";
+import { isMobileMediaQuery } from "../../useMatchMedia";
 
 export const map = style({
   position: "fixed",
@@ -23,18 +25,20 @@ export const header = style({
 
 export const navigationControlWrapper = style({
   position: "absolute",
-  top: 10,
-  right: 10,
+  bottom: 12 * spaceUnit,
+  width: "100%",
   zIndex: 1,
-});
 
-export const geolocateControlWrapper = style({
-  marginTop: 10,
+  "@media": {
+    [isMobileMediaQuery]: {
+      bottom: 8 * spaceUnit,
+    },
+  },
 });
 
 export const infoButtonWrapper = style({
   position: "absolute",
   top: 10,
-  left: 10,
+  left: 16,
   zIndex: 1,
 });

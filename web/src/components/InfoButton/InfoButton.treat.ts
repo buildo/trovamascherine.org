@@ -1,12 +1,16 @@
 import { style } from "treat";
-import { overlayBoxShadow } from "../../variables";
+import {
+  overlayBoxShadow,
+  primaryHover,
+  primary,
+  white,
+} from "../../variables";
 
 export const infoButton = style({
-  overflow: "visible",
-  backgroundColor: "#4eaaad",
+  backgroundColor: primary,
   borderRadius: "22px",
   boxShadow: overlayBoxShadow,
-  color: "ee0000",
+  color: white,
   cursor: "pointer",
   height: "44px",
   width: "44px",
@@ -14,4 +18,8 @@ export const infoButton = style({
   textAlign: "center",
   verticalAlign: "center",
   fontSize: "30px",
+
+  ":hover": {
+    backgroundColor: primaryHover,
+  },
 });
