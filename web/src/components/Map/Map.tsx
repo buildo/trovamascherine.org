@@ -18,9 +18,9 @@ import { config } from "../../config";
 import debounce from "lodash.debounce";
 import "mapbox-gl/dist/mapbox-gl.css";
 
-import InfoButton from "../InfoButton";
+import { InfoButton } from "../InfoButton/InfoButton";
 import { InfoModal } from "../InfoModal/InfoModal";
-import PharmacyModalContent from "../PharmacyModalContent";
+import { PharmacyModal } from "../PharmacyModal/PharmacyModal";
 import * as D from "io-ts/lib/Decoder";
 import { pipe } from "fp-ts/lib/pipeable";
 import { option } from "fp-ts";
@@ -398,7 +398,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
         )}
 
         {isDetailsModalOpen && selectedSupplier && (
-          <PharmacyModalContent
+          <PharmacyModal
             onDismiss={() => {
               this.setState({
                 isDetailsModalOpen: false,

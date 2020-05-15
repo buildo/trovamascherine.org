@@ -367,6 +367,7 @@ export function UpdateViewForm(props: Props) {
             size="medium"
             label={formatMessage("UpdateViewForm.buttonLabel")}
             action={onSubmit}
+            icon={O.none}
           />
         </Box>
       </form>

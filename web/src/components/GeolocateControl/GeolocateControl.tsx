@@ -1,23 +1,14 @@
 import React, { useContext } from "react";
-import cx from "classnames";
-
 import { _MapContext } from "react-map-gl";
-
-import {
-  geolocateControlWrapper,
-  geolocateCopy,
-  geolocateControlDisabled,
-} from "./geolocateControl.treat";
-
 import {
   getBoundsFromGeoPosition,
   getViewportStateFromBounds,
 } from "../../util/geoUtils";
-
-import { Box } from "../Box/Box";
 import { GeolocateIcon } from "../Icons/GeolocateIcon";
 import { useGeolocateSupport } from "../../useGeolocateSupport";
-import { FormattedMessage } from "../../intl";
+import { useFormatMessage } from "../../intl";
+import { Button } from "../Button/Button";
+import { some } from "fp-ts/lib/Option";
 
 type Props = {
   onGeolocate: (position: Position) => void;
@@ -25,6 +16,7 @@ type Props = {
 
 export function GeolocateControl(props: Props) {
   const isGeolocationSupported = useGeolocateSupport();
+  const formatMessage = useFormatMessage();
   const mapContext = useContext(_MapContext);
 
   function handleUserPosition(position: Position) {
@@ -51,17 +43,13 @@ export function GeolocateControl(props: Props) {
   }
 
   return (
-    <Box
-      vAlignContent="center"
-      className={cx(geolocateControlWrapper, {
-        [geolocateControlDisabled]: !isGeolocationSupported,
-      })}
-      onClick={geolocateUser}
-    >
-      <GeolocateIcon width={20} height={20} />
-      <Box className={geolocateCopy}>
-        <FormattedMessage id="GeolocateControl.buttonLabel" />
-      </Box>
-    </Box>
+    <Button
+      variant="primary"
+      size="medium"
+      disabled={!isGeolocationSupported}
+      action={geolocateUser}
+      label={formatMessage("GeolocateControl.buttonLabel")}
+      icon={some(<GeolocateIcon width={20} height={20} />)}
+    />
   );
 }

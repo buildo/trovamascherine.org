@@ -27,7 +27,7 @@ import { isNone, fold, option } from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
 import { sequenceS } from "fp-ts/lib/Apply";
 import * as classes from "./UpdateView.treat";
-import { InfoIcon } from "../Icons/InfoIcon";
+import { InfoButton } from "../InfoButton/InfoButton";
 import { SupplyInfoModal } from "./SupplyInfoModal";
 import { useIsMobile } from "../../useMatchMedia";
 import cx from "classnames";
@@ -156,9 +156,8 @@ export function UpdateView(props: Props): JSX.Element {
                     className={cx(classes.infoIcon, {
                       [classes.infoIconMobile]: isMobile,
                     })}
-                    onClick={() => setShowInfoModal(true)}
                   >
-                    <InfoIcon width={44} height={44} />
+                    <InfoButton onClick={() => setShowInfoModal(true)} />
                   </Box>
 
                   {showInfoModal && (
@@ -236,9 +235,10 @@ export function UpdateView(props: Props): JSX.Element {
               <Box>
                 <Button
                   variant="primary"
+                  size="medium"
                   action={() => window.location.reload()}
                   label={formatMessage("ThankYou.back")}
-                  size="medium"
+                  icon={O.none}
                 />
               </Box>
             </Box>

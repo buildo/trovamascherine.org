@@ -45,6 +45,16 @@ export const content = style({
   overflowY: "auto",
 });
 
-export const footer = style({
+export const emptyFooter = style({
   paddingTop: 4 * vars.spaceUnit,
+});
+
+export const footer = style({
+  padding: 6 * vars.spaceUnit,
+  paddingTop: 7 * vars.spaceUnit,
+  paddingBottom: 7 * vars.spaceUnit,
+  width: "100%",
+  backgroundColor: vars.grey07,
+  borderBottomLeftRadius: vars.borderRadius,
+  borderBottomRightRadius: vars.borderRadius,
 });

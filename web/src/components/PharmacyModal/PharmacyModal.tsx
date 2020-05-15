@@ -4,9 +4,9 @@ import { Box } from "../Box/Box";
 import { GoodStatusDetails } from "../GoodStatusDetails/GoodStatusDetails";
 import { Modal } from "../Modal/Modal";
 import { SupplierData } from "../../domain";
-import * as classes from "./PharmacyModalContent.treat";
+import * as classes from "./PharmacyModal.treat";
 import { pipe } from "fp-ts/lib/pipeable";
-import { toNullable, fold, isSome } from "fp-ts/lib/Option";
+import { toNullable, fold, isSome, some } from "fp-ts/lib/Option";
 import { getOrElse } from "fp-ts/lib/Option";
 import { Space } from "../Space/Space";
 import { LastUpdate } from "../UpdateView/LastUpdate";
@@ -19,15 +19,18 @@ import { quantityByGood } from "../../util/goodQuantity";
 import { sequenceS } from "fp-ts/lib/Apply";
 import { left, right } from "fp-ts/lib/Either";
 import { constant } from "fp-ts/lib/function";
+import { WhatsAppButton } from "../WhatsAppButton.tsx/WhatsAppButton";
+import { CopyLinkButton } from "../CopyLinkButton/CopyLinkButton";
+import { PhoneButton } from "../PhoneButton/PhoneButton";
 
-interface IPharmacyModalContentProps {
+interface Props {
   onDismiss: () => unknown;
   selectedSupplier: SupplierData;
 }
 
 const defaultQuantity = constant(0);
 
-function PharmacyModalContent(props: IPharmacyModalContentProps) {
+function _PharmacyModal(props: Props) {
   const { selectedSupplier } = props;
   const { supplies } = selectedSupplier;
   const name = pipe(selectedSupplier.name, toNullable);
@@ -60,9 +63,38 @@ function PharmacyModalContent(props: IPharmacyModalContentProps) {
 
   const isMobile = useIsMobile();
   const space = isMobile ? <Space units={4} /> : <Space units={8} />;
+  const buttonSize = isMobile ? "small" : "medium";
 
   return (
-    <Modal title={name || ""} onDismiss={option.some(props.onDismiss)}>
+    <Modal
+      title={name || ""}
+      onDismiss={option.some(props.onDismiss)}
+      footer={some(
+        <Box width="100%">
+          {pipe(
+            selectedSupplier.phoneNumber,
+            fold(
+              () => null,
+              phoneNumber => (
+                <PhoneButton size={buttonSize} number={phoneNumber} />
+              )
+            )
+          )}
+          <Space grow />
+          <CopyLinkButton size={buttonSize} link={document.location.href} />
+          {isMobile && (
+            <>
+              <Space units={3} />
+              <WhatsAppButton
+                size={buttonSize}
+                title={props.selectedSupplier.name}
+                link={document.location.href}
+              />
+            </>
+          )}
+        </Box>
+      )}
+    >
       <Box column width="100%">
         <Box className={classes.pharmacyModalContentAddress}>
           {selectedSupplier.address}
@@ -88,9 +120,7 @@ function PharmacyModalContent(props: IPharmacyModalContentProps) {
               {space}
               <LastUpdate
                 value={selectedSupplier.lastUpdatedOn}
-                fallbackMessage={formatMessage(
-                  "PharmacyModalContent.neverUpdated"
-                )}
+                fallbackMessage={formatMessage("PharmacyModal.neverUpdated")}
               />
               {space}
               <GoodStatusDetails
@@ -107,9 +137,7 @@ function PharmacyModalContent(props: IPharmacyModalContentProps) {
               {space}
               <LastUpdate
                 value={selectedSupplier.lastUpdatedOn}
-                fallbackMessage={formatMessage(
-                  "PharmacyModalContent.neverUpdated"
-                )}
+                fallbackMessage={formatMessage("PharmacyModal.neverUpdated")}
               />
               {space}
               <Label size={2}>
@@ -126,4 +154,4 @@ function PharmacyModalContent(props: IPharmacyModalContentProps) {
   );
 }
 
-export default React.memo(PharmacyModalContent);
+export const PharmacyModal = React.memo(_PharmacyModal);

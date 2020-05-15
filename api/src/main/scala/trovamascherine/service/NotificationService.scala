@@ -6,11 +6,7 @@ import java.time.format.DateTimeFormatter
 
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.instances.future._
-import cats.instances.list._
-import cats.instances.either._
-import cats.syntax.traverse._
-import cats.syntax.either._
+import cats.implicits._
 import cats.data.EitherT
 
 import akka.actor.ActorSystem
@@ -79,7 +75,7 @@ class NotificationService(
 
   private[this] def sendWelcomeEmailsHelper(
     emails: List[String],
-  ): Future[Either[String, List[String]]] =
+  ): Future[List[Either[String, String]]] =
     emails
       .foldLeft(
         Future.successful(Nil: List[Either[String, String]]),
@@ -91,14 +87,17 @@ class NotificationService(
           emailResult.map(_ => email).leftMap(_.message) :: oldResults
         }
       }
-      .map(_.sequence)
 
   def sendWelcomeEmails() = {
     val limit = 100
     for {
       emails <- EitherT(supplierRepo.listWelcomeEmailNotSent(limit))
       _ = logger.info(s"sending ${emails.length} welcome emails")
-      sentEmails <- EitherT(sendWelcomeEmailsHelper(emails))
+      sentEmails <- EitherT.right(sendWelcomeEmailsHelper(emails).map { emailsResult =>
+        val (lefts, rights) = emailsResult.separate
+        logger.error(s"failed to send following welcome emails ${lefts.toString}")
+        rights
+      })
       _ <- EitherT(supplierRepo.setWelcomeEmailsSent(sentEmails))
     } yield ()
   }

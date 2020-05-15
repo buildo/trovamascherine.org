@@ -6,14 +6,17 @@ import { fold } from "../../RemoteData";
 import Map from "../Map";
 import { Loading } from "../Loading/Loading";
 import { GenericError } from "../Error/GenericError";
-import { FormattedMessage } from "../../intl";
+import { useFormatMessage } from "../../intl";
 import { Box } from "../Box/Box";
 import { pharmacistCTA } from "./MapView.treat";
 import { PharmacistCTAModal } from "./PharmacistCTAModal";
+import { Button } from "../Button/Button";
+import { none } from "fp-ts/lib/Option";
 
 export function MapView() {
   const mapSearchResults = useAPI(getMapSearchResults);
   const [showPharmacistModal, setShowPharmacistModal] = React.useState(false);
+  const formatMessage = useFormatMessage();
   return pipe(
     mapSearchResults,
     fold(
@@ -32,12 +35,16 @@ export function MapView() {
             vAlignContent="center"
             hAlignContent="center"
             className={pharmacistCTA}
-            onClick={e => {
-              e.stopPropagation();
-              setShowPharmacistModal(true);
-            }}
           >
-            <FormattedMessage id="MapView.pharmacyCTA" />
+            <Button
+              variant="secondary"
+              size="medium"
+              label={formatMessage("MapView.pharmacyCTA")}
+              action={() => {
+                setShowPharmacistModal(true);
+              }}
+              icon={none}
+            />
           </Box>
 
           {showPharmacistModal && (

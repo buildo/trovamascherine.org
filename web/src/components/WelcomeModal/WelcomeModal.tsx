@@ -29,6 +29,7 @@ export function WelcomeModal() {
     <Modal
       title="Benvenuta/o in trovamascherine.org!"
       onDismiss={O.some(onDismiss)}
+      footer={O.none}
     >
       <Box width="100%" column>
         <Text size={2} className={text}>
@@ -65,11 +66,13 @@ export function WelcomeModal() {
         <Box width="100%" hAlignContent="center">
           <Button
             variant="primary"
+            size="medium"
             action={onDismiss}
             label={formatMessage("WelcomeModal.dismissLabel")}
-            size="small"
+            icon={O.none}
           />
         </Box>
+        <Space units={2} />
       </Box>
     </Modal>
   );

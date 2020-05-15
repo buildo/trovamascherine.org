@@ -9,64 +9,68 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { Space } from "../Space/Space";
 import { fromKeyCodeFilter, keyCodes } from "../keyCodes";
 
-/**
- * Size of the button
- */
-type Size = "small" | "medium" | "large";
-
-type FlatVariant = {
+type MainVariant = {
   /**
-   * Alternative variation for secondary actions
+   * Use to indicate primary, secondary or destructive actions.
    */
-  variant: "flat";
+  variant: "primary" | "secondary" | "destructive";
   /**
-   * An optional icon displayed on the left of the flat button label
+   * Label representing the action that is displayed by the button
+   */
+  label: string;
+  /**
+   * Optional icon
    */
   icon: Option<Children>;
 };
 
-type Variant =
-  | {
-      /**
-       * Use to indicate primary actions. Avoid providing more than a single primary action in any given context
-       */
-      variant: "primary";
-    }
-  | {
-      /**
-       * Use to indicate secondary actions
-       */
-      variant: "secondary";
-    }
-  | {
-      /**
-       * Use to indicate destructive actions
-       */
-      variant: "destructive";
-    }
-  | FlatVariant;
+type IconVariant = {
+  /**
+   * Icon button, primary or secondary
+   */
+  variant: "primaryIcon" | "secondaryIcon";
+  /**
+   * An optional icon displayed on the left of the flat button label
+   */
+  icon: Children;
+};
 
-function isFlatVariant(props: Variant): props is FlatVariant {
-  return props.variant === "flat";
+type Variant = MainVariant | IconVariant;
+
+function isMainVariant(props: Variant): props is MainVariant {
+  return ["primary", "secondary", "destructive"].includes(props.variant);
 }
 
+type Size = {
+  /** Size variant */
+  size: "small" | "medium";
+};
+
 type Props = CommonProps &
-  Variant & {
-    /**
-     * Size of the button: `"small" | "medium" | "large"`
-     *
-     */
-    size: Size;
-    /**
-     * Label representing the action that is displayed by the button
-     */
-    label: string;
+  Variant &
+  Size & {
     /**
      * Function executed when the action is triggered,
      * either by clicking the button or by pressing the enter key while the button is focused
      */
     action: () => unknown;
+    /**
+     * Whether the buttons hould be disabled
+     */
+    disabled?: boolean;
   };
+
+function content(props: Props): Children {
+  switch (props.variant) {
+    case "primary":
+    case "secondary":
+    case "destructive":
+      return props.label;
+    case "primaryIcon":
+    case "secondaryIcon":
+      return props.icon;
+  }
+}
 
 export const Button = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
   return (
@@ -81,15 +85,24 @@ export const Button = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
         classes.button,
         props.className,
         classes.variants[props.variant],
-        classes.sizes[props.size]
+        classes.sizes[props.size],
+        {
+          [classes.disabled]: props.disabled,
+          [classes.disabledVariants[props.variant]]: props.disabled,
+        }
       )}
-      onClick={props.action}
+      onClick={e => {
+        e.stopPropagation();
+        if (!props.disabled) {
+          props.action();
+        }
+      }}
       onKeyDown={fromKeyCodeFilter(keyCodes.Enter, props.action)}
       width={props.width}
     >
       {pipe(
         O.some(props),
-        O.filter(isFlatVariant),
+        O.filter(isMainVariant),
         O.chain(props => props.icon),
         O.map(icon => (
           <>
@@ -99,7 +112,7 @@ export const Button = React.forwardRef<HTMLDivElement, Props>((props, ref) => {
         )),
         O.toNullable
       )}
-      <Box>{props.label}</Box>
+      <Box>{content(props)}</Box>
     </Box>
   );
 });

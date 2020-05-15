@@ -2,11 +2,10 @@ import * as t from "io-ts";
 import { SupplierData, SupplyData } from "./domain";
 import { fetchAPI } from "./fetchAPI";
 import { pipe } from "fp-ts/lib/pipeable";
-import { chainEitherWK } from "./TaskEither";
 import { NonEmptyString } from "io-ts-types/lib/NonEmptyString";
 import { flow } from "fp-ts/lib/function";
 import { either, taskEither } from "fp-ts";
-import { TaskEither } from "fp-ts/lib/TaskEither";
+import { TaskEither, chainEitherKW } from "fp-ts/lib/TaskEither";
 
 const MapSearchResults = t.array(SupplierData, "MapSearchResult");
 
@@ -16,7 +15,7 @@ export function getMapSearchResults(): TaskEither<
 > {
   return pipe(
     fetchAPI({ method: "GET", url: ["supplier", "list"] }),
-    chainEitherWK(MapSearchResults.decode)
+    chainEitherKW(MapSearchResults.decode)
   );
 }
 
@@ -28,7 +27,7 @@ export function getSupplierData(
       method: "GET",
       url: ["supplier", `read?supplierId=${NonEmptyString.encode(supplierId)}`],
     }),
-    chainEitherWK(SupplierData.decode)
+    chainEitherKW(SupplierData.decode)
   );
 }
 
@@ -71,7 +70,7 @@ export function updateSupplyData(
       body: { data: supplies },
       token: token,
     }),
-    chainEitherWK(t.unknown.decode)
+    chainEitherKW(t.unknown.decode)
   );
 }
 
@@ -83,6 +82,6 @@ export function acceptTerms(token: string): TaskEither<unknown, unknown> {
       body: {},
       token: token,
     }),
-    chainEitherWK(t.unknown.decode)
+    chainEitherKW(t.unknown.decode)
   );
 }

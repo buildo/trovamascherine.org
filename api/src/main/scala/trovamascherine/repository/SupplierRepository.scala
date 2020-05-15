@@ -83,6 +83,7 @@ object SupplierConverters {
             province = supplier.province,
             name = supplier.name,
             vatNumber = supplier.vatNumber,
+            phoneNumber = supplier.referencephone,
             lastUpdatedOn = lastUpdatedOn.map(_.toInstant),
             supplies = convertSupply(usableSupplies),
             termsAcceptedOn = supplier.termsAcceptedOn.map(_.toInstant),

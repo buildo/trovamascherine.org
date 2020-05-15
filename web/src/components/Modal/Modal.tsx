@@ -21,6 +21,8 @@ type Props = CommonProps & {
   title: string;
   /** Modal content */
   children: Children;
+  /** Optional modal footer */
+  footer: Option<Children>;
 };
 
 export function Modal(props: Props) {
@@ -65,7 +67,17 @@ export function Modal(props: Props) {
             <Box grow shrink className={classes.content}>
               {props.children}
             </Box>
-            <Box width="100%" className={classes.footer} />
+            {pipe(
+              props.footer,
+              O.fold(
+                () => <Box className={classes.emptyFooter} />,
+                footer => (
+                  <Box className={classes.footer} vAlignContent="center">
+                    {footer}
+                  </Box>
+                )
+              )
+            )}
           </Box>
         </Box>
       </div>

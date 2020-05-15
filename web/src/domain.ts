@@ -36,6 +36,7 @@ export const SupplierData = t.type(
     supplies: t.array(SupplyData),
     city: optionFromNullable(t.string),
     province: optionFromNullable(t.string),
+    phoneNumber: optionFromNullable(t.string),
     termsAcceptedOn: optionFromNullable(DateFromISOString),
     privacyPolicyAcceptedOn: optionFromNullable(DateFromISOString),
   },

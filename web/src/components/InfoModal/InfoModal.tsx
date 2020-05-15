@@ -9,6 +9,7 @@ import { Text } from "../Text/Text";
 import { Link } from "../Link/Link";
 import { Space } from "../Space/Space";
 import { useFormatMessage, FormattedMessage } from "../../intl";
+import { none } from "fp-ts/lib/Option";
 
 type Props = {
   onDismiss: () => unknown;
@@ -21,6 +22,7 @@ export function InfoModal(props: Props) {
     <Modal
       title="Benvenuta/o in trovamascherine.org!"
       onDismiss={option.some(props.onDismiss)}
+      footer={none}
     >
       <Box width="100%" column>
         <Text size={2} className={classes.text}>

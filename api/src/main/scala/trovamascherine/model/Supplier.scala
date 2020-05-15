@@ -13,6 +13,7 @@ case class Supplier(
   province: Option[String],
   name: Option[String],
   vatNumber: Option[String],
+  phoneNumber: Option[String],
   lastUpdatedOn: Option[Instant],
   supplies: List[Supply],
   termsAcceptedOn: Option[Instant],

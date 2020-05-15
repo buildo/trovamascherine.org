@@ -18,6 +18,10 @@ export const labelSizes = styleMap({
     fontSize: "13px",
     lineHeight: "18px",
   },
+  3: {
+    fontSize: "10px",
+    lineHeight: "15px",
+  },
 });
 
 export type Size = keyof typeof labelSizes;

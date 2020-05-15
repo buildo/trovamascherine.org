@@ -13,8 +13,8 @@ import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
 
 export function App() {
   return (
-    <ErrorBoundary>
-      <IntlProvider>
+    <IntlProvider>
+      <ErrorBoundary>
         {pipe(
           parse(history.location),
           fold(
@@ -40,7 +40,7 @@ export function App() {
             () => <CreditsView />
           )
         )}
-      </IntlProvider>
-    </ErrorBoundary>
+      </ErrorBoundary>
+    </IntlProvider>
   );
 }

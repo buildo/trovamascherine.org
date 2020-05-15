@@ -1,15 +1,18 @@
 import React from "react";
-import * as classes from "./InfoButton.treat";
 import { InfoIcon } from "../Icons/InfoIcon";
+import { Button } from "../Button/Button";
 
-interface IInfoButtonProps {
+interface Props {
   onClick: () => unknown;
 }
 
-export default function InfoButton(props: IInfoButtonProps) {
+export function InfoButton(props: Props) {
   return (
-    <div className={classes.infoButton} onClick={props.onClick}>
-      <InfoIcon width={44} height={44} />
-    </div>
+    <Button
+      variant="primaryIcon"
+      size="medium"
+      action={props.onClick}
+      icon={<InfoIcon width={44} height={44} />}
+    />
   );
 }

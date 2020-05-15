@@ -19,6 +19,7 @@ export function SupplyInfoModal(props: Props): JSX.Element {
     <Modal
       title={formatMessage("SupplyInfoModal.title")}
       onDismiss={O.some(props.onDismiss)}
+      footer={O.none}
     >
       <Box column width="100%">
         <Title size={3}>Mascherine</Title>

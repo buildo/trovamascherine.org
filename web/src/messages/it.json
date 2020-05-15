@@ -57,7 +57,7 @@
   "InvalidTokenError.message": "Siamo spiacenti, questo link non è valido",
   "InvalidTokenError.description1": "Per motivi di sicurezza i link di accesso rimangono validi per un giorno.",
   "InvalidTokenError.description2": "Per aggiornare i dati clicca su \"Aggiorna subito disponibilità dei DPI\" nell'ultima mail che ti abbiamo inviato oggi.",
-  "PharmacyModalContent.neverUpdated": "Questa farmacia non ha ancora inviato aggiornamenti sulla disponibilità di Dispositivi di Protezione individuale.",
+  "PharmacyModal.neverUpdated": "Questa farmacia non ha ancora inviato aggiornamenti sulla disponibilità di Dispositivi di Protezione individuale.",
   "MapView.pharmacyCTA": "Sei un farmacista?",
   "PharmacistModal.title": "Sei un farmacista? Unisciti a noi!",
   "PharmacistModal.content1": "Vuoi che la tua farmacia venga mostrata sulla mappa?",
@@ -66,5 +66,7 @@
   "PharmacistModal.emailSubject": "Vorrei iscrivere la mia farmacia al portale TrovaMascherine",
   "PharmacistModal.emailBody": "Buongiorno, vorrei che la mia farmacia venisse mostrata gratuitamente sul portale TrovaMascherine.org utilizzando questo indirizzo mail per ricevere notifiche via mail. Inviando questa mail dichiaro di aver letto e compreso i termini e condizioni del servizio e la privacy policy, accettandone il contenuto. I miei contatti sono NOME E COGNOME, NOME FARMACIA.",
   "SupplyInfoModal.title": "Informazioni sui dispositivi",
-  "GeolocateControl.buttonLabel": "Farmacie vicine a me"
+  "GeolocateControl.buttonLabel": "Farmacie vicine a me",
+  "CopyLinkButton.copiedMessage": "Collegamento copiato",
+  "PhoneButton.copiedMessage": "Numero copiato"
 }

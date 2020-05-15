@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Modal } from "../Modal/Modal";
-import { some } from "fp-ts/lib/Option";
+import { some, none } from "fp-ts/lib/Option";
 import { FormattedMessage, useFormatMessage } from "../../intl";
 import { Text } from "../Text/Text";
 import { Space } from "../Space/Space";
@@ -18,6 +18,7 @@ export function PharmacistCTAModal(props: Props) {
     <Modal
       title={formatMessage("PharmacistModal.title")}
       onDismiss={some(props.onDismiss)}
+      footer={none}
     >
       <Box column width="100%">
         <Text size={1}>

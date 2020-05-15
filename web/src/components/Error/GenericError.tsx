@@ -28,11 +28,11 @@ export function GenericError(props: Props) {
       </Subtitle>
       <Space units={10} />
       <Button
-        variant="flat"
+        variant="secondary"
+        size="medium"
         action={props.retry}
         label={formatMessage("GenericError.retry")}
         icon={none}
-        size="small"
       />
       <Space units={10} />
       <Text size={2}>
