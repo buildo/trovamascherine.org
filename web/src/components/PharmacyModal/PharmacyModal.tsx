@@ -6,7 +6,7 @@ import { Modal } from "../Modal/Modal";
 import { SupplierData } from "../../domain";
 import * as classes from "./PharmacyModal.treat";
 import { pipe } from "fp-ts/lib/pipeable";
-import { toNullable, fold, isSome, some } from "fp-ts/lib/Option";
+import { toNullable, fold, isSome, some, map } from "fp-ts/lib/Option";
 import { getOrElse } from "fp-ts/lib/Option";
 import { Space } from "../Space/Space";
 import { LastUpdate } from "../UpdateView/LastUpdate";
@@ -64,35 +64,43 @@ function _PharmacyModal(props: Props) {
   const isMobile = useIsMobile();
   const space = isMobile ? <Space units={4} /> : <Space units={8} />;
   const buttonSize = isMobile ? "small" : "medium";
+  const phoneButton = pipe(
+    selectedSupplier.phoneNumber,
+    map(phoneNumber => <PhoneButton size={buttonSize} number={phoneNumber} />)
+  );
 
   return (
     <Modal
       title={name || ""}
       onDismiss={option.some(props.onDismiss)}
       footer={some(
-        <Box width="100%">
-          {pipe(
-            selectedSupplier.phoneNumber,
-            fold(
-              () => null,
-              phoneNumber => (
-                <PhoneButton size={buttonSize} number={phoneNumber} />
-              )
-            )
-          )}
-          <Space grow />
-          <CopyLinkButton size={buttonSize} link={document.location.href} />
-          {isMobile && (
-            <>
-              <Space units={3} />
-              <WhatsAppButton
-                size={buttonSize}
-                title={props.selectedSupplier.name}
-                link={document.location.href}
-              />
-            </>
-          )}
-        </Box>
+        isMobile ? (
+          <Box width="100%">
+            {pipe(phoneButton, toNullable)}
+            <Space grow />
+            <CopyLinkButton size={buttonSize} link={document.location.href} />
+            <Space units={3} />
+            <WhatsAppButton
+              size={buttonSize}
+              title={props.selectedSupplier.name}
+              link={document.location.href}
+            />
+          </Box>
+        ) : (
+          <Box width="100%" hAlignContent="center">
+            {pipe(
+              phoneButton,
+              map(pb => (
+                <>
+                  {pb}
+                  <Space units={10} />
+                </>
+              )),
+              toNullable
+            )}
+            <CopyLinkButton size={buttonSize} link={document.location.href} />
+          </Box>
+        )
       )}
     >
       <Box column width="100%">

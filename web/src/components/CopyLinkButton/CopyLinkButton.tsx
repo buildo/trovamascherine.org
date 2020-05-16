@@ -6,7 +6,6 @@ import { Box } from "../Box/Box";
 import * as classes from "./CopyLinkButton.treat";
 import { Label } from "../Text/Label";
 import { FormattedMessage } from "../../intl";
-import { useIsMobile } from "../../useMatchMedia";
 
 type Props = {
   link: string;
@@ -33,12 +32,8 @@ function iconWidth(buttonSize: Props["size"]): number {
 
 export function CopyLinkButton(props: Props) {
   const [copy, copied] = useCopyToClipboard(props.link);
-  const isMobile = useIsMobile();
   return (
-    <Box
-      hAlignContent={isMobile ? "center" : "right"}
-      className={classes.copyLinkButton}
-    >
+    <Box hAlignContent="center" className={classes.copyLinkButton}>
       <Button
         variant="secondaryIcon"
         size={props.size}

@@ -8,7 +8,7 @@ export const overlay = style({
   top: 0,
   left: 0,
   backgroundColor: "rgba(0, 0, 0, 0.5)",
-  zIndex: 2,
+  zIndex: 1000000094,
 });
 
 export const modalContainer = style({
