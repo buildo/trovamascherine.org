@@ -11,3 +11,5 @@ BRANCH=$(cat ../.git/resource/metadata.json | jq -r '.[] | select(.name == "head
 NODE_ENV=production yarn build
 
 mv build/index.html build/$BRANCH.html
+
+echo "👀 A new preview is available at\nhttp://trovamascherine.preview.our.buildo.io/$BRANCH.html" > ../../preview/pr_comment

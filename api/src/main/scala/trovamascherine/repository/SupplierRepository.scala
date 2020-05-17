@@ -10,9 +10,15 @@ import trovamascherine.error.Recoverable
 import trovamascherine.persistence.db.Tables.{
   Supplier => SupplierTable,
   GoodSupply => GoodSupplyTable,
+  GoodSupplyHistory => GoodSupplyHistoryTable,
   SupplierToken => SupplierTokenTable,
 }
-import trovamascherine.persistence.db.Tables.{GoodSupplyRow, SupplierRow, SupplierTokenRow}
+import trovamascherine.persistence.db.Tables.{
+  GoodSupplyHistoryRow,
+  GoodSupplyRow,
+  SupplierRow,
+  SupplierTokenRow,
+}
 import trovamascherine.persistence.db.Tables.profile.api._
 import trovamascherine.model._
 
@@ -160,6 +166,17 @@ object SupplierRepository extends Recoverable {
                     good = Good.caseToString(d.good),
                     quantity = d.quantity,
                     lastupdatedon = Timestamp.from(Instant.now),
+                  )
+                }
+            }
+            .andThen {
+              GoodSupplyHistoryTable ++=
+                data.map { d =>
+                  GoodSupplyHistoryRow(
+                    supplierId = supplierId,
+                    good = Good.caseToString(d.good),
+                    quantity = d.quantity,
+                    updatedOn = Timestamp.from(Instant.now),
                   )
                 }
             }

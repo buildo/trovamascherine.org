@@ -23,7 +23,7 @@ export const header = style({
   color: "white",
 });
 
-export const navigationControlWrapper = style({
+export const geolocateControlWrapper = style({
   position: "absolute",
   bottom: 12 * spaceUnit,
   width: "100%",
@@ -41,4 +41,10 @@ export const infoButtonWrapper = style({
   top: 10,
   left: 16,
   zIndex: 1,
+});
+
+export const navigationControl = style({
+  position: "absolute",
+  top: 10,
+  right: 16,
 });

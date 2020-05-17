@@ -11,6 +11,7 @@ export const button = style({
   display: "inline-block",
   fontWeight: vars.fontWeightBold,
   boxShadow: vars.overlayBoxShadow,
+  pointerEvents: "all",
 
   WebkitTapHighlightColor: "rgba(0,0,0,0)",
   ":focus": {

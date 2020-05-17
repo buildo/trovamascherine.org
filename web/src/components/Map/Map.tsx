@@ -6,6 +6,7 @@ import ReactMapGL, {
   Source,
   Layer,
   PointerEvent,
+  NavigationControl,
 } from "react-map-gl";
 
 import { GeoJSONSource } from "mapbox-gl";
@@ -365,7 +366,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
 
           <Box
             hAlignContent="center"
-            className={classes.navigationControlWrapper}
+            className={classes.geolocateControlWrapper}
             vAlignContent="center"
           >
             <GeolocateControl onGeolocate={this.onGeolocate} />
@@ -380,6 +381,11 @@ export default class Map extends React.Component<IMapProps, IMapState> {
           <UserMarker
             latitude={userPosition.latitude}
             longitude={userPosition.longitude}
+          />
+
+          <NavigationControl
+            showCompass={false}
+            className={classes.navigationControl}
           />
         </ReactMapGLWithAsync>
 

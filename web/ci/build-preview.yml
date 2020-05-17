@@ -14,6 +14,7 @@ params:
 
 outputs:
   - name: trovamascherine
+  - name: preview
 
 run:
   dir: trovamascherine/web

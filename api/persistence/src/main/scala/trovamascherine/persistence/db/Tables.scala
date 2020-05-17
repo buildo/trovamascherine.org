@@ -14,7 +14,7 @@ trait Tables {
   import slick.jdbc.{GetResult => GR}
 
   /** DDL for all tables. Call .create to execute. */
-  lazy val schema: profile.SchemaDescription = GoodSupply.schema ++ Supplier.schema ++ SupplierToken.schema
+  lazy val schema: profile.SchemaDescription = GoodSupply.schema ++ GoodSupplyHistory.schema ++ Supplier.schema ++ SupplierToken.schema
   @deprecated("Use .schema instead of .ddl", "3.0")
   def ddl = schema
 
@@ -49,6 +49,35 @@ trait Tables {
   }
   /** Collection-like TableQuery object for table GoodSupply */
   lazy val GoodSupply = new TableQuery(tag => new GoodSupply(tag))
+
+  /** Entity class storing rows of table GoodSupplyHistory
+   *  @param supplierId Database column supplier_id SqlType(uuid)
+   *  @param good Database column good SqlType(varchar), Length(255,true)
+   *  @param quantity Database column quantity SqlType(int4)
+   *  @param updatedOn Database column updated_on SqlType(timestamptz) */
+  case class GoodSupplyHistoryRow(supplierId: java.util.UUID, good: String, quantity: Int, updatedOn: java.sql.Timestamp)
+  /** GetResult implicit for fetching GoodSupplyHistoryRow objects using plain SQL queries */
+  implicit def GetResultGoodSupplyHistoryRow(implicit e0: GR[java.util.UUID], e1: GR[String], e2: GR[Int], e3: GR[java.sql.Timestamp]): GR[GoodSupplyHistoryRow] = GR{
+    prs => import prs._
+    GoodSupplyHistoryRow.tupled((<<[java.util.UUID], <<[String], <<[Int], <<[java.sql.Timestamp]))
+  }
+  /** Table description of table good_supply_history. Objects of this class serve as prototypes for rows in queries. */
+  class GoodSupplyHistory(_tableTag: Tag) extends profile.api.Table[GoodSupplyHistoryRow](_tableTag, Some("trovamascherine"), "good_supply_history") {
+    def * = (supplierId, good, quantity, updatedOn) <> (GoodSupplyHistoryRow.tupled, GoodSupplyHistoryRow.unapply)
+    /** Maps whole row to an option. Useful for outer joins. */
+    def ? = (Rep.Some(supplierId), Rep.Some(good), Rep.Some(quantity), Rep.Some(updatedOn)).shaped.<>({r=>import r._; _1.map(_=> GoodSupplyHistoryRow.tupled((_1.get, _2.get, _3.get, _4.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+
+    /** Database column supplier_id SqlType(uuid) */
+    val supplierId: Rep[java.util.UUID] = column[java.util.UUID]("supplier_id")
+    /** Database column good SqlType(varchar), Length(255,true) */
+    val good: Rep[String] = column[String]("good", O.Length(255,varying=true))
+    /** Database column quantity SqlType(int4) */
+    val quantity: Rep[Int] = column[Int]("quantity")
+    /** Database column updated_on SqlType(timestamptz) */
+    val updatedOn: Rep[java.sql.Timestamp] = column[java.sql.Timestamp]("updated_on")
+  }
+  /** Collection-like TableQuery object for table GoodSupplyHistory */
+  lazy val GoodSupplyHistory = new TableQuery(tag => new GoodSupplyHistory(tag))
 
   /** Entity class storing rows of table Supplier
    *  @param id Database column id SqlType(uuid), PrimaryKey

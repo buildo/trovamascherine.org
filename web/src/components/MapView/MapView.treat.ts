@@ -5,11 +5,12 @@ export const pharmacistCTA = style({
   position: "absolute",
   left: 84,
   top: 10,
+  pointerEvents: "none",
 
   "@media": {
     [isMobileMediaQuery]: {
       left: "auto",
-      right: 16,
+      width: "100%",
     },
   },
 });

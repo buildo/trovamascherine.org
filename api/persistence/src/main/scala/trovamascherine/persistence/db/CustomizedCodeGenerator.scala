@@ -16,7 +16,7 @@ object CustomizedCodeGenerator {
 
   val db = slickProfile.api.Database.forConfig("db")
 
-  val included = Seq("supplier", "supplier_token", "good_supply")
+  val included = Seq("supplier", "supplier_token", "good_supply", "good_supply_history")
   lazy val codegen = db.run {
     slickProfile.defaultTables
       .map(_.filter(t => included contains t.name.name))
