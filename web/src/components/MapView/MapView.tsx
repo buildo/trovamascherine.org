@@ -11,9 +11,32 @@ import { Box } from "../Box/Box";
 import { pharmacistCTA } from "./MapView.treat";
 import { PharmacistCTAModal } from "./PharmacistCTAModal";
 import { Button } from "../Button/Button";
-import { none } from "fp-ts/lib/Option";
+import { option } from "fp-ts";
+import { Option } from "fp-ts/lib/Option";
+import { MapState, CurrentView } from "../../CurrentView";
+import { LocalStorage } from "../../util/LocalStorage";
+import { UUID } from "io-ts-types/lib/UUID";
 
-export function MapView() {
+type Props = {
+  mapState: Option<MapState>;
+  supplier: Option<UUID>;
+  onUpdateCurrentView: (view: CurrentView) => unknown;
+};
+
+const mapStateKey = "mapState";
+
+export function MapView(props: Props) {
+  const mapState = pipe(
+    props.mapState,
+    option.alt(() => LocalStorage.getItem(mapStateKey, MapState)),
+    option.getOrElse(() => ({
+      // default coordinates: Rome with zoom level Italy
+      latitude: 41.902782,
+      longitude: 12.496366,
+      zoom: 5,
+    }))
+  );
+
   const mapSearchResults = useAPI(getMapSearchResults);
   const [showPharmacistModal, setShowPharmacistModal] = React.useState(false);
   const formatMessage = useFormatMessage();
@@ -29,7 +52,26 @@ export function MapView() {
       ),
       data => (
         <>
-          <Map mapSearchResults={data} />
+          <Map
+            mapSearchResults={data}
+            mapState={mapState}
+            onMapStateChange={mapState => {
+              props.onUpdateCurrentView({
+                view: "map",
+                mapState: option.some(mapState),
+                supplier: props.supplier,
+              });
+              LocalStorage.setItem(mapStateKey, MapState, mapState);
+            }}
+            supplier={props.supplier}
+            onSupplierChange={supplier => {
+              props.onUpdateCurrentView({
+                view: "map",
+                mapState: option.some(mapState),
+                supplier,
+              });
+            }}
+          />
 
           <Box
             vAlignContent="center"
@@ -43,7 +85,7 @@ export function MapView() {
               action={() => {
                 setShowPharmacistModal(true);
               }}
-              icon={none}
+              icon={option.none}
             />
           </Box>
 

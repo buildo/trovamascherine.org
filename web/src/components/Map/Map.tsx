@@ -22,14 +22,15 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { InfoButton } from "../InfoButton/InfoButton";
 import { InfoModal } from "../InfoModal/InfoModal";
 import { PharmacyModal } from "../PharmacyModal/PharmacyModal";
-import * as D from "io-ts/lib/Decoder";
 import { pipe } from "fp-ts/lib/pipeable";
-import { option } from "fp-ts";
-import { LocalStorage } from "../../util/LocalStorage";
+import { option, array } from "fp-ts";
 import { Box } from "../Box/Box";
 import { GeolocateControl } from "../GeolocateControl/GeolocateControl";
 import { UserMarker } from "../UserMarker/UserMarker";
-import { QueryParams } from "../../util/QueryParams";
+import { MapState } from "../../CurrentView";
+import { UUID } from "io-ts-types/lib/UUID";
+import { Option } from "fp-ts/lib/Option";
+import { constNull } from "fp-ts/lib/function";
 
 const mapbox_api = config.mapboxApiKey;
 
@@ -78,8 +79,6 @@ type IMapState = {
     accuracy?: number;
   };
   isInfoModalOpen: boolean;
-  isDetailsModalOpen: boolean;
-  selectedSupplier?: SupplierData;
   currentVisibleMarkers: {
     [key: string]: boolean;
   };
@@ -88,37 +87,10 @@ type IMapState = {
 
 interface IMapProps {
   mapSearchResults: Array<SupplierData>;
-}
-
-const MapState = D.type({
-  latitude: D.number,
-  longitude: D.number,
-  zoom: D.number,
-});
-type MapState = D.TypeOf<typeof MapState>;
-
-const mapStateKey = "mapState";
-
-function getCurrentMapState(): MapState {
-  return pipe(
-    QueryParams.getMany(MapState),
-    option.alt(() => LocalStorage.getItem(mapStateKey, MapState)),
-    option.getOrElse(() => ({
-      // default coordinates: Rome with zoom level Italy
-      latitude: 41.902782,
-      longitude: 12.496366,
-      zoom: 5,
-    }))
-  );
-}
-
-function getSelectedSupplier(
-  mapSearchResults: Array<SupplierData>
-): SupplierData | undefined {
-  return mapSearchResults.find(
-    sup =>
-      sup.id === pipe(QueryParams.get("supplier", D.string), option.toUndefined)
-  );
+  mapState: MapState;
+  onMapStateChange: (mapState: MapState) => unknown;
+  supplier: Option<UUID>;
+  onSupplierChange: (supplier: Option<UUID>) => unknown;
 }
 
 export default class Map extends React.Component<IMapProps, IMapState> {
@@ -127,9 +99,8 @@ export default class Map extends React.Component<IMapProps, IMapState> {
       width: 0,
       height: 0,
     },
-    currentMapState: getCurrentMapState(),
+    currentMapState: this.props.mapState,
     isInfoModalOpen: false,
-    isDetailsModalOpen: false,
     currentVisibleMarkers: {},
     userPosition: {},
   };
@@ -142,12 +113,6 @@ export default class Map extends React.Component<IMapProps, IMapState> {
 
     this._resize();
     this.setGeoJSON();
-
-    const selectedSupplier = getSelectedSupplier(this.props.mapSearchResults);
-    this.setState({
-      selectedSupplier,
-      isDetailsModalOpen: !!selectedSupplier,
-    });
   }
 
   setGeoJSON = () => {
@@ -182,15 +147,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
     this.saveLastMapState(mapState);
   };
 
-  saveLastMapState = debounce((mapState: MapState) => {
-    LocalStorage.setItem(mapStateKey, mapState);
-
-    QueryParams.set({
-      latitude: mapState.latitude.toString(),
-      longitude: mapState.longitude.toString(),
-      zoom: mapState.zoom.toString(),
-    });
-  }, 500);
+  saveLastMapState = debounce(this.props.onMapStateChange, 500);
 
   onInteractionStateChange = (extraState: ExtraState) => {
     if (
@@ -210,9 +167,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
       sup => sup.id === id
     )[0];
 
-    this.setState({ selectedSupplier, isDetailsModalOpen: true });
-
-    QueryParams.set({ supplier: selectedSupplier.id });
+    this.props.onSupplierChange(option.some(selectedSupplier.id));
   };
 
   filterVisibleMarker = () => {
@@ -295,7 +250,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
   };
 
   render() {
-    const { isDetailsModalOpen, selectedSupplier, userPosition } = this.state;
+    const { userPosition } = this.state;
 
     return (
       <div className={classes.map}>
@@ -403,17 +358,22 @@ export default class Map extends React.Component<IMapProps, IMapState> {
           />
         )}
 
-        {isDetailsModalOpen && selectedSupplier && (
-          <PharmacyModal
-            onDismiss={() => {
-              this.setState({
-                isDetailsModalOpen: false,
-                selectedSupplier: undefined,
-              });
-              QueryParams.delete("supplier");
-            }}
-            selectedSupplier={selectedSupplier}
-          />
+        {pipe(
+          this.props.supplier,
+          option.chain(id =>
+            pipe(
+              this.props.mapSearchResults,
+              array.findFirst(s => s.id === id)
+            )
+          ),
+          option.fold(constNull, supplier => (
+            <PharmacyModal
+              onDismiss={() => {
+                this.props.onSupplierChange(option.none);
+              }}
+              selectedSupplier={supplier}
+            />
+          ))
         )}
       </div>
     );

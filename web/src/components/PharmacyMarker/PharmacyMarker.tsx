@@ -17,7 +17,7 @@ interface IPharmacyMarkerProps {
     Gel: number;
     Termoscanner: number;
   };
-  onSelect: (id: string) => void;
+  onClick: () => unknown;
   updatedOnce: boolean;
   isVisible: boolean;
 }
@@ -44,10 +44,6 @@ function PharmacyMarker(props: IPharmacyMarkerProps) {
     props.quantities.Termoscanner
   )}`;
 
-  function onClick() {
-    props.onSelect(props.id);
-  }
-
   return (
     <Popup
       latitude={props.latitude}
@@ -61,7 +57,7 @@ function PharmacyMarker(props: IPharmacyMarkerProps) {
         column
         className={classes.pharmacyPopupContent}
         hAlignContent="center"
-        onClick={onClick}
+        onClick={props.onClick}
       >
         <div
           className={cx(

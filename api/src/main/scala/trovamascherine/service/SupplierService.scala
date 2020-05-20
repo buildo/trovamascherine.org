@@ -7,7 +7,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.EitherT
 import cats.instances.future._
 
-import trovamascherine.repository.{AuthRepository, SupplierRepository}
+import trovamascherine.repository._
 import trovamascherine.model._
 
 trait SupplierService {
@@ -35,6 +35,7 @@ object SupplierService {
   def create(
     authRepo: AuthRepository,
     supplierRepo: SupplierRepository,
+    historyRepo: HistoryRepository,
   )(implicit ec: ExecutionContext): SupplierService =
     new SupplierService {
       override def list(): Future[Either[String, List[Supplier]]] =
@@ -79,10 +80,7 @@ object SupplierService {
           EitherT.leftT("Duplicate goods found in supplies")
       }
 
-      override def update(
-        token: String,
-        data: List[Supply],
-      ): Future[Either[String, Unit]] = {
+      private def validateUpdate(token: String, data: List[Supply]): Future[Either[String, UUID]] =
         (for {
           _ <- checkNoDuplicateSupplies(data)
           maybeSupplierId <- EitherT(
@@ -100,9 +98,23 @@ object SupplierService {
           _ <- EitherT.fromEither(
             supplier.flatMap(_.privacyPolicyAcceptedOn).toRight("Privacy policy not accepted"),
           )
-          result <- EitherT(supplierRepo.update(supplierId, data))
+        } yield supplierId).value
+
+      private def insertData(supplierId: UUID, data: List[Supply]): Future[Either[String, Unit]] = {
+        historyRepo.insert(supplierId, data)
+        supplierRepo.update(supplierId, data)
+      }
+
+      override def update(
+        token: String,
+        data: List[Supply],
+      ): Future[Either[String, Unit]] = {
+        (for {
+          supplierId <- EitherT(validateUpdate(token, data))
+          result <- EitherT(insertData(supplierId, data))
         } yield result).value
       }
+
       override def acceptTerms(token: String): Future[Either[String, Unit]] = {
         (for {
           maybeSupplierId <- EitherT(

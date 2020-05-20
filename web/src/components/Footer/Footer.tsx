@@ -38,11 +38,23 @@ export function Footer(props: IFooterProps) {
           {formatMessage("Footer.contactUs")}
           <br />
           <Link
-            href={`mailto:${formatMessage("Footer.email")}`}
+            href={`mailto:${formatMessage("Footer.emailSupport")}`}
             className={classes.footerLink}
           >
-            {formatMessage("Footer.email")}
+            {formatMessage("Footer.emailSupport")}
           </Link>
+          <br />
+          <br />
+          <Text size={4} className={classes.footerText}>
+            {formatMessage("Footer.contactUsForAds")}
+            <br />
+            <Link
+              href={`mailto:${formatMessage("Footer.emailAds")}`}
+              className={classes.footerLink}
+            >
+              {formatMessage("Footer.emailAds")}
+            </Link>
+          </Text>
         </Text>
       </Box>
       <Box

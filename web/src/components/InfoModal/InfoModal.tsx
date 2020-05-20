@@ -8,19 +8,21 @@ import { Text } from "../Text/Text";
 
 import { Link } from "../Link/Link";
 import { Space } from "../Space/Space";
-import { useFormatMessage, FormattedMessage } from "../../intl";
+import { FormattedMessage } from "../../intl";
 import { none } from "fp-ts/lib/Option";
+import { useIsMobile } from "../../useMatchMedia";
+import { intercalateChildren } from "../../util";
 
 type Props = {
   onDismiss: () => unknown;
 };
 
 export function InfoModal(props: Props) {
-  const formatMessage = useFormatMessage();
-
+  const isMobile = useIsMobile();
+  const footerSpace = isMobile ? null : <Space units={3} />;
   return (
     <Modal
-      title="Benvenuta/o in trovamascherine.org!"
+      title="Chi siamo"
       onDismiss={option.some(props.onDismiss)}
       footer={none}
     >
@@ -33,60 +35,75 @@ export function InfoModal(props: Props) {
         </Text>
         <Space units={8} />
         <Text size={2} className={classes.text}>
-          L’app e il sito web forniscono un database aggiornato giornalmente
-          della disponibilità di dispositivi per ciascuna farmacia d’Italia.
+          Il sito web fornisce l’aggiornamento giornaliero della disponibilità
+          di ciascun prodotto da parte di ogni Farmacia e Parafarmacia italiana
+          aderente all’iniziativa.
         </Text>
         <Space units={8} />
         <Text size={2} className={classes.text}>
           Trovamascherine.org è un progetto nato da un gruppo di professionisti
           italiani in collaborazione con{" "}
-          <Link href="https://www.buildo.io/">buildo.io</Link> e{" "}
-          <Link href="https://www.fapnet.it/">
-            Farmacisti Associati Piemonte
-          </Link>{" "}
-          . Il progetto è stato sviluppato grazie alla generosità di{" "}
-          <Link href="credits.html">molti volontari</Link>, in maniera gratuita.
+          <Link href="https://www.buildo.io/">buildo.io</Link> e con il
+          Patrocinio di FOFI, Federfarma, FNPI, UNaFTiSP, MNLF, CULPI,
+          Federfardis.
         </Text>
-        <Space units={4} />
-
-        <Box column hAlignContent="center">
-          <Text size={3} className={classes.text}>
-            {formatMessage("Footer.contactUs")}
-          </Text>
-          <Link href={`mailto:${formatMessage("Footer.email")}`}>
-            {formatMessage("Footer.email")}
+        <Space units={8} />
+        <Text size={2} className={classes.text}>
+          Il progetto è stato sviluppato grazie alla generosità e passione di{" "}
+          <Link href="credits.html">più di 20 professionisti</Link> italiani, e
+          cresce grazie al costante contributo da parte delle Farmacie e
+          Parafarmacie aderenti ma anche al supporto attivo dei cittadini che ci
+          supportano quotidianamente nella promozione del progetto nelle loro
+          città di riferimento.
+        </Text>
+        <Space units={8} />
+        <div>
+          <Text size={2}>PER SUPPORTO: </Text>
+          <Link href="mailto:supporto@trovamascherine.org">
+            supporto@trovamascherine.org
           </Link>
-        </Box>
+          <br />
+          <Text size={2}>CONTATTI: </Text>
+          <Link href="mailto:comunicazione@trovamascherine.org">
+            comunicazione@trovamascherine.org
+          </Link>
+        </div>
 
         <Space units={8} />
-        <Box column className={classes.tosBlock}>
-          <Link className={classes.tosBlockLink} href="/dashboard">
-            Dashboard dati
-          </Link>
-          <Link
-            className={classes.tosBlockLink}
-            target="_blank"
-            href="/terms-and-conditions.pdf"
-          >
-            Termini e Condizioni
-          </Link>
-          <Link
-            className={classes.tosBlockLink}
-            target="_blank"
-            href="/privacy-policy.pdf"
-          >
-            Privacy Policy
-          </Link>
-          <Link
-            className={classes.tosBlockLink}
-            target="_blank"
-            href="/cookie-policy.pdf"
-          >
-            Cookie Policy
-          </Link>
-          <Link className={classes.tosBlockLink} href="/credits">
-            <FormattedMessage id="InfoModal.credits" />
-          </Link>
+        <Box
+          column={isMobile}
+          hAlignContent="center"
+          className={classes.tosBlock}
+        >
+          {intercalateChildren(footerSpace, [
+            <Link className={classes.tosBlockLink} href="/dashboard">
+              Dashboard dati
+            </Link>,
+            <Link
+              className={classes.tosBlockLink}
+              target="_blank"
+              href="/terms-and-conditions.pdf"
+            >
+              Termini e Condizioni
+            </Link>,
+            <Link
+              className={classes.tosBlockLink}
+              target="_blank"
+              href="/privacy-policy.pdf"
+            >
+              Privacy Policy
+            </Link>,
+            <Link
+              className={classes.tosBlockLink}
+              target="_blank"
+              href="/cookie-policy.pdf"
+            >
+              Cookie Policy
+            </Link>,
+            <Link className={classes.tosBlockLink} href="/credits">
+              <FormattedMessage id="InfoModal.credits" />
+            </Link>,
+          ])}
         </Box>
       </Box>
     </Modal>

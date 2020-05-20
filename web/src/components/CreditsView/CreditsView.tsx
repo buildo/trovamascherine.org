@@ -12,6 +12,7 @@ import { Footer } from "../Footer/Footer";
 
 const names = [
   "Riccardo Ancona",
+  "Stefano Baghino",
   "Claudio Caletti",
   "Andrea Casasco",
   "Luca Cioria",
@@ -20,12 +21,14 @@ const names = [
   "Enrico Goitre",
   "Giovanni Gonzaga",
   "Vincenzo Guerrisi",
+  "Aurora Incardona",
   "Alex Morlini",
   "Stefano Orlando",
   "Gabriele Petronella",
   "Tommaso Petrucciani",
   "Silvia Riva",
   "Lucio Scudiero",
+  "Fulvio Talluto",
   "Matteo Turri",
 ];
 

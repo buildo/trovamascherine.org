@@ -37,8 +37,9 @@ object Boot
     val database = Database.forConfig("db")
     val authRepository = AuthRepository.create(database)
     val supplierRepository = SupplierRepository.create(database)
+    val historyRepository = HistoryRepository.create(database)
     val supplierService =
-      SupplierService.create(authRepository, supplierRepository)
+      SupplierService.create(authRepository, supplierRepository, historyRepository)
     val supplierController = new SupplierControllerImpl(supplierService)
     val supplierRouter =
       deriveRouter[SupplierController](supplierController)

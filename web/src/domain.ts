@@ -1,6 +1,7 @@
 import * as t from "io-ts";
 import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
 import { optionFromNullable } from "io-ts-types/lib/optionFromNullable";
+import { UUID } from "io-ts-types/lib/UUID";
 
 export const Good = t.keyof(
   {
@@ -26,7 +27,7 @@ export type SupplyData = t.TypeOf<typeof SupplyData>;
 
 export const SupplierData = t.type(
   {
-    id: t.string,
+    id: UUID,
     latitude: t.number,
     longitude: t.number,
     address: t.string,

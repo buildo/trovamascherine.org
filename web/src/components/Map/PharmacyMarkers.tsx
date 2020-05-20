@@ -5,10 +5,11 @@ import { option } from "fp-ts";
 import { pipe } from "fp-ts/lib/pipeable";
 import { sequenceS } from "fp-ts/lib/Apply";
 import { findByGood, quantityByGood } from "../../util/goodQuantity";
+import { UUID } from "io-ts-types/lib/UUID";
 
 interface IPharmacyMarkersProps {
   mapSearchResults: Array<SupplierData>;
-  onSelect: (id: string) => void;
+  onSelect: (id: UUID) => void;
   currentVisibleMarkers: {
     [key: string]: boolean;
   };
@@ -53,7 +54,7 @@ function PharmacyMarkers(props: IPharmacyMarkersProps) {
             longitude={supplier.longitude}
             key={supplier.id}
             id={supplier.id}
-            onSelect={props.onSelect}
+            onClick={() => props.onSelect(supplier.id)}
             quantities={quantities}
             updatedOnce={option.isSome(supplier.lastUpdatedOn)}
             isVisible={props.currentVisibleMarkers[supplier.id]}

@@ -1,28 +1,28 @@
-import { either, option } from "fp-ts";
+import { option, either } from "fp-ts";
 import { pipe } from "fp-ts/lib/pipeable";
 import { Option } from "fp-ts/lib/Option";
-import { drawForest } from "fp-ts/lib/Tree";
-import { Decoder } from "io-ts/lib/Decoder";
+import * as t from "io-ts";
+import { failure } from "io-ts/lib/PathReporter";
+import { flow } from "fp-ts/lib/function";
 
-function getItem<A>(key: string, D: Decoder<A>): Option<A> {
+function getItem<A, O>(key: string, C: t.Type<A, O>): Option<A> {
   return pipe(
     option.tryCatch(() => localStorage.getItem(key)),
     option.chain(option.fromNullable),
     option.chain(a => option.tryCatch(() => JSON.parse(a))),
-    option.chain(a =>
-      option.fromEither(
-        pipe(
-          D.decode(a),
-          either.mapLeft(e => console.error(drawForest(e)))
-        )
+    option.chain(
+      flow(
+        C.decode,
+        either.mapLeft(e => console.error(failure(e).join("\n"))),
+        option.fromEither
       )
     )
   );
 }
 
-function setItem<A>(key: string, item: A): void {
+function setItem<A, O>(key: string, C: t.Type<A, O>, item: A): void {
   try {
-    localStorage.setItem(key, JSON.stringify(item));
+    localStorage.setItem(key, JSON.stringify(C.encode(item)));
   } catch (e) {
     console.error(e);
   }

@@ -1,17 +1,28 @@
 import { NonEmptyString } from "io-ts-types/lib/NonEmptyString";
 import { Location } from "history";
-import { isRight } from "fp-ts/lib/Either";
+import { option, either } from "fp-ts";
+import { Option } from "fp-ts/lib/Option";
+import qs from "qs";
+import * as t from "io-ts";
+import { pipe } from "fp-ts/lib/pipeable";
+import { UUID } from "io-ts-types/lib/UUID";
+import { NumberFromString } from "io-ts-types/lib/NumberFromString";
+
+export const MapState = t.strict({
+  latitude: NumberFromString,
+  longitude: NumberFromString,
+  zoom: NumberFromString,
+});
+export type MapState = t.TypeOf<typeof MapState>;
 
 export type CurrentView =
-  | {
-      view: "map";
-    }
   | {
       view: "stats";
     }
   | {
-      view: "details";
-      supplierId: NonEmptyString;
+      view: "map";
+      supplier: Option<UUID>;
+      mapState: Option<MapState>;
     }
   | {
       view: "update";
@@ -22,20 +33,17 @@ export type CurrentView =
     };
 
 export function fold<R>(
-  whenMap: () => R,
+  whenMap: (supplier: Option<UUID>, mapState: Option<MapState>) => R,
   whenStats: () => R,
-  whenDetails: (supplierId: NonEmptyString) => R,
   whenUpdate: (token: NonEmptyString) => R,
   whenCredits: () => R
 ): (currentView: CurrentView) => R {
   return currentView => {
     switch (currentView.view) {
       case "map":
-        return whenMap();
+        return whenMap(currentView.supplier, currentView.mapState);
       case "stats":
         return whenStats();
-      case "details":
-        return whenDetails(currentView.supplierId);
       case "update":
         return whenUpdate(currentView.token);
       case "credits":
@@ -44,35 +52,20 @@ export function fold<R>(
   };
 }
 
-const mapRegex = /^\/map/;
 const statsRegex = /^\/dashboard/;
-const detailsRegex = /^\/details\/(.+)/;
 const updateRegex = /^\/update\/(.+)/;
 const creditsRegex = /^\/credits/;
 
 export function parse(location: Location): CurrentView {
-  const mapMatch = mapRegex.exec(location.pathname);
-  if (mapMatch) {
-    return { view: "map" };
-  }
-
   const statsMatch = statsRegex.exec(location.pathname);
   if (statsMatch) {
     return { view: "stats" };
   }
 
-  const detailsMatch = detailsRegex.exec(location.pathname);
-  if (detailsMatch) {
-    const supplierId = NonEmptyString.decode(detailsMatch[1]);
-    if (isRight(supplierId)) {
-      return { view: "details", supplierId: supplierId.right };
-    }
-  }
-
   const updateMatch = updateRegex.exec(location.pathname);
   if (updateMatch) {
     const token = NonEmptyString.decode(updateMatch[1]);
-    if (isRight(token)) {
+    if (either.isRight(token)) {
       return { view: "update", token: token.right };
     }
   }
@@ -82,24 +75,48 @@ export function parse(location: Location): CurrentView {
     return { view: "credits" };
   }
 
-  return { view: "map" };
+  const search = qs.parse(location.search, {
+    ignoreQueryPrefix: true,
+  });
+  const supplier = pipe(UUID.decode(search.supplier), option.fromEither);
+  const mapState = pipe(MapState.decode(search), option.fromEither);
+
+  return { view: "map", supplier, mapState };
 }
 
-function locationFromPathname(pathname: string): Location {
-  return { pathname, search: "", hash: "", state: undefined, key: undefined };
+function location(pathname: string, search?: Record<string, string>): Location {
+  return {
+    pathname,
+    search: search ? qs.stringify(search, { addQueryPrefix: true }) : "",
+    hash: "",
+    state: undefined,
+    key: undefined,
+  };
 }
 
 export function serialize(view: CurrentView): Location {
   switch (view.view) {
     case "map":
-      return locationFromPathname("/map");
+      const search = pipe(
+        view.mapState,
+        option.map(MapState.encode),
+        option.getOrElseW(() => ({}))
+      );
+      return location(
+        "/",
+        pipe(
+          view.supplier,
+          option.fold(
+            () => search,
+            supplier => ({ ...search, supplier })
+          )
+        )
+      );
     case "stats":
-      return locationFromPathname("/dashboard");
-    case "details":
-      return locationFromPathname(`/details/${view.supplierId}`);
+      return location("/dashboard");
     case "update":
-      return locationFromPathname(`/update/${view.token}`);
+      return location(`/update/${view.token}`);
     case "credits":
-      return locationFromPathname("/credits");
+      return location("/credits");
   }
 }
