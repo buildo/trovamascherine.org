@@ -74,10 +74,11 @@ object NotificationBoot extends FlywayMigrations with Logging {
     val database = Database.forConfig("db")
     val authRepository = AuthRepository.create(database)
     val supplierRepository = SupplierRepository.create(database)
+    val authService = AuthService.create(authRepository, supplierRepository)
     val notificationService =
       new NotificationService(
         supplierRepository,
-        authRepository,
+        authService,
         config.notifications,
       )
 
@@ -88,34 +89,6 @@ object NotificationBoot extends FlywayMigrations with Logging {
     resetTokenAndSendEmailsTask.executes(config.notifications.schedule)
     sendEmailsTask.executes(config.notifications.afternoonSchedule)
     welcomeTask.executes(config.notifications.welcomeSchedule)
-    ()
-  }
-}
-
-object DirectNotifications extends FlywayMigrations {
-  def main(args: Array[String]): Unit = {
-    implicit val system: ActorSystem = ActorSystem("trovamascherine")
-    implicit val materializer: ActorMaterializer = ActorMaterializer()
-    implicit val ec: ExecutionContext = system.dispatcher
-    val config = pureconfig.loadConfigOrThrow[Config]
-
-    runMigrations(args, config.db)
-
-    val database = Database.forConfig("db")
-    val authRepository = AuthRepository.create(database)
-    val supplierRepository = SupplierRepository.create(database)
-    val notificationService =
-      new NotificationService(
-        supplierRepository,
-        authRepository,
-        config.notifications,
-      )
-
-    val supplierIds = List(
-      ("fakeemail@gmail.it", "asdasd"),
-    )
-    notificationService.sendEmailsTo(supplierIds)
-
     ()
   }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import * as currentView from "./CurrentView";
 import { pipe } from "fp-ts/lib/pipeable";
-import { UpdateView } from "./components/UpdateView/UpdateView";
+import { BackofficeSupplierView } from "./components/BackofficeSupplierView/BackofficeSupplierView";
 import { MapView } from "./components/MapView/MapView";
 import { IntlProvider } from "./intl";
 import { StatsView } from "./components/StatsView/StatsView";
@@ -12,6 +12,7 @@ import { ErrorBoundary } from "./components/ErrorBoundary/ErrorBoundary";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { config } from "./config";
 import { flow } from "fp-ts/lib/function";
+import { BackofficeSettingsView } from "./components/BackofficeSettingsView/BackofficeSettingsView";
 
 const metaCittadino = React.cloneElement(<meta name="userreport:mediaId" />, {
   value: config.citizenFeedbackFormId,
@@ -74,7 +75,23 @@ export function App() {
                     {userReportScript}
                     {metaEsercizioCommerciale}
                   </Helmet>
-                  <UpdateView token={token} />
+                  <BackofficeSupplierView
+                    token={token}
+                    goToSettings={() =>
+                      history.push(
+                        currentView.serialize({ view: "settings", token })
+                      )
+                    }
+                  />
+                </>
+              ),
+              token => (
+                <>
+                  <Helmet>
+                    {userReportScript}
+                    {metaEsercizioCommerciale}
+                  </Helmet>
+                  <BackofficeSettingsView token={token} />
                 </>
               ),
               () => (

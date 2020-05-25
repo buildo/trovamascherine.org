@@ -28,6 +28,14 @@ trait SupplierService {
     token: String,
     data: List[Supply],
   ): Future[Either[String, Unit]]
+  def updateConfig(
+    token: String,
+    data: SupplierConfig,
+  ): Future[Either[String, Unit]]
+  def updateData(
+    token: String,
+    data: SupplierDataUpdate,
+  ): Future[Either[String, Unit]]
   def acceptTerms(token: String): Future[Either[String, Unit]]
 }
 
@@ -93,10 +101,14 @@ object SupplierService {
           )
           supplier <- EitherT(supplierRepo.read(supplierId))
           _ <- EitherT.fromEither(
-            supplier.flatMap(_.termsAcceptedOn).toRight("Terms and conditions not accepted"),
+            supplier
+              .flatMap(_.data.termsAcceptedOn)
+              .toRight("Terms and conditions not accepted"),
           )
           _ <- EitherT.fromEither(
-            supplier.flatMap(_.privacyPolicyAcceptedOn).toRight("Privacy policy not accepted"),
+            supplier
+              .flatMap(_.data.privacyPolicyAcceptedOn)
+              .toRight("Privacy policy not accepted"),
           )
         } yield supplierId).value
 
@@ -112,6 +124,32 @@ object SupplierService {
         (for {
           supplierId <- EitherT(validateUpdate(token, data))
           result <- EitherT(insertData(supplierId, data))
+        } yield result).value
+      }
+
+      override def updateConfig(
+        token: String,
+        data: SupplierConfig,
+      ): Future[Either[String, Unit]] = {
+        (for {
+          maybeSupplierId <- EitherT(
+            authRepo.getSupplierId(token),
+          )
+          supplierId <- EitherT.fromOption(maybeSupplierId, "Invalid token")
+          result <- EitherT(supplierRepo.updateConfig(supplierId, data))
+        } yield result).value
+      }
+
+      override def updateData(
+        token: String,
+        data: SupplierDataUpdate,
+      ): Future[Either[String, Unit]] = {
+        (for {
+          maybeSupplierId <- EitherT(
+            authRepo.getSupplierId(token),
+          )
+          supplierId <- EitherT.fromOption(maybeSupplierId, "Invalid token")
+          result <- EitherT(supplierRepo.updateData(supplierId, data))
         } yield result).value
       }
 

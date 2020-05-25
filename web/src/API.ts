@@ -1,8 +1,13 @@
 import * as t from "io-ts";
-import { SupplierData, SupplyData } from "./domain";
+import {
+  SupplierData,
+  SupplyData,
+  Supplier,
+  SupplierDataUpdate,
+  SupplierConfig,
+} from "./domain";
 import { fetchAPI } from "./fetchAPI";
 import { pipe } from "fp-ts/lib/pipeable";
-import { NonEmptyString } from "io-ts-types/lib/NonEmptyString";
 import { flow } from "fp-ts/lib/function";
 import { either, taskEither } from "fp-ts";
 import { TaskEither, chainEitherKW } from "fp-ts/lib/TaskEither";
@@ -19,25 +24,13 @@ export function getMapSearchResults(): TaskEither<
   );
 }
 
-export function getSupplierData(
-  supplierId: NonEmptyString
-): TaskEither<unknown, SupplierData> {
-  return pipe(
-    fetchAPI({
-      method: "GET",
-      url: ["supplier", `read?supplierId=${NonEmptyString.encode(supplierId)}`],
-    }),
-    chainEitherKW(SupplierData.decode)
-  );
-}
+export type GetSupplierByTokenError = "Generic" | "InvalidToken";
+export const invalidTokenError: GetSupplierByTokenError = "InvalidToken";
+export const genericError: GetSupplierByTokenError = "Generic";
 
-export type GetSupplierDataByTokenError = "Generic" | "InvalidToken";
-export const invalidTokenError: GetSupplierDataByTokenError = "InvalidToken";
-export const genericError: GetSupplierDataByTokenError = "Generic";
-
-export function getSupplierDataByToken(
+export function getSupplierByToken(
   token: string
-): TaskEither<GetSupplierDataByTokenError, SupplierData> {
+): TaskEither<GetSupplierByTokenError, Supplier> {
   return pipe(
     fetchAPI({
       method: "GET",
@@ -52,7 +45,7 @@ export function getSupplierDataByToken(
     ),
     taskEither.chainEitherK(
       flow(
-        SupplierData.decode,
+        Supplier.decode,
         either.mapLeft(() => genericError)
       )
     )
@@ -70,6 +63,40 @@ export function updateSupplyData(
       body: { data: supplies },
       token: token,
     }),
+    chainEitherKW(t.unknown.decode)
+  );
+}
+
+export function updateSupplierConfig(
+  token: string,
+  data: SupplierConfig
+): TaskEither<unknown, unknown> {
+  return pipe(
+    SupplierConfig.encode(data),
+    body =>
+      fetchAPI({
+        method: "POST",
+        url: ["supplier", "updateConfig"],
+        body: { data: body },
+        token: token,
+      }),
+    chainEitherKW(t.unknown.decode)
+  );
+}
+
+export function updateSupplierData(
+  token: string,
+  data: SupplierDataUpdate
+): TaskEither<unknown, unknown> {
+  return pipe(
+    SupplierDataUpdate.encode(data),
+    body =>
+      fetchAPI({
+        method: "POST",
+        url: ["supplier", "updateData"],
+        body: { data: body },
+        token: token,
+      }),
     chainEitherKW(t.unknown.decode)
   );
 }

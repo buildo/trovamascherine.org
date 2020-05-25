@@ -149,6 +149,10 @@ export default class Map extends React.Component<IMapProps, IMapState> {
 
   saveLastMapState = debounce(this.props.onMapStateChange, 500);
 
+  componentDidUpdate() {
+    this.saveLastMapState = debounce(this.props.onMapStateChange, 500);
+  }
+
   onInteractionStateChange = (extraState: ExtraState) => {
     if (
       extraState.isDragging ||

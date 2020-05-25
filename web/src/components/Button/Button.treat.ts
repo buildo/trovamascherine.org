@@ -1,8 +1,6 @@
 import { style, styleMap } from "treat";
 import * as vars from "../../variables";
-
-const heightMedium = 11 * vars.spaceUnit;
-const heightSmall = 9 * vars.spaceUnit;
+import { heightSmall, heightMedium } from "./dimensions";
 
 export const button = style({
   boxSizing: "border-box",
@@ -92,18 +90,20 @@ export const variants = styleMap({
     },
   },
   flat: {
-    color: vars.grey04,
+    boxShadow: "none",
+    color: vars.primary,
+    textTransform: "uppercase",
     padding: `0 ${vars.spaceUnit}px`,
 
     "@media": {
       "(hover: hover)": {
         ":hover": {
-          color: vars.grey02,
+          color: vars.primaryHover,
         },
       },
     },
     ":active": {
-      color: vars.grey02,
+      color: vars.primaryHover,
     },
   },
   primaryIcon: {

@@ -13,7 +13,7 @@ type MainVariant = {
   /**
    * Use to indicate primary, secondary or destructive actions.
    */
-  variant: "primary" | "secondary" | "destructive";
+  variant: "primary" | "secondary" | "destructive" | "flat";
   /**
    * Label representing the action that is displayed by the button
    */
@@ -30,7 +30,7 @@ type IconVariant = {
    */
   variant: "primaryIcon" | "secondaryIcon";
   /**
-   * An optional icon displayed on the left of the flat button label
+   * An icon displayed on the left of the button label
    */
   icon: Children;
 };
@@ -38,7 +38,9 @@ type IconVariant = {
 type Variant = MainVariant | IconVariant;
 
 function isMainVariant(props: Variant): props is MainVariant {
-  return ["primary", "secondary", "destructive"].includes(props.variant);
+  return ["primary", "secondary", "destructive", "flat"].includes(
+    props.variant
+  );
 }
 
 type Size = {
@@ -65,6 +67,7 @@ function content(props: Props): Children {
     case "primary":
     case "secondary":
     case "destructive":
+    case "flat":
       return props.label;
     case "primaryIcon":
     case "secondaryIcon":

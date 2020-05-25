@@ -4,9 +4,5 @@ import { Header } from "../Header/Header";
 
 export function StatsHeader() {
   const formatMessage = useFormatMessage();
-  return (
-    <Header>
-      {formatMessage("App.name")} | {formatMessage("StatsView.title")}
-    </Header>
-  );
+  return <Header>{formatMessage("App.name")}</Header>;
 }

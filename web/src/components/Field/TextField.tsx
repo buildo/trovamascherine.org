@@ -18,7 +18,7 @@ type Props = Omit<
   /**
    * Type of the underlying input element
    */
-  type?: "text" | "email" | "number";
+  type?: "text" | "email" | "number" | "tel";
 };
 
 export const TextField = React.forwardRef<HTMLInputElement, Props>(

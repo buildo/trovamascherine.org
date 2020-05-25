@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Box } from "../Box/Box";
-import * as classes from "./UpdateViewForm.treat";
+import * as classes from "./UpdateForm.treat";
 import { TextField } from "../Field/TextField";
 import { Title } from "../Text/Title";
 import { useFormatMessage, FormattedMessage } from "../../intl";
@@ -17,7 +17,7 @@ import { Label } from "../Text/Label";
 import { sequenceS } from "fp-ts/lib/Apply";
 import { getStructSemigroup, Semigroup } from "fp-ts/lib/Semigroup";
 import { Link } from "../Link/Link";
-import { legal } from "./UpdateView.treat";
+import { legal } from "./BackofficeSupplierView.treat";
 import { identity } from "fp-ts/lib/function";
 import { CheckboxField } from "../Field/CheckboxField";
 

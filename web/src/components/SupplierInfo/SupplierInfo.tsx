@@ -2,7 +2,7 @@ import * as React from "react";
 import { Box } from "../Box/Box";
 import { Title } from "../Text/Title";
 import { pipe } from "fp-ts/lib/pipeable";
-import { getOrElse } from "fp-ts/lib/Option";
+import { getOrElse, some, Option, map, toNullable } from "fp-ts/lib/Option";
 import { useFormatMessage } from "../../intl";
 import { SupplierData } from "../../domain";
 import { Address } from "./Address";
@@ -10,8 +10,12 @@ import { LastUpdate } from "./LastUpdate";
 import { Space } from "../Space/Space";
 import { useIsMobile } from "../../useMatchMedia";
 import * as classes from "./SupplierInfo.treat";
+import { Button } from "../Button/Button";
+import { SettingsIcon } from "../Icons/SettingsIcon";
 
-type Props = Omit<SupplierData, "supplies">;
+type Props = Omit<SupplierData, "supplies"> & {
+  onEditSettings: Option<() => unknown>;
+};
 
 export function SupplierInfo(props: Props) {
   const formatMessage = useFormatMessage();
@@ -30,6 +34,22 @@ export function SupplierInfo(props: Props) {
         value={props.lastUpdatedOn}
         fallbackMessage={formatMessage("SupplierInfo.firstUpdate")}
       />
+      <Space units={2} />
+      {pipe(
+        props.onEditSettings,
+        map(onClick => (
+          <Box>
+            <Button
+              variant="flat"
+              size="medium"
+              icon={some(<SettingsIcon width={24} height={24} />)}
+              label={formatMessage("SupplierInfo.editSettings")}
+              action={onClick}
+            />
+          </Box>
+        )),
+        toNullable
+      )}
     </Box>
   );
 }

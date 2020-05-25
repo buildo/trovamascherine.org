@@ -17,7 +17,7 @@ type Props = CommonProps & {
   /**
    * Type of the underlying input element
    */
-  type: "text" | "email" | "password" | "number";
+  type: "text" | "email" | "password" | "number" | "tel";
   /**
    * Content to display to the right end of the input area
    */

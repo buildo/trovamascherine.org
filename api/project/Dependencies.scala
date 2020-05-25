@@ -18,6 +18,7 @@ object Dependencies {
   val wiro = "io.buildo" %% "wiro-http-server" % V.wiro
   val circeCore = "io.circe" %% "circe-core" % V.circe
   val circeGeneric = "io.circe" %% "circe-generic" % V.circe
+  val circeGenericExtras = "io.circe" %% "circe-generic-extras" % V.circe
   val circeJavaTime = "io.buildo" %% "java-time-circe-codecs" % "0.2.0"
   val pureconfig = "com.github.pureconfig" %% "pureconfig" % "0.9.2"
   val akkaHttp = "com.typesafe.akka" %% "akka-http" % "10.1.5"
@@ -48,6 +49,7 @@ object Dependencies {
       wiro,
       circeCore,
       circeGeneric,
+      circeGenericExtras,
       circeJavaTime,
       pureconfig,
       akkaHttp,

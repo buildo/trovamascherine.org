@@ -24,7 +24,7 @@ export function SupplyInfoModal(props: Props): JSX.Element {
       <Box column width="100%">
         <Title size={3}>Mascherine</Title>
         <Space units={2} />
-        <Title size={5}>Chirurgiche e di “comunità”</Title>
+        <Title size={6}>Chirurgiche e di “comunità”</Title>
         <Space units={2} />
         <Text size={2}>
           Inserire la somma delle unità - non delle confezioni - di mascherine
@@ -42,7 +42,7 @@ export function SupplyInfoModal(props: Props): JSX.Element {
           pre-ordinate)
         </Label>
         <Space units={4} />
-        <Title size={5}>FFP1, FFP2, FFP3</Title>
+        <Title size={6}>FFP1, FFP2, FFP3</Title>
         <Space units={2} />
         <Text size={2}>
           Inserire la somma delle unità - non delle confezioni - di mascherine

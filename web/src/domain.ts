@@ -2,6 +2,7 @@ import * as t from "io-ts";
 import { DateFromISOString } from "io-ts-types/lib/DateFromISOString";
 import { optionFromNullable } from "io-ts-types/lib/optionFromNullable";
 import { UUID } from "io-ts-types/lib/UUID";
+import { NonEmptyString } from "io-ts-types/lib/NonEmptyString";
 
 export const Good = t.keyof(
   {
@@ -37,10 +38,32 @@ export const SupplierData = t.type(
     supplies: t.array(SupplyData),
     city: optionFromNullable(t.string),
     province: optionFromNullable(t.string),
-    phoneNumber: optionFromNullable(t.string),
+    phoneNumber: optionFromNullable(NonEmptyString),
     termsAcceptedOn: optionFromNullable(DateFromISOString),
     privacyPolicyAcceptedOn: optionFromNullable(DateFromISOString),
   },
   "SupplierData"
 );
 export type SupplierData = t.TypeOf<typeof SupplierData>;
+
+export const SupplierConfig = t.type(
+  {
+    showPhoneNumber: t.boolean,
+  },
+  "SupplierConfig"
+);
+export type SupplierConfig = t.TypeOf<typeof SupplierConfig>;
+
+export const Supplier = t.type({
+  data: SupplierData,
+  config: SupplierConfig,
+});
+export type Supplier = t.TypeOf<typeof Supplier>;
+
+export const SupplierDataUpdate = t.type(
+  {
+    phoneNumber: optionFromNullable(t.string),
+  },
+  "SupplierDataUpdate"
+);
+export type SupplierDataUpdate = t.TypeOf<typeof SupplierDataUpdate>;

@@ -84,32 +84,33 @@ trait Tables {
    *  @param email Database column email SqlType(varchar), Length(255,true)
    *  @param cap Database column cap SqlType(varchar), Length(255,true)
    *  @param address Database column address SqlType(varchar), Length(255,true)
-   *  @param name Database column name SqlType(varchar), Length(255,true), Default(None)
-   *  @param comune Database column comune SqlType(varchar), Length(255,true), Default(None)
+   *  @param name Database column name SqlType(varchar), Length(255,true)
+   *  @param comune Database column comune SqlType(varchar), Length(255,true)
    *  @param regione Database column regione SqlType(varchar), Length(255,true), Default(None)
    *  @param referencephone Database column referencephone SqlType(varchar), Length(255,true), Default(None)
    *  @param externalIdCode Database column external_id_code SqlType(int4), Default(None)
    *  @param vatNumber Database column vat_number SqlType(varchar), Length(255,true), Default(None)
    *  @param cityIstatCode Database column city_istat_code SqlType(varchar), Length(255,true), Default(None)
-   *  @param province Database column province SqlType(varchar), Length(4,true), Default(None)
+   *  @param province Database column province SqlType(varchar), Length(4,true)
    *  @param enabled Database column enabled SqlType(bool), Default(Some(false))
    *  @param termsAcceptedOn Database column terms_accepted_on SqlType(timestamptz), Default(None)
    *  @param privacyPolicyAcceptedOn Database column privacy_policy_accepted_on SqlType(timestamptz), Default(None)
    *  @param welcomeEmailSent Database column welcome_email_sent SqlType(bool), Default(false)
    *  @param coordinates Database column coordinates SqlType(geometry)
-   *  @param `type` Database column type SqlType(supplier_type) */
-  case class SupplierRow(id: java.util.UUID, email: String, cap: String, address: String, name: Option[String] = None, comune: Option[String] = None, regione: Option[String] = None, referencephone: Option[String] = None, externalIdCode: Option[Int] = None, vatNumber: Option[String] = None, cityIstatCode: Option[String] = None, province: Option[String] = None, enabled: Option[Boolean] = Some(false), termsAcceptedOn: Option[java.sql.Timestamp] = None, privacyPolicyAcceptedOn: Option[java.sql.Timestamp] = None, welcomeEmailSent: Boolean = false, coordinates: com.vividsolutions.jts.geom.Geometry, `type`: String)
+   *  @param `type` Database column type SqlType(supplier_type)
+   *  @param showPhone Database column show_phone SqlType(bool) */
+  case class SupplierRow(id: java.util.UUID, email: String, cap: String, address: String, name: String, comune: String, regione: Option[String] = None, referencephone: Option[String] = None, externalIdCode: Option[Int] = None, vatNumber: Option[String] = None, cityIstatCode: Option[String] = None, province: String, enabled: Option[Boolean] = Some(false), termsAcceptedOn: Option[java.sql.Timestamp] = None, privacyPolicyAcceptedOn: Option[java.sql.Timestamp] = None, welcomeEmailSent: Boolean = false, coordinates: com.vividsolutions.jts.geom.Geometry, `type`: String, showPhone: Boolean)
   /** GetResult implicit for fetching SupplierRow objects using plain SQL queries */
   implicit def GetResultSupplierRow(implicit e0: GR[java.util.UUID], e1: GR[String], e2: GR[Option[String]], e3: GR[Option[Int]], e4: GR[Option[Boolean]], e5: GR[Option[java.sql.Timestamp]], e6: GR[Boolean], e7: GR[com.vividsolutions.jts.geom.Geometry]): GR[SupplierRow] = GR{
     prs => import prs._
-    SupplierRow.tupled((<<[java.util.UUID], <<[String], <<[String], <<[String], <<?[String], <<?[String], <<?[String], <<?[String], <<?[Int], <<?[String], <<?[String], <<?[String], <<?[Boolean], <<?[java.sql.Timestamp], <<?[java.sql.Timestamp], <<[Boolean], <<[com.vividsolutions.jts.geom.Geometry], <<[String]))
+    SupplierRow.tupled((<<[java.util.UUID], <<[String], <<[String], <<[String], <<[String], <<[String], <<?[String], <<?[String], <<?[Int], <<?[String], <<?[String], <<[String], <<?[Boolean], <<?[java.sql.Timestamp], <<?[java.sql.Timestamp], <<[Boolean], <<[com.vividsolutions.jts.geom.Geometry], <<[String], <<[Boolean]))
   }
   /** Table description of table supplier. Objects of this class serve as prototypes for rows in queries.
    *  NOTE: The following names collided with Scala keywords and were escaped: type */
   class Supplier(_tableTag: Tag) extends profile.api.Table[SupplierRow](_tableTag, Some("trovamascherine"), "supplier") {
-    def * = (id, email, cap, address, name, comune, regione, referencephone, externalIdCode, vatNumber, cityIstatCode, province, enabled, termsAcceptedOn, privacyPolicyAcceptedOn, welcomeEmailSent, coordinates, `type`) <> (SupplierRow.tupled, SupplierRow.unapply)
+    def * = (id, email, cap, address, name, comune, regione, referencephone, externalIdCode, vatNumber, cityIstatCode, province, enabled, termsAcceptedOn, privacyPolicyAcceptedOn, welcomeEmailSent, coordinates, `type`, showPhone) <> (SupplierRow.tupled, SupplierRow.unapply)
     /** Maps whole row to an option. Useful for outer joins. */
-    def ? = (Rep.Some(id), Rep.Some(email), Rep.Some(cap), Rep.Some(address), name, comune, regione, referencephone, externalIdCode, vatNumber, cityIstatCode, province, enabled, termsAcceptedOn, privacyPolicyAcceptedOn, Rep.Some(welcomeEmailSent), Rep.Some(coordinates), Rep.Some(`type`)).shaped.<>({r=>import r._; _1.map(_=> SupplierRow.tupled((_1.get, _2.get, _3.get, _4.get, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16.get, _17.get, _18.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
+    def ? = (Rep.Some(id), Rep.Some(email), Rep.Some(cap), Rep.Some(address), Rep.Some(name), Rep.Some(comune), regione, referencephone, externalIdCode, vatNumber, cityIstatCode, Rep.Some(province), enabled, termsAcceptedOn, privacyPolicyAcceptedOn, Rep.Some(welcomeEmailSent), Rep.Some(coordinates), Rep.Some(`type`), Rep.Some(showPhone)).shaped.<>({r=>import r._; _1.map(_=> SupplierRow.tupled((_1.get, _2.get, _3.get, _4.get, _5.get, _6.get, _7, _8, _9, _10, _11, _12.get, _13, _14, _15, _16.get, _17.get, _18.get, _19.get)))}, (_:Any) =>  throw new Exception("Inserting into ? projection not supported."))
 
     /** Database column id SqlType(uuid), PrimaryKey */
     val id: Rep[java.util.UUID] = column[java.util.UUID]("id", O.PrimaryKey)
@@ -119,10 +120,10 @@ trait Tables {
     val cap: Rep[String] = column[String]("cap", O.Length(255,varying=true))
     /** Database column address SqlType(varchar), Length(255,true) */
     val address: Rep[String] = column[String]("address", O.Length(255,varying=true))
-    /** Database column name SqlType(varchar), Length(255,true), Default(None) */
-    val name: Rep[Option[String]] = column[Option[String]]("name", O.Length(255,varying=true), O.Default(None))
-    /** Database column comune SqlType(varchar), Length(255,true), Default(None) */
-    val comune: Rep[Option[String]] = column[Option[String]]("comune", O.Length(255,varying=true), O.Default(None))
+    /** Database column name SqlType(varchar), Length(255,true) */
+    val name: Rep[String] = column[String]("name", O.Length(255,varying=true))
+    /** Database column comune SqlType(varchar), Length(255,true) */
+    val comune: Rep[String] = column[String]("comune", O.Length(255,varying=true))
     /** Database column regione SqlType(varchar), Length(255,true), Default(None) */
     val regione: Rep[Option[String]] = column[Option[String]]("regione", O.Length(255,varying=true), O.Default(None))
     /** Database column referencephone SqlType(varchar), Length(255,true), Default(None) */
@@ -133,8 +134,8 @@ trait Tables {
     val vatNumber: Rep[Option[String]] = column[Option[String]]("vat_number", O.Length(255,varying=true), O.Default(None))
     /** Database column city_istat_code SqlType(varchar), Length(255,true), Default(None) */
     val cityIstatCode: Rep[Option[String]] = column[Option[String]]("city_istat_code", O.Length(255,varying=true), O.Default(None))
-    /** Database column province SqlType(varchar), Length(4,true), Default(None) */
-    val province: Rep[Option[String]] = column[Option[String]]("province", O.Length(4,varying=true), O.Default(None))
+    /** Database column province SqlType(varchar), Length(4,true) */
+    val province: Rep[String] = column[String]("province", O.Length(4,varying=true))
     /** Database column enabled SqlType(bool), Default(Some(false)) */
     val enabled: Rep[Option[Boolean]] = column[Option[Boolean]]("enabled", O.Default(Some(false)))
     /** Database column terms_accepted_on SqlType(timestamptz), Default(None) */
@@ -148,6 +149,8 @@ trait Tables {
     /** Database column type SqlType(supplier_type)
      *  NOTE: The name was escaped because it collided with a Scala keyword. */
     val `type`: Rep[String] = column[String]("type")
+    /** Database column show_phone SqlType(bool) */
+    val showPhone: Rep[Boolean] = column[Boolean]("show_phone")
 
     /** Index over (coordinates) (database name supplier_coordinates_idx) */
     val index1 = index("supplier_coordinates_idx", coordinates)

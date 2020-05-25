@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Box } from "../Box/Box";
 import { Space } from "../Space/Space";
-import { Values } from "./UpdateViewForm";
+import { Values } from "./UpdateForm";
 import { GoodStatusDetails } from "../GoodStatusDetails/GoodStatusDetails";
 import * as O from "fp-ts/lib/Option";
-import { LastUpdate } from "./LastUpdate";
+import { LastUpdate } from "../SupplierInfo/LastUpdate";
 import { right } from "fp-ts/lib/Either";
 
 type Props = {

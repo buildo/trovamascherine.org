@@ -29,6 +29,10 @@ export type CurrentView =
       token: NonEmptyString;
     }
   | {
+      view: "settings";
+      token: NonEmptyString;
+    }
+  | {
       view: "credits";
     };
 
@@ -36,6 +40,7 @@ export function fold<R>(
   whenMap: (supplier: Option<UUID>, mapState: Option<MapState>) => R,
   whenStats: () => R,
   whenUpdate: (token: NonEmptyString) => R,
+  whenSettings: (token: NonEmptyString) => R,
   whenCredits: () => R
 ): (currentView: CurrentView) => R {
   return currentView => {
@@ -46,6 +51,8 @@ export function fold<R>(
         return whenStats();
       case "update":
         return whenUpdate(currentView.token);
+      case "settings":
+        return whenSettings(currentView.token);
       case "credits":
         return whenCredits();
     }
@@ -54,6 +61,7 @@ export function fold<R>(
 
 const statsRegex = /^\/dashboard/;
 const updateRegex = /^\/update\/(.+)/;
+const settingsRegex = /^\/settings\/(.+)/;
 const creditsRegex = /^\/credits/;
 
 export function parse(location: Location): CurrentView {
@@ -67,6 +75,14 @@ export function parse(location: Location): CurrentView {
     const token = NonEmptyString.decode(updateMatch[1]);
     if (either.isRight(token)) {
       return { view: "update", token: token.right };
+    }
+  }
+
+  const settingsMatch = settingsRegex.exec(location.pathname);
+  if (settingsMatch) {
+    const token = NonEmptyString.decode(settingsMatch[1]);
+    if (either.isRight(token)) {
+      return { view: "settings", token: token.right };
     }
   }
 
@@ -116,6 +132,8 @@ export function serialize(view: CurrentView): Location {
       return location("/dashboard");
     case "update":
       return location(`/update/${view.token}`);
+    case "settings":
+      return location(`/settings/${view.token}`);
     case "credits":
       return location("/credits");
   }

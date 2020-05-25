@@ -31,21 +31,38 @@ trait SupplierRepository {
     supplierId: UUID,
     data: List[Supply],
   ): Future[Either[String, Unit]]
+  def updateConfig(
+    supplierId: UUID,
+    data: SupplierConfig,
+  ): Future[Either[String, Unit]]
+  def updateData(
+    supplierId: UUID,
+    data: SupplierDataUpdate,
+  ): Future[Either[String, Unit]]
   def listEnabled(): Future[List[(UUID, String)]]
-  def listEnabledWithToken(): Future[Either[String, List[(UUID, String, Option[String])]]]
+  def listEnabledWithToken(): Future[Either[String, List[EmailSupplier]]]
   def acceptTerms(supplierId: UUID): Future[Either[String, Unit]]
   def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[String]]]
   def setWelcomeEmailsSent(emails: List[String]): Future[Either[String, Unit]]
 }
 
 object SupplierConverters {
-  def convertSupplierWToken(
-    rows: Seq[((UUID, String), Option[SupplierTokenRow])],
-  ): List[(UUID, String, Option[String])] =
+  def convertEmailSupplier(
+    rows: Seq[(SupplierRow, Option[SupplierTokenRow])],
+  ): List[EmailSupplier] =
     rows.map {
-      case ((id, email), supplierTokenRow) =>
-        (id, email, supplierTokenRow.map(_.token))
-    }.toList
+      case (supplier, Some(supplierTokenRow)) =>
+        Some(
+          EmailSupplier(
+            email = supplier.email,
+            name = supplier.name,
+            address = supplier.address,
+            city = supplier.comune,
+            token = supplierTokenRow.token,
+          ),
+        )
+      case (_, None) => None
+    }.toList.flatten
 
   def convertSupply(rows: Seq[GoodSupplyRow]): List[Supply] =
     rows.flatMap { row =>
@@ -74,20 +91,25 @@ object SupplierConverters {
           val lastUpdatedOn =
             usableSupplies.headOption.map(s => s.lastupdatedon)
           Supplier(
-            id = supplier.id,
-            latitude = supplier.coordinates.getCoordinate().y,
-            longitude = supplier.coordinates.getCoordinate().x,
-            address = supplier.address,
-            cap = supplier.cap,
-            city = supplier.comune,
-            province = supplier.province,
-            name = supplier.name,
-            vatNumber = supplier.vatNumber,
-            phoneNumber = supplier.referencephone,
-            lastUpdatedOn = lastUpdatedOn.map(_.toInstant),
-            supplies = convertSupply(usableSupplies),
-            termsAcceptedOn = supplier.termsAcceptedOn.map(_.toInstant),
-            privacyPolicyAcceptedOn = supplier.privacyPolicyAcceptedOn.map(_.toInstant),
+            data = SupplierData(
+              id = supplier.id,
+              latitude = supplier.coordinates.getCoordinate().y,
+              longitude = supplier.coordinates.getCoordinate().x,
+              address = supplier.address,
+              cap = supplier.cap,
+              city = supplier.comune,
+              province = supplier.province,
+              name = supplier.name,
+              vatNumber = supplier.vatNumber,
+              phoneNumber = supplier.referencephone,
+              lastUpdatedOn = lastUpdatedOn.map(_.toInstant),
+              supplies = convertSupply(usableSupplies),
+              termsAcceptedOn = supplier.termsAcceptedOn.map(_.toInstant),
+              privacyPolicyAcceptedOn = supplier.privacyPolicyAcceptedOn.map(_.toInstant),
+            ),
+            config = SupplierConfig(
+              showPhoneNumber = supplier.showPhone,
+            ),
           )
       }
       .toList
@@ -167,6 +189,26 @@ object SupplierRepository extends Recoverable {
         } yield ())
       }
 
+      override def updateConfig(
+        supplierId: UUID,
+        data: SupplierConfig,
+      ): Future[Either[String, Unit]] = recoverToEither {
+        val updateQuery =
+          SupplierTable.filter(_.id === supplierId).map(_.showPhone).update(data.showPhoneNumber)
+
+        db.run(updateQuery.transactionally).map(_ => ())
+      }
+
+      override def updateData(
+        supplierId: UUID,
+        data: SupplierDataUpdate,
+      ): Future[Either[String, Unit]] = recoverToEither {
+        val updateQuery =
+          SupplierTable.filter(_.id === supplierId).map(_.referencephone).update(data.phoneNumber)
+
+        db.run(updateQuery.transactionally).map(_ => ())
+      }
+
       override def listEnabled(): Future[List[(UUID, String)]] = {
         db.run(
             SupplierTable.filter(_.enabled === true).map(s => (s.id, s.email)).result,
@@ -174,18 +216,17 @@ object SupplierRepository extends Recoverable {
           .map(_.toList)
       }
 
-      override def listEnabledWithToken()
-        : Future[Either[String, List[(UUID, String, Option[String])]]] = recoverToEither {
-        db.run(
-            SupplierTable
-              .filter(_.enabled === true)
-              .map(s => (s.id, s.email))
-              .joinLeft(SupplierTokenTable)
-              .on(_._1 === _.supplierId)
-              .result,
-          )
-          .map(convertSupplierWToken)
-      }
+      override def listEnabledWithToken(): Future[Either[String, List[EmailSupplier]]] =
+        recoverToEither {
+          db.run(
+              SupplierTable
+                .filter(_.enabled === true)
+                .joinLeft(SupplierTokenTable)
+                .on(_.id === _.supplierId)
+                .result,
+            )
+            .map(convertEmailSupplier)
+        }
 
       override def acceptTerms(supplierId: UUID): Future[Either[String, Unit]] = recoverToEither {
         val nowTimestamp = Timestamp.from(Instant.now())

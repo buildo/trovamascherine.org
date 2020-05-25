@@ -57,7 +57,7 @@ class SupplierRepositorySuite extends PersistenceTest {
       )
       .map(result => {
         assert(result.isRight)
-        val supplierIds = result.right.get.map(_.id.toString).toSet
+        val supplierIds = result.right.get.map(_.supplier.id.toString).toSet
         assertEquals(supplierIds, expectedSuppliersFromAsti)
       })
   }
@@ -74,7 +74,7 @@ class SupplierRepositorySuite extends PersistenceTest {
       )
       .map(result => {
         assert(result.isRight)
-        val supplierIds = result.right.get.map(_.id.toString).toSet
+        val supplierIds = result.right.get.map(_.supplier.id.toString).toSet
         assertEquals(supplierIds, expectedSuppliersFromTurin)
       })
   }
@@ -91,7 +91,7 @@ class SupplierRepositorySuite extends PersistenceTest {
       )
       .map(result => {
         assert(result.isRight)
-        val supplierIds = result.right.get.map(_.id.toString).toSet
+        val supplierIds = result.right.get.map(_.supplier.id.toString).toSet
         assertEquals(supplierIds, expectedSuppliersFromMilan)
       })
   }

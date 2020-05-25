@@ -9,7 +9,7 @@ import { pipe } from "fp-ts/lib/pipeable";
 import { toNullable, fold, isSome, some, map } from "fp-ts/lib/Option";
 import { getOrElse } from "fp-ts/lib/Option";
 import { Space } from "../Space/Space";
-import { LastUpdate } from "../UpdateView/LastUpdate";
+import { LastUpdate } from "../SupplierInfo/LastUpdate";
 import { useFormatMessage } from "../../intl";
 import { PharmaQuestionMarkIcon } from "../Icons/PharmaQuestionMarkIcon";
 import { Label } from "../Text/Label";
