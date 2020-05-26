@@ -185,7 +185,7 @@ export function SupplierSettings(props: Props) {
             : `${formatMessage(
                 "SupplierSettings.phoneVisibilityPrivate"
               )} - ${formatMessage(
-                "SupplierSettings.phoneVisibilityPublicDescription"
+                "SupplierSettings.phoneVisibilityPrivateDescription"
               )}`
         }
         onSave={onSaveShowPhone}
