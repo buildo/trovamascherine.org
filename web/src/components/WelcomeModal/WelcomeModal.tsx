@@ -10,19 +10,22 @@ import { Space } from "../Space/Space";
 import { Button } from "../Button/Button";
 import { useFormatMessage } from "../../intl";
 import { pipe } from "fp-ts/lib/pipeable";
+import { LocalStorage } from "../../util/LocalStorage";
+import { boolean } from "io-ts";
+
+const WelcomeModalKey = "WelcomeModal";
 
 export function WelcomeModal() {
   const formatMessage = useFormatMessage();
   const browserAccepted = pipe(
-    O.tryCatch(() => localStorage.getItem("WelcomeModal")),
-    O.map(a => a === "x"),
+    LocalStorage.getItem(WelcomeModalKey, boolean),
     O.getOrElse(() => false)
   );
   const [accepted, setAccepted] = React.useState(browserAccepted);
 
   const onDismiss = () => {
     setAccepted(true);
-    localStorage.setItem("WelcomeModal", "x");
+    LocalStorage.setItem(WelcomeModalKey, boolean, true);
   };
 
   return accepted ? null : (
