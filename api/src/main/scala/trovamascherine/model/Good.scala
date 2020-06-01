@@ -9,4 +9,5 @@ import io.buildo.enumero.annotations.enum
   object Termoscanner
   object MascherinaFFP
   object MascherinaChirurgica
+  object MascherinaLavabile
 }

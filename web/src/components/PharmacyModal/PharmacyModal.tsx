@@ -1,5 +1,5 @@
 import React from "react";
-import { option } from "fp-ts";
+import { option, array, monoid } from "fp-ts";
 import { Box } from "../Box/Box";
 import { GoodStatusDetails } from "../GoodStatusDetails/GoodStatusDetails";
 import { Modal } from "../Modal/Modal";
@@ -36,16 +36,21 @@ function _PharmacyModal(props: Props) {
   const name = pipe(selectedSupplier.name, toNullable);
   const formatMessage = useFormatMessage();
 
+  const ffp = quantityByGood("MascherinaFFP", supplies);
+  const chirurgica = quantityByGood("MascherinaChirurgica", supplies);
+  const lavabile = quantityByGood("MascherinaLavabile", supplies);
   const mascherina = pipe(
     sequenceS(option.option)({
-      ffp: quantityByGood("MascherinaFFP", supplies),
-      chirurgica: quantityByGood("MascherinaChirurgica", supplies),
+      ffp,
+      chirurgica,
+      lavabile,
     }),
     option.fold(
       () =>
         pipe(
-          quantityByGood("Mascherina", supplies),
-          option.getOrElse(defaultQuantity),
+          [ffp, chirurgica, lavabile],
+          array.compact,
+          monoid.fold(monoid.monoidSum),
           left
         ),
       m => right(m)

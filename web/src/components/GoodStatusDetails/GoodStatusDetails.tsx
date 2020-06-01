@@ -11,7 +11,10 @@ import { FormattedMessage } from "../../intl";
 import { Title } from "../Text/Title";
 
 type Props = {
-  mascherina: either.Either<number, { ffp: number; chirurgica: number }>;
+  mascherina: either.Either<
+    number,
+    { ffp: number; chirurgica: number; lavabile: number }
+  >;
   gel: number;
   glove: number;
   termoScanner: number;
@@ -26,7 +29,10 @@ export function GoodStatusDetails(props: Props) {
   const textSize = isMobile ? 4 : 2;
   const totalMasks = pipe(
     props.mascherina,
-    either.fold(identity, ({ ffp, chirurgica }) => ffp + chirurgica)
+    either.fold(
+      identity,
+      ({ ffp, chirurgica, lavabile }) => ffp + chirurgica + lavabile
+    )
   );
 
   return (
@@ -44,7 +50,7 @@ export function GoodStatusDetails(props: Props) {
                 </Text>
               </Box>
             ),
-            ({ ffp, chirurgica }) => (
+            ({ ffp, chirurgica, lavabile }) => (
               <Box column grow vAlignContent="center">
                 <Box height="30%" width="100%" vAlignContent="center">
                   <Text size={textSize}>
@@ -59,6 +65,13 @@ export function GoodStatusDetails(props: Props) {
                   </Text>
                   <Space grow />
                   <Title size={titleSize}>{String(ffp)}</Title>
+                </Box>
+                <Box height="30%" width="100%" vAlignContent="center">
+                  <Text size={textSize}>
+                    <FormattedMessage id="GoodStatusDetails.lavabiliLabel" />
+                  </Text>
+                  <Space grow />
+                  <Title size={titleSize}>{String(lavabile)}</Title>
                 </Box>
               </Box>
             )

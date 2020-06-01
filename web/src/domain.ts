@@ -9,6 +9,7 @@ export const Good = t.keyof(
     Mascherina: true,
     MascherinaFFP: true,
     MascherinaChirurgica: true,
+    MascherinaLavabile: true,
     Guanti: true,
     Gel: true,
     Termoscanner: true,

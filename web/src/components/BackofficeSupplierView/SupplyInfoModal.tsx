@@ -24,40 +24,34 @@ export function SupplyInfoModal(props: Props): JSX.Element {
       <Box column width="100%">
         <Title size={3}>Mascherine</Title>
         <Space units={2} />
-        <Title size={6}>Chirurgiche e di “comunità”</Title>
+        <Title size={6}>Chirurgiche / Protezione Civile</Title>
         <Space units={2} />
         <Text size={2}>
-          Inserire la somma delle unità - non delle confezioni - di mascherine
-          chirurgiche e di “comunità” disponibili alla vendita nella farmacia.
-          Non inserire le mascherine non disponibili alla vendita, pre-ordinate
-          da clienti e/o non conformi con gli standard di protezione approvati
-          dall’INAIL.
+          Inserire la somma delle singole unità di mascherine chirurgiche
+          conformi a quelle indicate nell’Ordinanza 11/2020 emessa dal
+          Commissario Straordinario per l’Emergenza Covid-19 (quelle cosiddette
+          “della Protezione Civile”). Non inserire le mascherine non conformi
+          con gli standard dell’Ordinanza, pre-ordinate da clienti, o non
+          disponibili alla vendita.
         </Text>
         <Space units={4} />
-        <Label size={2}>
-          Esempio: La farmacia ha 1000 mascherine chirurgiche e 2000 mascherine
-          di comunità. La farmacia ha anche un ordine da parte di un cliente per
-          500 mascherine chirurgiche da ritirare in giornata. Inserire nel campo
-          dati: 2500 (1000 mascherine chirurgiche + 2000 di comunità - 500
-          pre-ordinate)
-        </Label>
-        <Space units={4} />
-        <Title size={6}>FFP1, FFP2, FFP3</Title>
+        <Title size={6}>FFP2, FFP3, KN95, N95</Title>
         <Space units={2} />
         <Text size={2}>
-          Inserire la somma delle unità - non delle confezioni - di mascherine
-          FFP1, FFP2, FFP3, con o senza valvola, disponibili alla vendita nella
-          farmacia. Non inserire le mascherine non disponibili alla vendita,
-          pre-ordinate da clienti e/o non conformi con gli standard di
-          protezione approvati dall’INAIL.
+          Inserire la somma delle singole unità di mascherine FFP2, FFP3, KN95,
+          N95, con o senza valvola, disponibili alla vendita nella farmacia. Non
+          inserire le mascherine pre-ordinate da clienti, non conformi, o non
+          disponibili alla vendita.
         </Text>
         <Space units={4} />
-        <Label size={2}>
-          Esempio: La farmacia ha 500 mascherine FFP2 e 400 FFP3. La farmacia ha
-          anche un ordine da parte di un cliente per 300 mascherine FFP2 da
-          ritirare in giornata. Inserire nel campo dati: 600 (500 mascherine
-          FFP2 + 400 FFP3 - 300 pre-ordinate)
-        </Label>
+        <Title size={6}>Lavabili e altre tipologie</Title>
+        <Space units={2} />
+        <Text size={2}>
+          Inserire la somma delle singole unità delle mascherine lavabili e di
+          altre categorie di protezioni facciali autorizzate alla vendita nelle
+          farmacie e parafarmacie. Non inserire protezioni pre-ordinate da
+          clienti, non conformi, o non disponibili alla vendita.
+        </Text>
 
         <Space units={10} />
 

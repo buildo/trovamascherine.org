@@ -30,6 +30,7 @@ type Props = {
 type FormState = {
   mascherineFFP: string;
   mascherineChirurgiche: string;
+  mascherineLavabili: string;
   gel: string;
   guanti: string;
   scanner: string;
@@ -51,6 +52,7 @@ export const Values = t.type(
   {
     mascherineFFP: t.number,
     mascherineChirurgiche: t.number,
+    mascherineLavabili: t.number,
     gel: t.number,
     guanti: t.number,
     scanner: t.number,
@@ -66,6 +68,7 @@ function error<K extends keyof Errors>(k: K, message: string): Errors {
   return {
     mascherineFFP: O.none,
     mascherineChirurgiche: O.none,
+    mascherineLavabili: O.none,
     gel: O.none,
     guanti: O.none,
     scanner: O.none,
@@ -84,6 +87,7 @@ const errorSemigroup: Semigroup<O.Option<string>> = {
 const errorsSemigroup: Semigroup<Errors> = getStructSemigroup({
   mascherineFFP: errorSemigroup,
   mascherineChirurgiche: errorSemigroup,
+  mascherineLavabili: errorSemigroup,
   gel: errorSemigroup,
   guanti: errorSemigroup,
   scanner: errorSemigroup,
@@ -106,6 +110,12 @@ function validateForm(
           error("mascherineChirurgiche", errorMessages.mascherineChirurgiche)
         )
       ),
+      mascherineLavabili: pipe(
+        PositiveFromString.decode(formState.mascherineLavabili),
+        E.mapLeft(() =>
+          error("mascherineLavabili", errorMessages.mascherineLavabili)
+        )
+      ),
       gel: pipe(
         PositiveFromString.decode(formState.gel),
         E.mapLeft(() => error("gel", errorMessages.gel))
@@ -125,13 +135,23 @@ function validateForm(
         )
       ),
     }),
-    E.map(({ mascherineFFP, mascherineChirurgiche, gel, guanti, scanner }) => ({
-      mascherineFFP,
-      mascherineChirurgiche,
-      gel,
-      guanti,
-      scanner,
-    }))
+    E.map(
+      ({
+        mascherineFFP,
+        mascherineChirurgiche,
+        mascherineLavabili,
+        gel,
+        guanti,
+        scanner,
+      }) => ({
+        mascherineFFP,
+        mascherineChirurgiche,
+        mascherineLavabili,
+        gel,
+        guanti,
+        scanner,
+      })
+    )
   );
 }
 
@@ -148,6 +168,7 @@ export function UpdateViewForm(props: Props) {
   const [formState, setFormState] = React.useState<FormState>({
     mascherineFFP: String(props.previousValues.mascherineFFP),
     mascherineChirurgiche: String(props.previousValues.mascherineChirurgiche),
+    mascherineLavabili: String(props.previousValues.mascherineLavabili),
     gel: String(props.previousValues.gel),
     guanti: String(props.previousValues.guanti),
     scanner: String(props.previousValues.scanner),
@@ -168,6 +189,9 @@ export function UpdateViewForm(props: Props) {
     mascherineChirurgiche:
       formState.mascherineChirurgiche ===
       String(props.previousValues.mascherineChirurgiche),
+    mascherineLavabili:
+      formState.mascherineLavabili ===
+      String(props.previousValues.mascherineLavabili),
     gel: formState.gel === String(props.previousValues.gel),
     guanti: formState.guanti === String(props.previousValues.guanti),
     scanner: formState.scanner === String(props.previousValues.scanner),
@@ -176,6 +200,7 @@ export function UpdateViewForm(props: Props) {
     const validated = validateForm(formState, {
       mascherineFFP: formatMessage("UpdateViewForm.errorMascherine"),
       mascherineChirurgiche: formatMessage("UpdateViewForm.errorMascherine"),
+      mascherineLavabili: formatMessage("UpdateViewForm.errorMascherine"),
       gel: formatMessage("UpdateViewForm.errorGel"),
       guanti: formatMessage("UpdateViewForm.errorGuanti"),
       scanner: formatMessage("UpdateViewForm.errorScanner"),
@@ -207,6 +232,12 @@ export function UpdateViewForm(props: Props) {
       ] as Children[]).concat(
         changed.mascherineChirurgiche ? [changedLabel] : []
       ),
+      mascherineLavabili: ([
+        <FormattedMessage
+          tagName="span"
+          id="UpdateViewForm.labelMascherineLavabili"
+        />,
+      ] as Children[]).concat(changed.mascherineLavabili ? [changedLabel] : []),
       gel: ([
         <FormattedMessage tagName="span" id="UpdateViewForm.labelGel" />,
       ] as Children[]).concat(changed.gel ? [changedLabel] : []),
@@ -265,6 +296,23 @@ export function UpdateViewForm(props: Props) {
               value={formState.mascherineFFP}
               onChange={onChange("mascherineFFP")}
               label={labels.mascherineFFP}
+              labelSize={2}
+              placeholder={formatMessage(
+                "UpdateViewForm.placeholderMascherine"
+              )}
+              clearable={O.some("0")}
+              width="100%"
+            />
+            <Space units={2} />
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
+                O.chain(e => e.mascherineLavabili)
+              )}
+              value={formState.mascherineLavabili}
+              onChange={onChange("mascherineLavabili")}
+              label={labels.mascherineLavabili}
               labelSize={2}
               placeholder={formatMessage(
                 "UpdateViewForm.placeholderMascherine"

@@ -29,6 +29,7 @@ function toAPISupplies(values: Values): Array<SupplyData> {
   return [
     { good: "MascherinaFFP", quantity: values.mascherineFFP },
     { good: "MascherinaChirurgica", quantity: values.mascherineChirurgiche },
+    { good: "MascherinaLavabile", quantity: values.mascherineLavabili },
     { good: "Gel", quantity: values.gel },
     { good: "Guanti", quantity: values.guanti },
     { good: "Termoscanner", quantity: values.scanner },

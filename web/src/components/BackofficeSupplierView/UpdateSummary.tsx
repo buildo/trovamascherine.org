@@ -19,6 +19,7 @@ export function UpdateSummary(props: Props) {
           mascherina={right({
             ffp: props.values.mascherineFFP,
             chirurgica: props.values.mascherineChirurgiche,
+            lavabile: props.values.mascherineLavabili,
           })}
           gel={props.values.gel}
           glove={props.values.guanti}

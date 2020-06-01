@@ -50,6 +50,8 @@ function fromAPIGood(good: HandledGood): keyof Values {
       return "mascherineFFP";
     case "MascherinaChirurgica":
       return "mascherineChirurgiche";
+    case "MascherinaLavabile":
+      return "mascherineLavabili";
     case "Gel":
       return "gel";
     case "Guanti":
@@ -71,6 +73,7 @@ function fromAPISupplies(
       {
         mascherineFFP: 0,
         mascherineChirurgiche: 0,
+        mascherineLavabili: 0,
         gel: 0,
         guanti: 0,
         scanner: 0,
