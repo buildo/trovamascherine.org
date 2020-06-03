@@ -8,7 +8,7 @@ import {
   GetSupplierByTokenError,
   genericError,
 } from "../../API";
-import { SupplyData, Good, Supplier } from "../../domain";
+import { SupplyData, Good, SupplierData } from "../../domain";
 import { pipe } from "fp-ts/lib/pipeable";
 import * as O from "fp-ts/lib/Option";
 import { useAPI } from "../../useAPI";
@@ -92,7 +92,8 @@ export type SupplierBackofficeStatus =
   | {
       status: "submitted";
       values: Values;
-      supplierData: Supplier["data"];
+      data: SupplierData;
+      lastUpdatedOn: O.Option<Date>;
     };
 
 export function BackofficeSupplierView(props: Props): JSX.Element {
@@ -116,7 +117,7 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
         supplierData,
         RD.chain(supplier =>
           pipe(
-            fromAPISupplies(supplier.data.supplies),
+            fromAPISupplies(supplier.supplies),
             RD.map(supplies => ({ ...supplier, supplies }))
           )
         ),
@@ -138,13 +139,14 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
                 <Header />
                 <Box grow column={isMobile}>
                   <SupplierInfo
-                    {...supplier.data}
+                    {...supplier}
                     onEditSettings={O.some(props.goToSettings)}
                   />
                   <UpdateSuppliesView
                     token={props.token}
                     supplierData={supplier.data}
                     supplies={supplier.supplies}
+                    lastUpdatedOn={supplier.lastUpdatedOn}
                     setBackofficeStatus={setStatus}
                   />
                 </Box>
@@ -161,9 +163,7 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
         <Box column height="100%">
           <Header />
           <Box grow column={isMobile}>
-            {!isMobile && (
-              <SupplierInfo {...status.supplierData} onEditSettings={O.none} />
-            )}
+            {!isMobile && <SupplierInfo {...status} onEditSettings={O.none} />}
             <Box
               column
               hAlignContent="center"
@@ -178,7 +178,7 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
               {isMobile && (
                 <>
                   {pipe(
-                    status.supplierData.name,
+                    status.data.name,
                     O.map(name => (
                       <>
                         <Title size={3}>{name}</Title>
@@ -187,7 +187,7 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
                     )),
                     O.toNullable
                   )}
-                  <Address {...status.supplierData} />
+                  <Address {...status.data} />
                   <Space units={10} />
                 </>
               )}

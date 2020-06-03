@@ -5,7 +5,7 @@ import * as O from "fp-ts/lib/Option";
 import { SupplierData } from "../../domain";
 import * as classes from "./Address.treat";
 
-export type Props = Omit<SupplierData, "supplies"> & {
+export type Props = SupplierData & {
   dark?: true;
 };
 

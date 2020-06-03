@@ -15,7 +15,8 @@ case class NotificationsConfig(
   afternoonSchedule: String,
   welcomeSchedule: String,
   welcomeAttachmentPath: String,
-  url: String,
+  baseUrl: String,
+  updateBaseUrl: String,
   from: String,
   subject: String,
 )

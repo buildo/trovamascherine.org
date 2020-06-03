@@ -11,7 +11,7 @@ import ReactMapGL, {
 
 import { GeoJSONSource } from "mapbox-gl";
 
-import { SupplierData } from "../../domain";
+import { FrontOfficeSupplier } from "../../domain";
 import * as classes from "./Map.treat";
 import PharmacyMarkes from "./PharmacyMarkers";
 import { config } from "../../config";
@@ -36,18 +36,18 @@ const mapbox_api = config.mapboxApiKey;
 
 const MAPBOX_MAP_STYLE = "mapbox://styles/mapbox/streets-v10?optimize=true";
 
-const generateFeature = (supplier: SupplierData) => ({
+const generateFeature = (supplier: FrontOfficeSupplier) => ({
   type: "Feature",
   geometry: {
     type: "Point",
-    coordinates: [supplier.longitude, supplier.latitude],
+    coordinates: [supplier.data.longitude, supplier.data.latitude],
   },
   properties: {
-    _id: supplier.id,
+    _id: supplier.data.id,
   },
 });
 
-const generateGeoJSON = (suppliersData: Array<SupplierData>) => {
+const generateGeoJSON = (suppliersData: Array<FrontOfficeSupplier>) => {
   return {
     type: "FeatureCollection",
     features: suppliersData.map(generateFeature),
@@ -86,7 +86,7 @@ type IMapState = {
 };
 
 interface IMapProps {
-  mapSearchResults: Array<SupplierData>;
+  mapSearchResults: Array<FrontOfficeSupplier>;
   mapState: MapState;
   onMapStateChange: (mapState: MapState) => unknown;
   supplier: Option<UUID>;
@@ -168,10 +168,10 @@ export default class Map extends React.Component<IMapProps, IMapState> {
 
   onPharmacyClick = (id: string) => {
     const selectedSupplier = this.props.mapSearchResults.filter(
-      sup => sup.id === id
+      sup => sup.data.id === id
     )[0];
 
-    this.props.onSupplierChange(option.some(selectedSupplier.id));
+    this.props.onSupplierChange(option.some(selectedSupplier.data.id));
   };
 
   filterVisibleMarker = () => {
@@ -367,7 +367,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
           option.chain(id =>
             pipe(
               this.props.mapSearchResults,
-              array.findFirst(s => s.id === id)
+              array.findFirst(s => s.data.id === id)
             )
           ),
           option.fold(constNull, supplier => (

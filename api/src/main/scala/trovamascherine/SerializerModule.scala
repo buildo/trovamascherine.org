@@ -3,8 +3,6 @@ package trovamascherine
 import de.heikoseeberger.akkahttpcirce.ErrorAccumulatingCirceSupport
 import io.circe.{Decoder, Encoder}
 import io.circe.generic.semiauto.{deriveDecoder, deriveEncoder}
-import io.circe.generic.extras.semiauto.{deriveUnwrappedDecoder, deriveUnwrappedEncoder}
-
 import io.buildo.enumero.CirceSupport
 import wiro.Auth
 
@@ -21,8 +19,8 @@ trait SerializerModule extends ErrorAccumulatingCirceSupport with CirceSupport {
   implicit val encodeSupplier: Encoder[Supplier] = deriveEncoder
   implicit val decodeSupplier: Decoder[Supplier] = deriveDecoder
 
-  implicit val encodeFrontOfficeSupplier: Encoder[FrontOfficeSupplier] = deriveUnwrappedEncoder
-  implicit val decodeFrontOfficeSupplier: Decoder[FrontOfficeSupplier] = deriveUnwrappedDecoder
+  implicit val encodeFrontOfficeSupplier: Encoder[FrontOfficeSupplier] = deriveEncoder
+  implicit val decodeFrontOfficeSupplier: Decoder[FrontOfficeSupplier] = deriveDecoder
 
   implicit val encodeSupplierDataUpdate: Encoder[SupplierDataUpdate] = deriveEncoder
   implicit val decodeSupplierDataUpdate: Decoder[SupplierDataUpdate] = deriveDecoder

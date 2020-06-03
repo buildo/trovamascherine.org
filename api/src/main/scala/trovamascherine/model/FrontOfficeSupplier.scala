@@ -1,13 +1,19 @@
 package trovamascherine.model
 
-class FrontOfficeSupplier(
-  val data: SupplierData,
-) extends AnyVal
+import java.time.Instant
+
+case class FrontOfficeSupplier(
+  data: SupplierData,
+  supplies: List[Supply],
+  lastUpdatedOn: Option[Instant],
+)
 
 object FrontOfficeSupplier {
   def apply(supplier: Supplier): FrontOfficeSupplier = new FrontOfficeSupplier(
-    supplier.data.copy(
+    data = supplier.data.copy(
       phoneNumber = supplier.data.phoneNumber.filter(_ => supplier.config.showPhoneNumber),
     ),
+    supplies = supplier.supplies,
+    lastUpdatedOn = supplier.lastUpdatedOn,
   )
 }

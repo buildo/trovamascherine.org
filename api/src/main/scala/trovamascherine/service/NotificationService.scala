@@ -67,7 +67,7 @@ class NotificationService(
         subject = subjectWithNameAndDate(supplier, config.subject),
         templateName = "mail.html",
         params = Map(
-          "url" -> s"${config.url}${supplier.token}",
+          "url" -> s"${config.updateBaseUrl}${supplier.token}",
           "supplier_name" -> supplier.name,
           "supplier_address" -> s"${supplier.address} - ${supplier.city}",
         ),
@@ -75,40 +75,42 @@ class NotificationService(
     )
 
   private[this] def sendWelcomeEmail(
-    email: String,
+    supplier: SupplierData,
   ): Future[Either[MailError, MailResult]] =
     mailer.send(
       Mail(
-        to = email,
+        to = supplier.email,
         from = config.from,
         subject = "Conferma iscrizione farmacia al portale TrovaMascherine",
         templateName = "welcome.html",
-        params = Map.empty,
+        params = Map(
+          "link" -> s"${config.baseUrl}?latitude=${supplier.latitude}&longitude=${supplier.longitude}&zoom=17&supplier=${supplier.id}",
+        ),
         attachments = List(attachments.welcome),
       ),
     )
 
   private[this] def sendWelcomeEmailsHelper(
-    emails: List[String],
+    suppliers: List[SupplierData],
   ): Future[List[Either[String, String]]] =
-    emails
+    suppliers
       .foldLeft(
         Future.successful(Nil: List[Either[String, String]]),
-      ) { (f, email) =>
+      ) { (f, supplier) =>
         for {
           oldResults <- f
-          emailResult <- sendWelcomeEmail(email)
+          emailResult <- sendWelcomeEmail(supplier)
         } yield {
-          emailResult.map(_ => email).leftMap(_.message) :: oldResults
+          emailResult.map(_ => supplier.email).leftMap(_.message) :: oldResults
         }
       }
 
   def sendWelcomeEmails(): Future[Either[String, Unit]] = {
     val limit = 100
     (for {
-      emails <- EitherT(supplierRepo.listWelcomeEmailNotSent(limit))
-      _ = logger.info(s"sending ${emails.length} welcome emails")
-      sentEmails <- EitherT.right(sendWelcomeEmailsHelper(emails).map { emailsResult =>
+      suppliers <- EitherT(supplierRepo.listWelcomeEmailNotSent(limit))
+      _ = logger.info(s"sending ${suppliers.length} welcome emails")
+      sentEmails <- EitherT.right(sendWelcomeEmailsHelper(suppliers).map { emailsResult =>
         val (lefts, rights) = emailsResult.separate
         logger.error(s"failed to send following welcome emails ${lefts.toString}")
         rights

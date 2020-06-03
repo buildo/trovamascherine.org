@@ -1,5 +1,5 @@
 import React from "react";
-import { SupplierData } from "../../domain";
+import { FrontOfficeSupplier } from "../../domain";
 import PharmacyMarker from "../PharmacyMarker";
 import { option } from "fp-ts";
 import { pipe } from "fp-ts/lib/pipeable";
@@ -8,7 +8,7 @@ import { findByGood, quantityByGood } from "../../util/goodQuantity";
 import { UUID } from "io-ts-types/lib/UUID";
 
 interface IPharmacyMarkersProps {
-  mapSearchResults: Array<SupplierData>;
+  mapSearchResults: Array<FrontOfficeSupplier>;
   onSelect: (id: UUID) => void;
   currentVisibleMarkers: {
     [key: string]: boolean;
@@ -50,14 +50,14 @@ function PharmacyMarkers(props: IPharmacyMarkersProps) {
         };
         return (
           <PharmacyMarker
-            latitude={supplier.latitude}
-            longitude={supplier.longitude}
-            key={supplier.id}
-            id={supplier.id}
-            onClick={() => props.onSelect(supplier.id)}
+            latitude={supplier.data.latitude}
+            longitude={supplier.data.longitude}
+            key={supplier.data.id}
+            id={supplier.data.id}
+            onClick={() => props.onSelect(supplier.data.id)}
             quantities={quantities}
             updatedOnce={option.isSome(supplier.lastUpdatedOn)}
-            isVisible={props.currentVisibleMarkers[supplier.id]}
+            isVisible={props.currentVisibleMarkers[supplier.data.id]}
           />
         );
       })}

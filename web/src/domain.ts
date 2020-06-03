@@ -35,8 +35,6 @@ export const SupplierData = t.type(
     address: t.string,
     cap: t.string,
     name: optionFromNullable(t.string),
-    lastUpdatedOn: optionFromNullable(DateFromISOString),
-    supplies: t.array(SupplyData),
     city: optionFromNullable(t.string),
     province: optionFromNullable(t.string),
     phoneNumber: optionFromNullable(NonEmptyString),
@@ -55,8 +53,17 @@ export const SupplierConfig = t.type(
 );
 export type SupplierConfig = t.TypeOf<typeof SupplierConfig>;
 
+export const FrontOfficeSupplier = t.type({
+  data: SupplierData,
+  lastUpdatedOn: optionFromNullable(DateFromISOString),
+  supplies: t.array(SupplyData),
+});
+export type FrontOfficeSupplier = t.TypeOf<typeof FrontOfficeSupplier>;
+
 export const Supplier = t.type({
   data: SupplierData,
+  lastUpdatedOn: optionFromNullable(DateFromISOString),
+  supplies: t.array(SupplyData),
   config: SupplierConfig,
 });
 export type Supplier = t.TypeOf<typeof Supplier>;

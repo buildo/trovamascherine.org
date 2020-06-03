@@ -3,7 +3,7 @@ import { option, array, monoid } from "fp-ts";
 import { Box } from "../Box/Box";
 import { GoodStatusDetails } from "../GoodStatusDetails/GoodStatusDetails";
 import { Modal } from "../Modal/Modal";
-import { SupplierData } from "../../domain";
+import { FrontOfficeSupplier } from "../../domain";
 import * as classes from "./PharmacyModal.treat";
 import { pipe } from "fp-ts/lib/pipeable";
 import { toNullable, fold, isSome, some, map } from "fp-ts/lib/Option";
@@ -25,7 +25,7 @@ import { PhoneButton } from "../PhoneButton/PhoneButton";
 
 interface Props {
   onDismiss: () => unknown;
-  selectedSupplier: SupplierData;
+  selectedSupplier: FrontOfficeSupplier;
 }
 
 const defaultQuantity = constant(0);
@@ -33,7 +33,7 @@ const defaultQuantity = constant(0);
 function _PharmacyModal(props: Props) {
   const { selectedSupplier } = props;
   const { supplies } = selectedSupplier;
-  const name = pipe(selectedSupplier.name, toNullable);
+  const name = pipe(selectedSupplier.data.name, toNullable);
   const formatMessage = useFormatMessage();
 
   const ffp = quantityByGood("MascherinaFFP", supplies);
@@ -70,7 +70,7 @@ function _PharmacyModal(props: Props) {
   const space = isMobile ? <Space units={4} /> : <Space units={8} />;
   const buttonSize = isMobile ? "small" : "medium";
   const phoneButton = pipe(
-    selectedSupplier.phoneNumber,
+    selectedSupplier.data.phoneNumber,
     map(phoneNumber => <PhoneButton size={buttonSize} number={phoneNumber} />)
   );
 
@@ -87,7 +87,7 @@ function _PharmacyModal(props: Props) {
             <Space units={3} />
             <WhatsAppButton
               size={buttonSize}
-              title={props.selectedSupplier.name}
+              title={props.selectedSupplier.data.name}
               link={document.location.href}
             />
           </Box>
@@ -110,17 +110,17 @@ function _PharmacyModal(props: Props) {
     >
       <Box column width="100%">
         <Box className={classes.pharmacyModalContentAddress}>
-          {selectedSupplier.address}
+          {selectedSupplier.data.address}
           {pipe(
-            selectedSupplier.city,
+            selectedSupplier.data.city,
             fold(
               () => "",
               city => `, ${city}`
             )
           )}{" "}
-          - {selectedSupplier.cap}
+          - {selectedSupplier.data.cap}
           {pipe(
-            selectedSupplier.province,
+            selectedSupplier.data.province,
             fold(
               () => "",
               province => ` (${province})`

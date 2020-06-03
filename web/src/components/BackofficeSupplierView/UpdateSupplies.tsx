@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import { SupplyData, Supplier } from "../../domain";
+import { SupplyData, SupplierData } from "../../domain";
 import { SupplyInfoModal } from "./SupplyInfoModal";
 import { UpdateViewForm, Values } from "./UpdateForm";
 import { isNone, option, fold } from "fp-ts/lib/Option";
 import * as TE from "fp-ts/lib/TaskEither";
+import * as O from "fp-ts/lib/Option";
 import { sequenceS } from "fp-ts/lib/Apply";
 import { SupplierBackofficeStatus } from "./BackofficeSupplierView";
 import { pipe } from "fp-ts/lib/pipeable";
@@ -18,7 +19,8 @@ import { useIsMobile } from "../../useMatchMedia";
 
 type Props = {
   token: NonEmptyString;
-  supplierData: Supplier["data"];
+  supplierData: SupplierData;
+  lastUpdatedOn: O.Option<Date>;
   supplies: Values;
   setBackofficeStatus: React.Dispatch<
     React.SetStateAction<SupplierBackofficeStatus>
@@ -74,7 +76,8 @@ export function UpdateSuppliesView(props: Props) {
               props.setBackofficeStatus({
                 status: "submitted",
                 values,
-                supplierData: props.supplierData,
+                data: props.supplierData,
+                lastUpdatedOn: props.lastUpdatedOn,
               });
             } else {
               props.setBackofficeStatus({ status: "error" });

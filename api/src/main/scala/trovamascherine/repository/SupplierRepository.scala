@@ -42,7 +42,7 @@ trait SupplierRepository {
   def listEnabled(): Future[List[(UUID, String)]]
   def listEnabledWithToken(): Future[Either[String, List[EmailSupplier]]]
   def acceptTerms(supplierId: UUID): Future[Either[String, Unit]]
-  def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[String]]]
+  def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[SupplierData]]]
   def setWelcomeEmailsSent(emails: List[String]): Future[Either[String, Unit]]
 }
 
@@ -96,23 +96,43 @@ object SupplierConverters {
               latitude = supplier.coordinates.getCoordinate().y,
               longitude = supplier.coordinates.getCoordinate().x,
               address = supplier.address,
+              email = supplier.email,
               cap = supplier.cap,
               city = supplier.comune,
               province = supplier.province,
               name = supplier.name,
               vatNumber = supplier.vatNumber,
               phoneNumber = supplier.referencephone,
-              lastUpdatedOn = lastUpdatedOn.map(_.toInstant),
-              supplies = convertSupply(usableSupplies),
               termsAcceptedOn = supplier.termsAcceptedOn.map(_.toInstant),
               privacyPolicyAcceptedOn = supplier.privacyPolicyAcceptedOn.map(_.toInstant),
             ),
+            supplies = convertSupply(usableSupplies),
+            lastUpdatedOn = lastUpdatedOn.map(_.toInstant),
             config = SupplierConfig(
               showPhoneNumber = supplier.showPhone,
             ),
           )
       }
       .toList
+
+  def convertSupplierDataList(rows: Seq[SupplierRow]): List[SupplierData] =
+    rows.map { supplier =>
+      SupplierData(
+        id = supplier.id,
+        latitude = supplier.coordinates.getCoordinate().y,
+        longitude = supplier.coordinates.getCoordinate().x,
+        address = supplier.address,
+        email = supplier.email,
+        cap = supplier.cap,
+        city = supplier.comune,
+        province = supplier.province,
+        name = supplier.name,
+        vatNumber = supplier.vatNumber,
+        phoneNumber = supplier.referencephone,
+        termsAcceptedOn = supplier.termsAcceptedOn.map(_.toInstant),
+        privacyPolicyAcceptedOn = supplier.privacyPolicyAcceptedOn.map(_.toInstant),
+      )
+    }.toList
 }
 
 object SupplierRepository extends Recoverable {
@@ -239,16 +259,15 @@ object SupplierRepository extends Recoverable {
         )
       }
 
-      override def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[String]]] =
+      override def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[SupplierData]]] =
         recoverToEither {
           db.run(
               SupplierTable
                 .filter(s => s.enabled === true && s.welcomeEmailSent === false)
-                .map(_.email)
                 .take(limit)
                 .result,
             )
-            .map(_.toList)
+            .map(convertSupplierDataList)
         }
 
       override def setWelcomeEmailsSent(emails: List[String]): Future[Either[String, Unit]] =

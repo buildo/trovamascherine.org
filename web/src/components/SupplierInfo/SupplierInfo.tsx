@@ -4,7 +4,7 @@ import { Title } from "../Text/Title";
 import { pipe } from "fp-ts/lib/pipeable";
 import { getOrElse, some, Option, map, toNullable } from "fp-ts/lib/Option";
 import { useFormatMessage } from "../../intl";
-import { SupplierData } from "../../domain";
+import { Supplier } from "../../domain";
 import { Address } from "./Address";
 import { LastUpdate } from "./LastUpdate";
 import { Space } from "../Space/Space";
@@ -13,7 +13,7 @@ import * as classes from "./SupplierInfo.treat";
 import { Button } from "../Button/Button";
 import { SettingsIcon } from "../Icons/SettingsIcon";
 
-type Props = Omit<SupplierData, "supplies"> & {
+type Props = Omit<Supplier, "supplies" | "config"> & {
   onEditSettings: Option<() => unknown>;
 };
 
@@ -24,11 +24,11 @@ export function SupplierInfo(props: Props) {
     <Box column className={classes.info} width={!isMobile ? 400 : undefined}>
       <Title size={2}>
         {pipe(
-          props.name,
+          props.data.name,
           getOrElse(() => formatMessage("SupplierInfo.unknownSupplier"))
         )}
       </Title>
-      <Address {...props} dark />
+      <Address {...props.data} dark />
       <Space units={4} />
       <LastUpdate
         value={props.lastUpdatedOn}

@@ -1,10 +1,10 @@
 import * as t from "io-ts";
 import {
-  SupplierData,
   SupplyData,
   Supplier,
   SupplierDataUpdate,
   SupplierConfig,
+  FrontOfficeSupplier,
 } from "./domain";
 import { fetchAPI } from "./fetchAPI";
 import { pipe } from "fp-ts/lib/pipeable";
@@ -12,11 +12,11 @@ import { flow } from "fp-ts/lib/function";
 import { either, taskEither } from "fp-ts";
 import { TaskEither, chainEitherKW } from "fp-ts/lib/TaskEither";
 
-const MapSearchResults = t.array(SupplierData, "MapSearchResult");
+const MapSearchResults = t.array(FrontOfficeSupplier, "MapSearchResult");
 
 export function getMapSearchResults(): TaskEither<
   unknown,
-  Array<SupplierData>
+  Array<FrontOfficeSupplier>
 > {
   return pipe(
     fetchAPI({ method: "GET", url: ["supplier", "list"] }),

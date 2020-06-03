@@ -48,7 +48,7 @@ export function BackofficeSettingsView(props: Props): JSX.Element {
             <Header />
             <Box grow column={isMobile}>
               {!isMobile && (
-                <SupplierInfo {...supplier.data} onEditSettings={O.none} />
+                <SupplierInfo {...supplier} onEditSettings={O.none} />
               )}
               <SupplierSettings
                 supplierConfig={supplier.config}
