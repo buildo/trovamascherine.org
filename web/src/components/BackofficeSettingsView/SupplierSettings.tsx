@@ -53,7 +53,7 @@ function Setting<T>(props: {
   return (
     <Box column>
       <Box vAlignContent="center">
-        <Title size={6}>{formatMessage("SupplierSettings.phoneNumber")}</Title>
+        <Title size={6}>{props.title}</Title>
         <Space grow />
         <Button
           variant="flat"
@@ -96,7 +96,7 @@ function Setting<T>(props: {
           </Box>
         </>
       ) : (
-        props.valueFormatter(props.value)
+        <Box>{props.valueFormatter(props.value)}</Box>
       )}
     </Box>
   );
