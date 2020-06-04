@@ -24,14 +24,14 @@ export function getViewportStateFromBounds(
   bounds: Bounds,
   viewport: WebMercatorViewport
 ): WebMercatorViewport {
-  const { longitude, latitude, zoom } = new WebMercatorViewport(
-    viewport
-  ).fitBounds(bounds);
+  const { longitude, latitude } = new WebMercatorViewport(viewport).fitBounds(
+    bounds
+  );
 
   const newViewState = Object.assign({}, viewport, {
     longitude,
     latitude,
-    zoom,
+    zoom: 14,
     transitionInterpolator: new FlyToInterpolator({ speed: 1.2 }),
     transitionDuration: "auto",
   });
