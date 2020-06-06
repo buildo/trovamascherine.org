@@ -55,6 +55,16 @@ export function SupplyInfoModal(props: Props): JSX.Element {
 
         <Space units={10} />
 
+        <Title size={3}>Alchool Etilico Denaturato</Title>
+        <Space units={4} />
+        <Text size={2}>
+          Inserire la somma delle singole unità di alcol etilico denaturato
+          disponibili alla vendita. Non inserire confenzioni pre-ordinate o non
+          disponibili alla vendita.
+        </Text>
+
+        <Space units={10} />
+
         <Title size={3}>Gel Disinfettante</Title>
         <Space units={4} />
         <Text size={2}>
@@ -81,6 +91,16 @@ export function SupplyInfoModal(props: Props): JSX.Element {
         <Text size={2}>
           Inserire la somma delle unità di termoscanner disponibili alla
           vendita. Non inserire i termoscanner non disponibili alla vendita e/o
+          pre-ordinati da clienti.
+        </Text>
+
+        <Space units={10} />
+
+        <Title size={3}>Pulsossimetri</Title>
+        <Space units={4} />
+        <Text size={2}>
+          Inserire la somma delle unità di pulsossimetri disponibili alla
+          vendita. Non inserire i pulsossimetri non disponibili alla vendita e/o
           pre-ordinati da clienti.
         </Text>
 

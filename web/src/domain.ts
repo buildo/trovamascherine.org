@@ -13,6 +13,8 @@ export const Good = t.keyof(
     Guanti: true,
     Gel: true,
     Termoscanner: true,
+    Alchool: true,
+    Pulsossimetro: true,
   },
   "Good"
 );

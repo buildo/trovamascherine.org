@@ -24,6 +24,8 @@ export function UpdateSummary(props: Props) {
           gel={props.values.gel}
           glove={props.values.guanti}
           termoScanner={props.values.scanner}
+          alchool={props.values.alchool}
+          pulsossimetro={props.values.pulsossimetri}
         />
       </Box>
       <Space units={10} />

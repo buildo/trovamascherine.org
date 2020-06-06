@@ -1,18 +1,26 @@
 import React from "react";
 import { Box } from "../Box/Box";
 import { Subtitle } from "../Text/Subtitle";
-import * as classes from "./GoodStatusDetail.treat";
 import { MaskIcon } from "../Icons/MaskIcon";
 import { GelIcon } from "../Icons/GelIcon";
 import { GlovesIcon } from "../Icons/GlovesIcon";
 import { TermoScannerIcon } from "../Icons/TermoScannerIcon";
+import * as classes from "./GoodStatusDetail.treat";
 import { getColorFromBucket } from "../../util/ColorBucket";
 import { useFormatMessage } from "../../intl";
 import { Title } from "../Text/Title";
 import { useIsMobile } from "../../useMatchMedia";
+import { AlchoolIcon } from "../Icons/AlchoolIcon";
+import { PulseMeterIcon } from "../Icons/ PulseMeterIcon";
 
 interface GoodStatus {
-  good: "Mascherina" | "Guanti" | "Gel" | "Termoscanner";
+  good:
+    | "Mascherina"
+    | "Guanti"
+    | "Gel"
+    | "Termoscanner"
+    | "Alchool"
+    | "Pulsossimetro";
   quantity: number;
 }
 
@@ -46,6 +54,10 @@ function renderIconFromName(name: GoodStatus["good"]) {
       return GelIcon;
     case "Termoscanner":
       return TermoScannerIcon;
+    case "Alchool":
+      return AlchoolIcon;
+    case "Pulsossimetro":
+      return PulseMeterIcon;
   }
 }
 
@@ -63,6 +75,10 @@ function GoodStatusDetail(props: GoodStatus) {
         return formatMessage("GoodStatusDetail.labelGuanti");
       case "Termoscanner":
         return formatMessage("GoodStatusDetail.labelTermoscanner");
+      case "Alchool":
+        return formatMessage("GoodStatusDetail.labelAlchool");
+      case "Pulsossimetro":
+        return formatMessage("GoodStatusDetail.labelPulsossimetro");
     }
   })();
   const isMobile = useIsMobile();
@@ -70,11 +86,11 @@ function GoodStatusDetail(props: GoodStatus) {
   const archWidth = isMobile ? 60 : 120;
   const archHeight = archWidth / 1.22;
   const iconVDisplacement = isMobile ? 12 : 20;
-  const labelSize = isMobile ? 4 : 3;
+  const labelSize = isMobile ? 5 : 4;
   const titleSize = isMobile ? 5 : 4;
 
   return (
-    <Box width="33%" column hAlignContent="center">
+    <Box width="100%" column hAlignContent="center">
       <Box
         width={archWidth}
         height={archHeight}

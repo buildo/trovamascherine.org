@@ -34,6 +34,8 @@ type FormState = {
   gel: string;
   guanti: string;
   scanner: string;
+  alchool: string;
+  pulsossimetri: string;
   acceptance: boolean;
 };
 
@@ -56,6 +58,8 @@ export const Values = t.type(
     gel: t.number,
     guanti: t.number,
     scanner: t.number,
+    alchool: t.number,
+    pulsossimetri: t.number,
   },
   "Values"
 );
@@ -72,6 +76,8 @@ function error<K extends keyof Errors>(k: K, message: string): Errors {
     gel: O.none,
     guanti: O.none,
     scanner: O.none,
+    alchool: O.none,
+    pulsossimetri: O.none,
     acceptance: O.none,
     [k]: O.some(message),
   };
@@ -91,6 +97,8 @@ const errorsSemigroup: Semigroup<Errors> = getStructSemigroup({
   gel: errorSemigroup,
   guanti: errorSemigroup,
   scanner: errorSemigroup,
+  alchool: errorSemigroup,
+  pulsossimetri: errorSemigroup,
   acceptance: errorSemigroup,
 });
 
@@ -128,6 +136,14 @@ function validateForm(
         PositiveFromString.decode(formState.scanner),
         E.mapLeft(() => error("scanner", errorMessages.scanner))
       ),
+      alchool: pipe(
+        PositiveFromString.decode(formState.alchool),
+        E.mapLeft(() => error("alchool", errorMessages.alchool))
+      ),
+      pulsossimetri: pipe(
+        PositiveFromString.decode(formState.pulsossimetri),
+        E.mapLeft(() => error("pulsossimetri", errorMessages.pulsossimetri))
+      ),
       acceptance: pipe(
         formState.acceptance,
         E.fromPredicate(identity, () =>
@@ -143,6 +159,8 @@ function validateForm(
         gel,
         guanti,
         scanner,
+        alchool,
+        pulsossimetri,
       }) => ({
         mascherineFFP,
         mascherineChirurgiche,
@@ -150,6 +168,8 @@ function validateForm(
         gel,
         guanti,
         scanner,
+        alchool,
+        pulsossimetri,
       })
     )
   );
@@ -172,6 +192,8 @@ export function UpdateViewForm(props: Props) {
     gel: String(props.previousValues.gel),
     guanti: String(props.previousValues.guanti),
     scanner: String(props.previousValues.scanner),
+    alchool: String(props.previousValues.alchool),
+    pulsossimetri: String(props.previousValues.pulsossimetri),
     acceptance: !props.requireAcceptance,
   });
   const [
@@ -195,6 +217,9 @@ export function UpdateViewForm(props: Props) {
     gel: formState.gel === String(props.previousValues.gel),
     guanti: formState.guanti === String(props.previousValues.guanti),
     scanner: formState.scanner === String(props.previousValues.scanner),
+    alchool: formState.alchool === String(props.previousValues.alchool),
+    pulsossimetri:
+      formState.pulsossimetri === String(props.previousValues.pulsossimetri),
   };
   function onSubmit() {
     const validated = validateForm(formState, {
@@ -204,6 +229,8 @@ export function UpdateViewForm(props: Props) {
       gel: formatMessage("UpdateViewForm.errorGel"),
       guanti: formatMessage("UpdateViewForm.errorGuanti"),
       scanner: formatMessage("UpdateViewForm.errorScanner"),
+      alchool: formatMessage("UpdateViewForm.errorAlchool"),
+      pulsossimetri: formatMessage("UpdateViewForm.errorPulsossimetri"),
       acceptance: formatMessage("UpdateViewForm.errorAcceptance"),
     });
     if (E.isRight(validated)) {
@@ -238,6 +265,9 @@ export function UpdateViewForm(props: Props) {
           id="UpdateViewForm.labelMascherineLavabili"
         />,
       ] as Children[]).concat(changed.mascherineLavabili ? [changedLabel] : []),
+      alchool: ([
+        <FormattedMessage tagName="span" id="UpdateViewForm.labelAlchool" />,
+      ] as Children[]).concat(changed.alchool ? [changedLabel] : []),
       gel: ([
         <FormattedMessage tagName="span" id="UpdateViewForm.labelGel" />,
       ] as Children[]).concat(changed.gel ? [changedLabel] : []),
@@ -247,6 +277,12 @@ export function UpdateViewForm(props: Props) {
       scanner: ([
         <FormattedMessage tagName="span" id="UpdateViewForm.labelScanner" />,
       ] as Children[]).concat(changed.scanner ? [changedLabel] : []),
+      pulsossimetri: ([
+        <FormattedMessage
+          tagName="span"
+          id="UpdateViewForm.labelPulsossimetri"
+        />,
+      ] as Children[]).concat(changed.pulsossimetri ? [changedLabel] : []),
     },
     R.map(labels => intercalateChildren(<>&nbsp;</>, labels))
   );
@@ -327,6 +363,23 @@ export function UpdateViewForm(props: Props) {
               type="number"
               error={pipe(
                 submittedWithInlineErrors,
+                O.chain(e => e.alchool)
+              )}
+              value={formState.alchool}
+              onChange={onChange("alchool")}
+              label={labels.alchool}
+              labelSize={1}
+              placeholder={formatMessage("UpdateViewForm.placeholderAlchool")}
+              clearable={O.some("0")}
+              width="100%"
+            />
+          </FieldSet>
+          <Space units={6} />
+          <FieldSet>
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
                 O.chain(e => e.gel)
               )}
               value={formState.gel}
@@ -368,6 +421,25 @@ export function UpdateViewForm(props: Props) {
               label={labels.scanner}
               labelSize={1}
               placeholder={formatMessage("UpdateViewForm.placeholderScanner")}
+              clearable={O.some("0")}
+              width="100%"
+            />
+          </FieldSet>
+          <Space units={6} />
+          <FieldSet>
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
+                O.chain(e => e.pulsossimetri)
+              )}
+              value={formState.pulsossimetri}
+              onChange={onChange("pulsossimetri")}
+              label={labels.pulsossimetri}
+              labelSize={1}
+              placeholder={formatMessage(
+                "UpdateViewForm.placeholderPulsossimetri"
+              )}
               clearable={O.some("0")}
               width="100%"
             />

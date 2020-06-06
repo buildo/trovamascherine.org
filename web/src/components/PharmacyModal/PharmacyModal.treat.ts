@@ -7,9 +7,10 @@ export const pharmacyModalContent = style({
 
 export const pharmacyName = style({
   fontSize: "18px",
+  fontWeight: 600,
   marginBottom: "10px",
 });
 
 export const pharmacyModalContentAddress = style({
-  fontSize: "12px",
+  fontSize: "14px",
 });

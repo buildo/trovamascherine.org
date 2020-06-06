@@ -26,6 +26,7 @@ export const modal = style({
 export const header = style({
   padding: 6 * vars.spaceUnit,
   paddingBottom: 2 * vars.spaceUnit,
+  fontWeight: 800,
 });
 
 export const dismissIcon = style({
@@ -38,7 +39,7 @@ export const dismissIcon = style({
 });
 
 export const content = style({
-  paddingTop: 4 * vars.spaceUnit,
+  paddingTop: vars.spaceUnit,
   paddingBottom: 4 * vars.spaceUnit,
   paddingLeft: 6 * vars.spaceUnit,
   paddingRight: 6 * vars.spaceUnit,

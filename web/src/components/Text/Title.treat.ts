@@ -18,7 +18,7 @@ export const titleSizes = styleMap({
     fontSize: "36px",
     lineHeight: "40px",
     color: vars.grey01,
-    fontWeight: vars.fontWeightNormal,
+    fontWeight: vars.fontWeightBold,
   },
   3: {
     fontSize: "24px",
@@ -30,7 +30,7 @@ export const titleSizes = styleMap({
     fontSize: "20px",
     lineHeight: "24px",
     color: vars.grey02,
-    fontWeight: vars.fontWeightMedium,
+    fontWeight: vars.fontWeightBold,
   },
   5: {
     fontSize: "18px",

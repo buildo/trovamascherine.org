@@ -2,12 +2,14 @@ import * as React from "react";
 import { Box } from "../Box/Box";
 import { Space } from "../Space/Space";
 import GoodStatusDetail from "./GoodStatusDetail";
+import GoodStatusDetailBox from "./GoodStatusDetailBox";
 import { useIsMobile } from "../../useMatchMedia";
 import { either } from "fp-ts";
 import { pipe } from "fp-ts/lib/pipeable";
 import { identity } from "fp-ts/lib/function";
 import { Text } from "../Text/Text";
 import { FormattedMessage } from "../../intl";
+import * as classes from "./GoodStatusDetails.treat";
 import { Title } from "../Text/Title";
 
 type Props = {
@@ -18,11 +20,12 @@ type Props = {
   gel: number;
   glove: number;
   termoScanner: number;
+  alchool: number;
+  pulsossimetro: number;
 };
 
 export function GoodStatusDetails(props: Props) {
   const isMobile = useIsMobile();
-  const vSpace = isMobile ? <Space units={4} /> : <Space units={8} />;
   const hSpace = isMobile ? <Space units={2} /> : <Space units={12} />;
   const width = isMobile ? "100%" : "500px";
   const titleSize = isMobile ? 5 : 4;
@@ -36,9 +39,11 @@ export function GoodStatusDetails(props: Props) {
   );
 
   return (
-    <Box column width={width}>
-      <Box width="100%" hAlignContent="center">
-        <GoodStatusDetail good="Mascherina" quantity={totalMasks} />
+    <Box column width={width} className={classes.container}>
+      <Box width="100%" hAlignContent="left" className={classes.mascherineBox}>
+        <Box hAlignContent="left">
+          <GoodStatusDetail good="Mascherina" quantity={totalMasks} />
+        </Box>
         {hSpace}
         {pipe(
           props.mascherina,
@@ -77,13 +82,25 @@ export function GoodStatusDetails(props: Props) {
             )
           )
         )}
-        {hSpace}
       </Box>
-      {vSpace}
-      <Box width="100%" hAlignContent="center">
-        <GoodStatusDetail good="Guanti" quantity={props.glove} />
-        <GoodStatusDetail good="Termoscanner" quantity={props.termoScanner} />
-        <GoodStatusDetail good="Gel" quantity={props.gel} />
+      <Box column>
+        <Box width="100%" hAlignContent="left">
+          <GoodStatusDetailBox good="Gel" quantity={props.gel} />
+          <GoodStatusDetailBox good="Alchool" quantity={props.alchool} />
+        </Box>
+        <Box width="100%" hAlignContent="left">
+          <GoodStatusDetailBox good="Guanti" quantity={props.glove} />
+          <GoodStatusDetailBox
+            good="Termoscanner"
+            quantity={props.termoScanner}
+          />
+        </Box>
+        <Box width="100%" hAlignContent="left">
+          <GoodStatusDetailBox
+            good="Pulsossimetro"
+            quantity={props.pulsossimetro}
+          />
+        </Box>
       </Box>
     </Box>
   );

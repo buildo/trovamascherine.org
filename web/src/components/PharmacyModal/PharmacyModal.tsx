@@ -65,9 +65,17 @@ function _PharmacyModal(props: Props) {
     quantityByGood("Termoscanner", supplies),
     getOrElse(defaultQuantity)
   );
+  const alchool = pipe(
+    quantityByGood("Alchool", supplies),
+    getOrElse(defaultQuantity)
+  );
+  const pulsossimetro = pipe(
+    quantityByGood("Pulsossimetro", supplies),
+    getOrElse(defaultQuantity)
+  );
 
   const isMobile = useIsMobile();
-  const space = isMobile ? <Space units={4} /> : <Space units={8} />;
+  const space = isMobile ? <Space units={4} /> : <Space units={4} />;
   const buttonSize = isMobile ? "small" : "medium";
   const phoneButton = pipe(
     selectedSupplier.data.phoneNumber,
@@ -135,13 +143,16 @@ function _PharmacyModal(props: Props) {
                 value={selectedSupplier.lastUpdatedOn}
                 fallbackMessage={formatMessage("PharmacyModal.neverUpdated")}
               />
-              {space}
+              {/* {space} */}
               <GoodStatusDetails
                 mascherina={mascherina}
                 gel={gel}
                 glove={glove}
                 termoScanner={termoScanner}
+                alchool={alchool}
+                pulsossimetro={pulsossimetro}
               />
+              {space}
             </>
           ) : (
             <>

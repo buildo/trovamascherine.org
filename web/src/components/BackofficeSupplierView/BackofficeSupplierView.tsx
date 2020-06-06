@@ -58,6 +58,10 @@ function fromAPIGood(good: HandledGood): keyof Values {
       return "guanti";
     case "Termoscanner":
       return "scanner";
+    case "Alchool":
+      return "alchool";
+    case "Pulsossimetro":
+      return "pulsossimetri";
   }
 }
 
@@ -77,6 +81,8 @@ function fromAPISupplies(
         gel: 0,
         guanti: 0,
         scanner: 0,
+        alchool: 0,
+        pulsossimetri: 0,
       }
     ),
     Values.decode,

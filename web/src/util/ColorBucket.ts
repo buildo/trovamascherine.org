@@ -22,7 +22,13 @@ function getStatusColorFromQuantity(x: number, y: number, quantity: number) {
   }
 }
 
-type Good = "Mascherina" | "Guanti" | "Gel" | "Termoscanner";
+type Good =
+  | "Mascherina"
+  | "Guanti"
+  | "Gel"
+  | "Termoscanner"
+  | "Alchool"
+  | "Pulsossimetro";
 
 function getBoundsFromGood(good: Good) {
   switch (good) {
@@ -36,6 +42,12 @@ function getBoundsFromGood(good: Good) {
       return { x: 50, y: 200 };
     }
     case "Termoscanner": {
+      return { x: 5, y: 15 };
+    }
+    case "Alchool": {
+      return { x: 50, y: 200 };
+    }
+    case "Pulsossimetro": {
       return { x: 5, y: 15 };
     }
   }

@@ -32,7 +32,7 @@ export const black01 = "#3e404d";
 
 export const spaceUnit = 4;
 
-export const borderRadius = "4px";
+export const borderRadius = "12px";
 
 export const fontWeightNormal = 400;
 export const fontWeightMedium = 600;
