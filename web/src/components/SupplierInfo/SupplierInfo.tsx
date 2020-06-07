@@ -11,6 +11,7 @@ import { Space } from "../Space/Space";
 import { useIsMobile } from "../../useMatchMedia";
 import * as classes from "./SupplierInfo.treat";
 import { Button } from "../Button/Button";
+import { ShareUrlBox } from "../ShareUrlBox/ShareUrlBox";
 import { SettingsIcon } from "../Icons/SettingsIcon";
 
 type Props = Omit<Supplier, "supplies" | "config"> & {
@@ -20,9 +21,10 @@ type Props = Omit<Supplier, "supplies" | "config"> & {
 export function SupplierInfo(props: Props) {
   const formatMessage = useFormatMessage();
   const isMobile = useIsMobile();
+  const link = `${window.location.host}/?latitude=${props.data.latitude}&longitude=${props.data.longitude}&zoom=17&supplier=${props.data.id}`;
   return (
     <Box column className={classes.info} width={!isMobile ? 400 : undefined}>
-      <Title size={2}>
+      <Title size={3}>
         {pipe(
           props.data.name,
           getOrElse(() => formatMessage("SupplierInfo.unknownSupplier"))
@@ -38,15 +40,19 @@ export function SupplierInfo(props: Props) {
       {pipe(
         props.onEditSettings,
         map(onClick => (
-          <Box>
-            <Button
-              variant="flat"
-              size="medium"
-              icon={some(<SettingsIcon width={24} height={24} />)}
-              label={formatMessage("SupplierInfo.editSettings")}
-              action={onClick}
-            />
-          </Box>
+          <>
+            <Box>
+              <Button
+                variant="flat"
+                size="medium"
+                icon={some(<SettingsIcon width={24} height={24} />)}
+                label={formatMessage("SupplierInfo.editSettings")}
+                action={onClick}
+              />
+            </Box>
+            <Space units={isMobile ? 2 : 20} />
+            <ShareUrlBox label={link} />
+          </>
         )),
         toNullable
       )}

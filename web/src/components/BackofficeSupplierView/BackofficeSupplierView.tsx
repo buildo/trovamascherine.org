@@ -29,6 +29,7 @@ import { Space } from "../Space/Space";
 import { Address } from "../SupplierInfo/Address";
 import { Button } from "../Button/Button";
 import { UpdateSuppliesView } from "./UpdateSupplies";
+import { ShareUrlBox } from "../ShareUrlBox/ShareUrlBox";
 
 type Props = {
   token: NonEmptyString;
@@ -109,7 +110,6 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
   const [status, setStatus] = React.useState<SupplierBackofficeStatus>({
     status: "form",
   });
-
   switch (status.status) {
     case "error":
       return (
@@ -165,11 +165,17 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
     case "submitting":
       return <Loading />;
     case "submitted":
+      const link = `${window.location}/?latitude=${status.data.latitude}&longitude=${status.data.longitude}&zoom=17&supplier=${status.data.id}`;
       return (
         <Box column height="100%">
           <Header />
           <Box grow column={isMobile}>
-            {!isMobile && <SupplierInfo {...status} onEditSettings={O.none} />}
+            {!isMobile && (
+              <SupplierInfo
+                {...status}
+                onEditSettings={O.some(props.goToSettings)}
+              />
+            )}
             <Box
               column
               hAlignContent="center"
@@ -177,10 +183,10 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
                 [classes.thankYouMobile]: isMobile,
               })}
             >
-              <Title size={2}>
+              <Title size={3}>
                 <FormattedMessage id="UpdateView.thankYou" />
               </Title>
-              <Space units={10} />
+              <Space units={4} />
               {isMobile && (
                 <>
                   {pipe(
@@ -188,17 +194,17 @@ export function BackofficeSupplierView(props: Props): JSX.Element {
                     O.map(name => (
                       <>
                         <Title size={3}>{name}</Title>
-                        <Space units={4} />
+                        <Space units={2} />
                       </>
                     )),
                     O.toNullable
                   )}
                   <Address {...status.data} />
-                  <Space units={10} />
+                  <ShareUrlBox compactVersion label={link} />
                 </>
               )}
               <UpdateSummary values={status.values} />
-              <Space units={10} />
+              <Space units={4} />
               <Box>
                 <Button
                   variant="primary"

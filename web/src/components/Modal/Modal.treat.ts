@@ -55,7 +55,7 @@ export const footer = style({
   paddingTop: 7 * vars.spaceUnit,
   paddingBottom: 7 * vars.spaceUnit,
   width: "100%",
-  backgroundColor: vars.grey07,
+  backgroundColor: vars.green02,
   borderBottomLeftRadius: vars.borderRadius,
   borderBottomRightRadius: vars.borderRadius,
 });

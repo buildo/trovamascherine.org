@@ -5,6 +5,7 @@ import { PhoneIcon } from "../Icons/PhoneIcon";
 import { useCopyToClipboard } from "../../useCopyToClipboard";
 import { some } from "fp-ts/lib/Option";
 import * as classes from "./PhoneButton.treat";
+import { Space } from "../Space/Space";
 import { Box } from "../Box/Box";
 import { Label } from "../Text/Label";
 import { FormattedMessage } from "../../intl";
@@ -28,25 +29,28 @@ export function PhoneButton(props: Props) {
   const [copy, copied] = useCopyToClipboard(props.number);
   const size = iconSize(props.size);
   return (
-    <Box hAlignContent="center" className={classes.phoneButton}>
-      <Button
-        variant="secondary"
-        size={props.size}
-        icon={some(<PhoneIcon width={size} height={size} />)}
-        label={props.number}
-        action={() => {
-          if (isMobile) {
-            document.location.href = `tel://${props.number}`;
-          } else {
-            copy();
-          }
-        }}
-      />
-      {copied && (
-        <Label className={classes.copiedMessage} size={3}>
-          <FormattedMessage id="PhoneButton.copiedMessage" />
-        </Label>
-      )}
-    </Box>
+    <>
+      <Space units={3} />
+      <Box hAlignContent="center" className={classes.phoneButton} column>
+        <Button
+          variant="secondary"
+          size={props.size}
+          icon={some(<PhoneIcon width={size} height={size} />)}
+          label={props.number}
+          action={() => {
+            if (isMobile) {
+              document.location.href = `tel://${props.number}`;
+            } else {
+              copy();
+            }
+          }}
+        />
+        {copied && (
+          <Label className={classes.copiedMessage} size={3}>
+            <FormattedMessage id="PhoneButton.copiedMessage" />
+          </Label>
+        )}
+      </Box>
+    </>
   );
 }

@@ -6,7 +6,7 @@ import { Footer } from "../Footer/Footer";
 
 export function StatsView() {
   return (
-    <Box column style={{ height: "100vh" }}>
+    <Box column shrink style={{ height: "100vh" }}>
       <StatsHeader />
       <iframe
         title="Statistics"

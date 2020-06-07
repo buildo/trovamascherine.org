@@ -20,6 +20,7 @@ import { Link } from "../Link/Link";
 import { legal } from "./BackofficeSupplierView.treat";
 import { identity } from "fp-ts/lib/function";
 import { CheckboxField } from "../Field/CheckboxField";
+import { useIsMobile } from "../../useMatchMedia";
 
 type Props = {
   previousValues: Values;
@@ -287,6 +288,7 @@ export function UpdateViewForm(props: Props) {
     R.map(labels => intercalateChildren(<>&nbsp;</>, labels))
   );
 
+  const isMobile = useIsMobile();
   return (
     <Box grow className={classes.form}>
       <form
@@ -299,6 +301,7 @@ export function UpdateViewForm(props: Props) {
       >
         <input type="submit" style={{ display: "none" }} />
         <Box column>
+          {!isMobile && <Space units={6} />}
           <Title size={3}>{formatMessage("UpdateViewForm.header")}</Title>
           <Space units={6} />
           <FieldSet>

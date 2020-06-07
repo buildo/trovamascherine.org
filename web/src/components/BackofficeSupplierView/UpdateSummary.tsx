@@ -28,7 +28,7 @@ export function UpdateSummary(props: Props) {
           pulsossimetro={props.values.pulsossimetri}
         />
       </Box>
-      <Space units={10} />
+      <Space units={2} />
       <LastUpdate value={O.some(new Date())} fallbackMessage="" />
     </>
   );

@@ -91,8 +91,8 @@ export const variants = styleMap({
   },
   flat: {
     boxShadow: "none",
-    color: vars.primary,
     textTransform: "uppercase",
+    color: vars.primary,
     padding: `0 ${vars.spaceUnit}px`,
 
     "@media": {
@@ -123,21 +123,21 @@ export const variants = styleMap({
     },
   },
   secondaryIcon: {
-    backgroundColor: vars.white,
-    color: vars.primary,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    color: vars.white,
     padding: 0,
 
     "@media": {
       "(hover: hover)": {
         ":hover": {
           backgroundColor: vars.primaryHover2,
-          color: vars.white,
+          color: vars.primary,
         },
       },
     },
     ":active": {
       backgroundColor: vars.primaryHover2,
-      color: vars.white,
+      color: vars.primary,
     },
   },
 });
