@@ -20,6 +20,16 @@ export const Good = t.keyof(
 );
 export type Good = t.TypeOf<typeof Good>;
 
+export const NotificationFrequency = t.keyof(
+  {
+    TwicePerDay: true,
+    ThricePerWeek: true,
+    OncePerWeek: true,
+  },
+  "NotificationFrequency"
+);
+export type NotificationFrequency = t.TypeOf<typeof NotificationFrequency>;
+
 export const SupplyData = t.type(
   {
     good: Good,
@@ -50,6 +60,7 @@ export type SupplierData = t.TypeOf<typeof SupplierData>;
 export const SupplierConfig = t.type(
   {
     showPhoneNumber: t.boolean,
+    notificationFrequency: NotificationFrequency,
   },
   "SupplierConfig"
 );

@@ -19,13 +19,14 @@ import * as Z from "fp-ts-contrib/lib/Zipper";
 import { Label } from "../Text/Label";
 import { BackLink } from "../Link/BackLink";
 import { ReaderTaskEither } from "fp-ts/lib/ReaderTaskEither";
-import { Supplier } from "../../domain";
+import { Supplier, NotificationFrequency } from "../../domain";
 
 type SupplierDataState = {
   phoneNumber: Option<NonEmptyString>;
 };
 type SupplierConfigState = {
   showPhoneNumber: boolean;
+  notificationFrequency: NotificationFrequency;
 };
 
 type Props = {
@@ -113,10 +114,14 @@ export function SupplierSettings(props: Props) {
     SupplierConfigState
   >({
     showPhoneNumber: props.supplierConfig.showPhoneNumber,
+    notificationFrequency: props.supplierConfig.notificationFrequency,
   });
 
   const onSavePhone = props.onSaveSupplierData(currentSupplierData);
   const onSaveShowPhone = props.onSaveSupplierConfig(currentSupplierConfig);
+  const onSaveNotificationFrequency = props.onSaveSupplierConfig(
+    currentSupplierConfig
+  );
 
   const publicNumber = {
     label: formatMessage("SupplierSettings.phoneVisibilityPublic"),
@@ -128,6 +133,26 @@ export function SupplierSettings(props: Props) {
     label: formatMessage("SupplierSettings.phoneVisibilityPrivate"),
     description: formatMessage(
       "SupplierSettings.phoneVisibilityPrivateDescription"
+    ),
+  };
+
+  const twicePerDayNotificationFrequency = {
+    label: formatMessage("SupplierSettings.twicePerDayNotificationFrequency"),
+    description: formatMessage(
+      "SupplierSettings.twicePerDayNotificationFrequencyDescription"
+    ),
+  };
+  const thricePerWeekNotificationFrequency = {
+    label: formatMessage("SupplierSettings.thricePerWeekNotificationFrequency"),
+    description: formatMessage(
+      "SupplierSettings.thricePerWeekNotificationFrequencyDescription"
+    ),
+  };
+
+  const oncePerWeekNotificationFrequency = {
+    label: formatMessage("SupplierSettings.oncePerWeekNotificationFrequency"),
+    description: formatMessage(
+      "SupplierSettings.oncePerWeekNotificationFrequencyDescription"
     ),
   };
 
@@ -205,6 +230,75 @@ export function SupplierSettings(props: Props) {
                 setCurrentSupplierConfig({
                   ...currentSupplierConfig,
                   showPhoneNumber: z.rights.length > 0,
+                });
+              }}
+            />
+          </Box>
+        )}
+      />
+      <hr />
+      <Setting
+        title={formatMessage("SupplierSettings.notificationFrequency")}
+        value={currentSupplierConfig.notificationFrequency}
+        valueFormatter={val =>
+          val === "TwicePerDay"
+            ? `${formatMessage(
+                "SupplierSettings.twicePerDayNotificationFrequency"
+              )} - ${formatMessage(
+                "SupplierSettings.twicePerDayNotificationFrequencyDescription"
+              )}`
+            : val === "ThricePerWeek"
+            ? `${formatMessage(
+                "SupplierSettings.thricePerWeekNotificationFrequency"
+              )} - ${formatMessage(
+                "SupplierSettings.thricePerWeekNotificationFrequencyDescription"
+              )}`
+            : `${formatMessage(
+                "SupplierSettings.oncePerWeekNotificationFrequency"
+              )} - ${formatMessage(
+                "SupplierSettings.oncePerWeekNotificationFrequencyDescription"
+              )}`
+        }
+        onSave={onSaveNotificationFrequency}
+        expandedContent={() => (
+          <Box column>
+            <Label size={2}>
+              <FormattedMessage id="SupplierSettings.notificationFrequencyLabel" />
+            </Label>
+            <Space units={4} />
+            <ToggleButtonGroup
+              options={pipe(
+                currentSupplierConfig.notificationFrequency === "TwicePerDay"
+                  ? Z.make([], twicePerDayNotificationFrequency, [
+                      thricePerWeekNotificationFrequency,
+                      oncePerWeekNotificationFrequency,
+                    ])
+                  : currentSupplierConfig.notificationFrequency ===
+                    "ThricePerWeek"
+                  ? Z.make(
+                      [twicePerDayNotificationFrequency],
+                      thricePerWeekNotificationFrequency,
+                      [oncePerWeekNotificationFrequency]
+                    )
+                  : Z.make(
+                      [
+                        twicePerDayNotificationFrequency,
+                        thricePerWeekNotificationFrequency,
+                      ],
+                      oncePerWeekNotificationFrequency,
+                      []
+                    )
+              )}
+              width={"150px"}
+              onChange={z => {
+                setCurrentSupplierConfig({
+                  ...currentSupplierConfig,
+                  notificationFrequency:
+                    z.focus === twicePerDayNotificationFrequency
+                      ? "TwicePerDay"
+                      : z.focus === thricePerWeekNotificationFrequency
+                      ? "ThricePerWeek"
+                      : "OncePerWeek",
                 });
               }}
             />

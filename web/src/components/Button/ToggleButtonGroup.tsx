@@ -13,6 +13,7 @@ type Option = { label: string; description: string };
 
 type Props = {
   options: Z.Zipper<Option>;
+  width?: string;
   onChange: (value: Z.Zipper<Option>) => unknown;
 };
 
@@ -30,6 +31,7 @@ function toButton(props: Props, selected: boolean) {
       className={className(props.options, index)}
       label={o.label}
       size="medium"
+      width={props.width}
       icon={option.none}
       variant={selected ? "primary" : "secondary"}
       action={() =>

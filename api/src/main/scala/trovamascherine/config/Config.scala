@@ -11,8 +11,10 @@ case class Config(
 )
 
 case class NotificationsConfig(
-  schedule: String,
-  afternoonSchedule: String,
+  twicePerDayMorningSchedule: String,
+  twicePerDayAfternoonSchedule: String,
+  thricePerWeekSchedule: String,
+  oncePerWeekSchedule: String,
   welcomeSchedule: String,
   welcomeAttachmentPath: String,
   baseUrl: String,

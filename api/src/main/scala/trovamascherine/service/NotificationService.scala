@@ -22,8 +22,8 @@ import trovamascherine.{Attachments, HashModule}
 
 trait NotificationService {
   def sendWelcomeEmails(): IO[Error, Unit]
-  def sendEmails(): IO[Error, Unit]
-  def resetTokenAndSendEmails(): IO[Error, Unit]
+  def sendEmails(supplierNotificationFrequency: NotificationFrequency): IO[Error, Unit]
+  def resetTokenAndSendEmails(supplierNotificationFrequency: NotificationFrequency): IO[Error, Unit]
 }
 
 class NotificationServiceImpl(
@@ -109,16 +109,20 @@ class NotificationServiceImpl(
     } yield ()
   }
 
-  override def sendEmails(): IO[Error, Unit] =
+  override def sendEmails(supplierNotificationFrequency: NotificationFrequency): IO[Error, Unit] =
     for {
-      suppliersToEmail <- supplierRepo.listEnabledWithToken()
+      suppliersToEmail <- supplierRepo.listEmailSupplierByNotificationFrequency(
+        supplierNotificationFrequency,
+      )
       _ <- enqueueEmails(suppliersToEmail)
     } yield ()
 
-  override def resetTokenAndSendEmails(): IO[Error, Unit] = {
+  override def resetTokenAndSendEmails(
+    supplierNotificationFrequency: NotificationFrequency,
+  ): IO[Error, Unit] = {
     for {
       _ <- authService.resetTokens()
-      result <- sendEmails()
+      result <- sendEmails(supplierNotificationFrequency)
     } yield result
   }
 }

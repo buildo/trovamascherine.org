@@ -10,6 +10,7 @@ export const button = style({
   fontWeight: vars.fontWeightBold,
   boxShadow: vars.overlayBoxShadow,
   pointerEvents: "all",
+  textAlign: "center",
 
   WebkitTapHighlightColor: "rgba(0,0,0,0)",
   ":focus": {

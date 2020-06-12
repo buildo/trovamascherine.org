@@ -1,7 +1,11 @@
 package trovamascherine
 
+import java.util.TimeZone
+
 import scala.concurrent.ExecutionContext
 
+import zio.Runtime
+import org.apache.logging.log4j.scala.Logging
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import cronish.dsl._
@@ -15,11 +19,7 @@ import trovamascherine.persistence.db.Tables.profile.api.Database
 import trovamascherine.config.Config
 import trovamascherine.controller._
 import trovamascherine.error.WiroErrorResponses
-
-import org.apache.logging.log4j.scala.Logging
-import zio.Runtime
-
-import java.util.TimeZone
+import trovamascherine.model.NotificationFrequency
 
 object Boot
     extends RouterDerivationModule
@@ -65,14 +65,25 @@ object NotificationBoot extends FlywayMigrations with Logging {
     implicit val system: ActorSystem = ActorSystem("trovamascherine")
     implicit val materializer: ActorMaterializer = ActorMaterializer()
     implicit val ec: ExecutionContext = system.dispatcher
+    implicit val runtime = Runtime.default
 
     val config = pureconfig.loadConfigOrThrow[Config]
 
     runMigrations(args, config.db)
 
-    logger.info(s"scheduled morning emails for ${config.notifications.schedule}")
-    logger.info(s"scheduled afternoon emails for ${config.notifications.afternoonSchedule}")
-    logger.info(s"scheduled welcome emails for ${config.notifications.welcomeSchedule}")
+    logger.info(
+      s"scheduling twice per day morning emails for ${config.notifications.twicePerDayMorningSchedule}",
+    )
+    logger.info(
+      s"scheduling twice per day afternoon emails for ${config.notifications.twicePerDayAfternoonSchedule}",
+    )
+    logger.info(
+      s"scheduling thrice per week emails for ${config.notifications.thricePerWeekSchedule}",
+    )
+    logger.info(
+      s"scheduling once per week emails for ${config.notifications.oncePerWeekSchedule}",
+    )
+    logger.info(s"scheduling welcome emails for ${config.notifications.welcomeSchedule}")
 
     val database = Database.forConfig("db")
     val authRepository = AuthRepository.create(database)
@@ -85,12 +96,29 @@ object NotificationBoot extends FlywayMigrations with Logging {
         config.notifications,
       )
 
-    val resetTokenAndSendEmailsTask = task { notificationService.resetTokenAndSendEmails() }
-    val sendEmailsTask = task { notificationService.sendEmails() }
-    val welcomeTask = task { notificationService.sendWelcomeEmails() }
+    val twicePerDayMorningEmailsTask = task {
+      runtime.unsafeRunSync(
+        notificationService.resetTokenAndSendEmails(NotificationFrequency.TwicePerDay),
+      )
+    }
+    twicePerDayMorningEmailsTask.executes(config.notifications.twicePerDayMorningSchedule)
 
-    resetTokenAndSendEmailsTask.executes(config.notifications.schedule)
-    sendEmailsTask.executes(config.notifications.afternoonSchedule)
+    val twicePerDayAfternoonEmailsTask = task {
+      runtime.unsafeRunSync(notificationService.sendEmails(NotificationFrequency.TwicePerDay))
+    }
+    twicePerDayAfternoonEmailsTask.executes(config.notifications.twicePerDayAfternoonSchedule)
+
+    val thricePerWeekEmailsTask = task {
+      runtime.unsafeRunSync(notificationService.sendEmails(NotificationFrequency.ThricePerWeek))
+    }
+    thricePerWeekEmailsTask.executes(config.notifications.thricePerWeekSchedule)
+
+    val oncePerWeekEmailsTask = task {
+      runtime.unsafeRunSync(notificationService.sendEmails(NotificationFrequency.OncePerWeek))
+    }
+    oncePerWeekEmailsTask.executes(config.notifications.oncePerWeekSchedule)
+
+    val welcomeTask = task { runtime.unsafeRunSync(notificationService.sendWelcomeEmails()) }
     welcomeTask.executes(config.notifications.welcomeSchedule)
     ()
   }

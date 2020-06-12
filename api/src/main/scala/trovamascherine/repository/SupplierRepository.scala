@@ -39,7 +39,9 @@ trait SupplierRepository {
     data: SupplierDataUpdate,
   ): IO[Error, Unit]
   def listEnabled(): IO[Error, List[(UUID, String)]]
-  def listEnabledWithToken(): IO[Error, List[EmailSupplier]]
+  def listEmailSupplierByNotificationFrequency(
+    frequency: NotificationFrequency,
+  ): IO[Error, List[EmailSupplier]]
   def acceptTerms(supplierId: UUID): IO[Error, Unit]
   def listWelcomeEmailNotSent(limit: Int): IO[Error, List[SupplierData]]
   def setWelcomeEmailsSent(emails: List[Email]): IO[Error, Unit]
@@ -109,6 +111,8 @@ object SupplierConverters {
             lastUpdatedOn = lastUpdatedOn.map(_.toInstant),
             config = SupplierConfig(
               showPhoneNumber = supplier.showPhone,
+              notificationFrequency =
+                NotificationFrequency.caseFromString(supplier.notificationFrequency).get,
             ),
           )
       }
@@ -217,8 +221,13 @@ object SupplierRepository {
             val updateQuery =
               SupplierTable
                 .filter(_.id === supplierId)
-                .map(_.showPhone)
-                .update(data.showPhoneNumber)
+                .map(r => (r.showPhone, r.notificationFrequency))
+                .update(
+                  (
+                    data.showPhoneNumber,
+                    NotificationFrequency.caseToString(data.notificationFrequency),
+                  ),
+                )
 
             db.run(updateQuery.transactionally).map(_ => ())
           }
@@ -247,11 +256,16 @@ object SupplierRepository {
           )
         }.map(_.toList).orDieWith(DBError)
 
-      override def listEnabledWithToken(): UIO[List[EmailSupplier]] =
+      override def listEmailSupplierByNotificationFrequency(
+        frequency: NotificationFrequency,
+      ): UIO[List[EmailSupplier]] =
         IO.fromFuture { _ =>
           db.run(
             SupplierTable
-              .filter(_.enabled === true)
+              .filter(r =>
+                r.enabled === true && r.notificationFrequency === NotificationFrequency
+                  .caseToString(frequency),
+              )
               .joinLeft(SupplierTokenTable)
               .on(_.id === _.supplierId)
               .result,
