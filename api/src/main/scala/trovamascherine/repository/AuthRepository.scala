@@ -2,49 +2,50 @@ package trovamascherine.repository
 
 import java.util.UUID
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import trovamascherine.error.Recoverable
+import trovamascherine.error.DBError
+import trovamascherine.model._
 import trovamascherine.persistence.db.Tables._
 import trovamascherine.persistence.db.Tables.profile.api._
-import trovamascherine.model._
+import zio.{IO, UIO}
 
 trait AuthRepository {
-  def getSupplierId(token: String): Future[Either[String, Option[UUID]]]
+  def getSupplierId(token: String): UIO[Option[UUID]]
   def updateTokens(
     updatedSuppliers: List[SupplierTokenUpdate],
-  ): Future[Either[String, Option[Int]]]
+  ): UIO[Option[Int]]
 }
 
-object AuthRepository extends Recoverable {
+object AuthRepository {
   def create(
     db: Database,
-  )(implicit ec: ExecutionContext): AuthRepository =
+  ): AuthRepository =
     new AuthRepository {
       override def getSupplierId(
         token: String,
-      ): Future[Either[String, Option[UUID]]] = recoverToEither {
-        db.run(
-          SupplierToken
-            .filter(_.token === token)
-            .map(_.supplierId)
-            .result
-            .headOption,
-        )
-      }
+      ): UIO[Option[UUID]] =
+        IO.fromFuture { _ =>
+          db.run(
+            SupplierToken
+              .filter(_.token === token)
+              .map(_.supplierId)
+              .result
+              .headOption,
+          )
+        }.orDieWith(DBError)
 
       override def updateTokens(
         updatedSuppliers: List[SupplierTokenUpdate],
-      ): Future[Either[String, Option[Int]]] = recoverToEither {
-        val action = for {
-          _ <- SupplierToken
-            .filter(_.supplierId.inSetBind(updatedSuppliers.map(_.supplierId)))
-            .delete
-          updates <- SupplierToken ++= updatedSuppliers.map(s =>
-            SupplierTokenRow(s.supplierId, s.token),
-          )
-        } yield updates
-        db.run(action.transactionally)
-      }
+      ): UIO[Option[Int]] =
+        IO.fromFuture { implicit ec =>
+          val action = for {
+            _ <- SupplierToken
+              .filter(_.supplierId.inSetBind(updatedSuppliers.map(_.supplierId)))
+              .delete
+            updates <- SupplierToken ++= updatedSuppliers.map(s =>
+              SupplierTokenRow(s.supplierId, s.token),
+            )
+          } yield updates
+          db.run(action.transactionally)
+        }.orDieWith(DBError)
     }
 }

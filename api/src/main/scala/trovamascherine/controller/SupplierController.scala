@@ -1,15 +1,14 @@
 package trovamascherine.controller
 
-import scala.concurrent.{ExecutionContext, Future}
-
 import java.util.UUID
 
+import scala.concurrent.Future
+
+import zio.{Runtime, ZEnv}
 import wiro.Auth
 import wiro.annotation._
-import cats.data.EitherT
-import cats.instances.future._
 
-import trovamascherine.error.ApiError
+import trovamascherine.error.Error
 import trovamascherine.model._
 import trovamascherine.service._
 
@@ -17,7 +16,7 @@ import trovamascherine.service._
 trait SupplierController {
 
   @query
-  def list(): Future[Either[ApiError, List[FrontOfficeSupplier]]]
+  def list(): Future[Either[Error, List[FrontOfficeSupplier]]]
 
   @query
   def listInBoundingBox(
@@ -25,90 +24,93 @@ trait SupplierController {
     minLatitude: Double,
     maxLongitude: Double,
     maxLatitude: Double,
-  ): Future[Either[ApiError, List[FrontOfficeSupplier]]]
+  ): Future[Either[Error, List[FrontOfficeSupplier]]]
 
   @query
-  def read(supplierId: UUID): Future[Either[ApiError, FrontOfficeSupplier]]
+  def read(supplierId: UUID): Future[Either[Error, FrontOfficeSupplier]]
 
   @query
   def readByToken(
     token: Auth,
-  ): Future[Either[ApiError, Supplier]]
+  ): Future[Either[Error, Supplier]]
 
   @command
   def update(
     token: Auth,
     data: List[Supply],
-  ): Future[Either[ApiError, Unit]]
+  ): Future[Either[Error, Unit]]
 
   @command
   def updateConfig(
     token: Auth,
     data: SupplierConfig,
-  ): Future[Either[ApiError, Unit]]
+  ): Future[Either[Error, Unit]]
 
   @command
   def updateData(
     token: Auth,
     data: SupplierDataUpdate,
-  ): Future[Either[ApiError, Unit]]
+  ): Future[Either[Error, Unit]]
 
   @command
-  def acceptTerms(token: Auth): Future[Either[ApiError, Unit]]
+  def acceptTerms(token: Auth): Future[Either[Error, Unit]]
 }
 
 class SupplierControllerImpl(service: SupplierService)(
-  implicit ec: ExecutionContext,
-) extends SupplierController {
-  override def list(): Future[Either[ApiError, List[FrontOfficeSupplier]]] =
-    (for {
-      suppliers <- EitherT(service.list)
-    } yield suppliers.map(FrontOfficeSupplier.apply)).value.map(ApiError.toFatal)
+  implicit runtime: Runtime[ZEnv],
+) extends SupplierController
+    with IOToFutureEither {
+
+  override def list(): Future[Either[Error, List[FrontOfficeSupplier]]] =
+    service.list().map(_.map(FrontOfficeSupplier.apply)).toFutureEitherCatchAllDefects
 
   override def listInBoundingBox(
     minLongitude: Double,
     minLatitude: Double,
     maxLongitude: Double,
     maxLatitude: Double,
-  ): Future[Either[ApiError, List[FrontOfficeSupplier]]] =
-    (for {
-      suppliers <- EitherT(
-        service.listInBoundingBox(minLongitude, minLatitude, maxLongitude, maxLatitude),
-      )
-    } yield suppliers.map(FrontOfficeSupplier.apply)).value
-      .map(ApiError.toFatal)
+  ): Future[Either[Error, List[FrontOfficeSupplier]]] =
+    service
+      .listInBoundingBox(minLongitude, minLatitude, maxLongitude, maxLatitude)
+      .map(_.map(FrontOfficeSupplier.apply))
+      .toFutureEitherCatchAllDefects
 
   override def read(
     supplierId: UUID,
-  ): Future[Either[ApiError, FrontOfficeSupplier]] =
-    (for {
-      supplier <- EitherT(service.read(supplierId).map(ApiError.mapErrors))
-    } yield FrontOfficeSupplier(supplier)).value
+  ): Future[Either[Error, FrontOfficeSupplier]] =
+    service
+      .read(supplierId)
+      .someOrFail(Error.SupplierNotFound(supplierId))
+      .map(FrontOfficeSupplier.apply)
+      .toFutureEitherCatchAllDefects
 
   override def readByToken(
     token: Auth,
-  ): Future[Either[ApiError, Supplier]] =
-    service.readByToken(token.token).map(ApiError.mapErrors)
+  ): Future[Either[Error, Supplier]] =
+    service
+      .readByToken(token.token)
+      .someOrFail(Error.TokenNotFound)
+      .toFutureEitherCatchAllDefects
 
   override def update(
     token: Auth,
     data: List[Supply],
-  ): Future[Either[ApiError, Unit]] =
-    service.update(token.token, data).map(ApiError.toFatal)
+  ): Future[Either[Error, Unit]] =
+    service.update(token.token, data).toFutureEitherCatchAllDefects
 
   override def updateConfig(
     token: Auth,
     data: SupplierConfig,
-  ): Future[Either[ApiError, Unit]] =
-    service.updateConfig(token.token, data).map(ApiError.toFatal)
+  ): Future[Either[Error, Unit]] =
+    service.updateConfig(token.token, data).toFutureEitherCatchAllDefects
 
   override def updateData(
     token: Auth,
     data: SupplierDataUpdate,
-  ): Future[Either[ApiError, Unit]] =
-    service.updateData(token.token, data).map(ApiError.toFatal)
+  ): Future[Either[Error, Unit]] =
+    service.updateData(token.token, data).toFutureEitherCatchAllDefects
 
-  override def acceptTerms(token: Auth): Future[Either[ApiError, Unit]] =
-    service.acceptTerms(token.token).map(ApiError.toFatal)
+  override def acceptTerms(token: Auth): Future[Either[Error, Unit]] =
+    service.acceptTerms(token.token).toFutureEitherCatchAllDefects
 
 }

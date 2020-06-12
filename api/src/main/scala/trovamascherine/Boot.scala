@@ -17,6 +17,7 @@ import trovamascherine.controller._
 import trovamascherine.error.WiroErrorResponses
 
 import org.apache.logging.log4j.scala.Logging
+import zio.Runtime
 
 import java.util.TimeZone
 
@@ -30,6 +31,7 @@ object Boot
     implicit val system: ActorSystem = ActorSystem("trovamascherine")
     implicit val materializer: ActorMaterializer = ActorMaterializer()
     implicit val ec: ExecutionContext = system.dispatcher
+    implicit val runtime = Runtime.default
     val config = pureconfig.loadConfigOrThrow[Config]
 
     runMigrations(args, config.db)
@@ -63,6 +65,7 @@ object NotificationBoot extends FlywayMigrations with Logging {
     implicit val system: ActorSystem = ActorSystem("trovamascherine")
     implicit val materializer: ActorMaterializer = ActorMaterializer()
     implicit val ec: ExecutionContext = system.dispatcher
+
     val config = pureconfig.loadConfigOrThrow[Config]
 
     runMigrations(args, config.db)
@@ -76,7 +79,7 @@ object NotificationBoot extends FlywayMigrations with Logging {
     val supplierRepository = SupplierRepository.create(database)
     val authService = AuthService.create(authRepository, supplierRepository)
     val notificationService =
-      new NotificationService(
+      new NotificationServiceImpl(
         supplierRepository,
         authService,
         config.notifications,

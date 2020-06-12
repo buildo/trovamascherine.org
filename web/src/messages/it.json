@@ -82,7 +82,6 @@
   "PharmacistModal.emailSubject": "Vorrei iscrivere la mia farmacia al portale TrovaMascherine",
   "PharmacistModal.emailBody": "Buongiorno, vorrei che la mia farmacia venisse mostrata gratuitamente sul portale TrovaMascherine.org utilizzando questo indirizzo mail per ricevere notifiche via mail. Inviando questa mail dichiaro di aver letto e compreso i termini e condizioni del servizio e la privacy policy, accettandone il contenuto. I miei contatti sono NOME E COGNOME, NOME FARMACIA.",
   "SupplyInfoModal.title": "Informazioni sui dispositivi",
-  "GeolocateControl.buttonLabel": "Farmacie vicine a me",
   "CopyLinkButton.copiedMessage": "Collegamento copiato",
   "CopyLinkButton.shareThisPage": "Condividi questa pagina",
   "CopyLinkButton.contactVendor": "Contatta il venditore",
@@ -102,5 +101,6 @@
   "SupplierSettings.save": "Salva",
   "SupplierSettings.saving": "Salvataggio…",
   "SupplierSettings.edit": "Modifica",
-  "SupplierSettings.cancel": "Annulla"
+  "SupplierSettings.cancel": "Annulla",
+  "Geocoder.placeholder": "Cerca per indirizzo, CAP"
 }

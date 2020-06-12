@@ -13,6 +13,7 @@ object Dependencies {
     val enumero = "1.3.0"
     val slickPg = "0.19.0"
     val munit = "0.7.5"
+    val zio = "1.0.0-RC18-2"
   }
 
   val wiro = "io.buildo" %% "wiro-http-server" % V.wiro
@@ -36,6 +37,7 @@ object Dependencies {
   val slickPg = "com.github.tminglei" %% "slick-pg" % V.slickPg
   val slickPgJts = "com.github.tminglei" %% "slick-pg_jts" % V.slickPg
   val munit = "org.scalameta" %% "munit" % V.munit
+  val zio = "dev.zio" %% "zio" % V.zio
 
   val log4jDependencies = Seq(
     "org.apache.logging.log4j" %% "log4j-api-scala" % "11.0",
@@ -65,6 +67,7 @@ object Dependencies {
       enumeroCirceSupport,
       cronish,
       mailo,
+      zio,
     ) ++ log4jDependencies ++ List(
       munit,
     ).map(_ % Test)

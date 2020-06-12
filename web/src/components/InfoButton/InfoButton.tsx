@@ -9,7 +9,7 @@ interface Props {
 export function InfoButton(props: Props) {
   return (
     <Button
-      variant="primaryIcon"
+      variant="secondaryIcon"
       size="medium"
       action={props.onClick}
       icon={<InfoIcon width={44} height={44} />}

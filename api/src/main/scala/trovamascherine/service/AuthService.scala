@@ -1,22 +1,23 @@
 package trovamascherine.service
 
-import scala.concurrent.{ExecutionContext, Future}
+import zio.IO
 
+import trovamascherine.error.Error
 import trovamascherine.repository._
 import trovamascherine.model.SupplierTokenUpdate
 import trovamascherine.HashModule
 
 trait AuthService {
-  def resetTokens(): Future[Either[String, Option[Int]]]
+  def resetTokens(): IO[Error, Option[Int]]
 }
 
 object AuthService extends HashModule {
   def create(
     authRepo: AuthRepository,
     supplierRepo: SupplierRepository,
-  )(implicit ec: ExecutionContext): AuthService = new AuthService {
+  ): AuthService = new AuthService {
 
-    override def resetTokens(): Future[Either[String, Option[Int]]] = {
+    override def resetTokens(): IO[Error, Option[Int]] = {
       for {
         enabledSuppliers <- supplierRepo.listEnabled()
         suppliersToEmail: List[SupplierTokenUpdate] = enabledSuppliers.map(supplier =>

@@ -1,32 +1,38 @@
-package trovamascherine
-package service
+package trovamascherine.service
 
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 import org.apache.logging.log4j.scala.Logging
+import zio.{IO, UIO}
 import cats.implicits._
-import cats.data.EitherT
-import akka.actor.ActorSystem
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import mailo.{DeliveryGuarantee, Mail}
 import mailo.data.S3MailData
 import mailo.http.MailgunClient
-import mailo.{MailError, MailResult, Queued}
 
+import trovamascherine.error.Error
 import trovamascherine.config.NotificationsConfig
 import trovamascherine.model._
 import trovamascherine.repository.SupplierRepository
+import trovamascherine.{Attachments, HashModule}
 
-class NotificationService(
+trait NotificationService {
+  def sendWelcomeEmails(): IO[Error, Unit]
+  def sendEmails(): IO[Error, Unit]
+  def resetTokenAndSendEmails(): IO[Error, Unit]
+}
+
+class NotificationServiceImpl(
   supplierRepo: SupplierRepository,
   authService: AuthService,
   config: NotificationsConfig,
 )(implicit ec: ExecutionContext, ac: ActorSystem, am: ActorMaterializer)
-    extends HashModule
+    extends NotificationService
+    with HashModule
     with Logging {
   val attachments = new Attachments(config)
   val mailer = mailo.Mailo(
@@ -37,18 +43,9 @@ class NotificationService(
 
   private def enqueueEmails(
     suppliersToEmail: List[EmailSupplier],
-  ): Future[Either[String, MailResult]] =
-    suppliersToEmail
-      .foldLeft(
-        Future.successful(Right(Queued): Either[MailError, MailResult]),
-      ) { (f, supplier) =>
-        f.flatMap { _ =>
-          val result = enqueueEmail(supplier)
-          result.map(_.leftMap(e => logger.error(s"failed to send email ${e.message}")))
-          result
-        }
-      }
-      .map(_.leftMap(e => e.message))
+  ) = {
+    IO.collectAll(suppliersToEmail.collect { case (supplier) => enqueueEmail(supplier) })
+  }
 
   private def subjectWithNameAndDate(supplier: EmailSupplier, subject: String) = {
     val currentDate = LocalDate
@@ -59,73 +56,66 @@ class NotificationService(
 
   private[this] def enqueueEmail(
     supplier: EmailSupplier,
-  ): Future[Either[MailError, MailResult]] =
-    mailer.send(
-      Mail(
-        to = supplier.email,
-        from = config.from,
-        subject = subjectWithNameAndDate(supplier, config.subject),
-        templateName = "mail.html",
-        params = Map(
-          "url" -> s"${config.updateBaseUrl}${supplier.token}",
-          "supplier_name" -> supplier.name,
-          "supplier_address" -> s"${supplier.address} - ${supplier.city}",
+  ): UIO[Either[Error, Email]] =
+    IO.fromFuture { _ =>
+      mailer.send(
+        Mail(
+          to = supplier.email,
+          from = config.from,
+          subject = subjectWithNameAndDate(supplier, config.subject),
+          templateName = "mail.html",
+          params = Map(
+            "url" -> s"${config.updateBaseUrl}${supplier.token}",
+            "supplier_name" -> supplier.name,
+            "supplier_address" -> s"${supplier.address} - ${supplier.city}",
+          ),
         ),
-      ),
-    )
+      )
+    }.map(_.bimap(Error.fromMailoError, _ => Email(supplier.email))).orDie
 
   private[this] def sendWelcomeEmail(
     supplier: SupplierData,
-  ): Future[Either[MailError, MailResult]] =
-    mailer.send(
-      Mail(
-        to = supplier.email,
-        from = config.from,
-        subject = "Conferma iscrizione farmacia al portale TrovaMascherine",
-        templateName = "welcome.html",
-        params = Map(
-          "link" -> s"${config.baseUrl}?latitude=${supplier.latitude}&longitude=${supplier.longitude}&zoom=17&supplier=${supplier.id}",
+  ): UIO[Either[Error, Email]] =
+    IO.fromFuture { _ =>
+      mailer.send(
+        Mail(
+          to = supplier.email,
+          from = config.from,
+          subject = "Conferma iscrizione farmacia al portale TrovaMascherine",
+          templateName = "welcome.html",
+          params = Map(
+            "link" -> s"${config.baseUrl}?latitude=${supplier.latitude}&longitude=${supplier.longitude}&zoom=17&supplier=${supplier.id}",
+          ),
+          attachments = List(attachments.welcome),
         ),
-        attachments = List(attachments.welcome),
-      ),
-    )
+      )
+    }.map(_.bimap(Error.fromMailoError, _ => Email(supplier.email))).orDie
 
   private[this] def sendWelcomeEmailsHelper(
     suppliers: List[SupplierData],
-  ): Future[List[Either[String, String]]] =
-    suppliers
-      .foldLeft(
-        Future.successful(Nil: List[Either[String, String]]),
-      ) { (f, supplier) =>
-        for {
-          oldResults <- f
-          emailResult <- sendWelcomeEmail(supplier)
-        } yield {
-          emailResult.map(_ => supplier.email).leftMap(_.message) :: oldResults
-        }
-      }
+  ): UIO[List[Either[Error, Email]]] = UIO.collectAll(suppliers.map(s => sendWelcomeEmail(s)))
 
-  def sendWelcomeEmails(): Future[Either[String, Unit]] = {
+  def sendWelcomeEmails(): IO[Error, Unit] = {
     val limit = 100
-    (for {
-      suppliers <- EitherT(supplierRepo.listWelcomeEmailNotSent(limit))
+    for {
+      suppliers <- supplierRepo.listWelcomeEmailNotSent(limit)
       _ = logger.info(s"sending ${suppliers.length} welcome emails")
-      sentEmails <- EitherT.right(sendWelcomeEmailsHelper(suppliers).map { emailsResult =>
+      sentEmails <- sendWelcomeEmailsHelper(suppliers).map { emailsResult =>
         val (lefts, rights) = emailsResult.separate
         logger.error(s"failed to send following welcome emails ${lefts.toString}")
         rights
-      })
-      _ <- EitherT(supplierRepo.setWelcomeEmailsSent(sentEmails))
-    } yield ()).value
+      }
+      _ <- supplierRepo.setWelcomeEmailsSent(sentEmails)
+    } yield ()
   }
 
-  def sendEmails(): Future[Either[String, MailResult]] =
-    (for {
-      suppliersToEmail <- EitherT(supplierRepo.listEnabledWithToken())
-      result <- EitherT(enqueueEmails(suppliersToEmail)),
-    } yield result).value
+  override def sendEmails(): IO[Error, Unit] =
+    for {
+      suppliersToEmail <- supplierRepo.listEnabledWithToken()
+      _ <- enqueueEmails(suppliersToEmail)
+    } yield ()
 
-  def resetTokenAndSendEmails(): Future[Either[String, MailResult]] = {
+  override def resetTokenAndSendEmails(): IO[Error, Unit] = {
     for {
       _ <- authService.resetTokens()
       result <- sendEmails()

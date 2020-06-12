@@ -2,11 +2,11 @@ import * as React from "react";
 import ReactMapGL, {
   ViewportProps,
   ExtraState,
-  InteractiveMapProps,
   Source,
   Layer,
   PointerEvent,
   NavigationControl,
+  InteractiveMap,
 } from "react-map-gl";
 
 import { GeoJSONSource } from "mapbox-gl";
@@ -15,10 +15,8 @@ import { FrontOfficeSupplier } from "../../domain";
 import * as classes from "./Map.treat";
 import PharmacyMarkes from "./PharmacyMarkers";
 import { config } from "../../config";
-
 import debounce from "lodash.debounce";
 import "mapbox-gl/dist/mapbox-gl.css";
-
 import { InfoButton } from "../InfoButton/InfoButton";
 import { InfoModal } from "../InfoModal/InfoModal";
 import { PharmacyModal } from "../PharmacyModal/PharmacyModal";
@@ -31,6 +29,8 @@ import { MapState } from "../../CurrentView";
 import { UUID } from "io-ts-types/lib/UUID";
 import { Option } from "fp-ts/lib/Option";
 import { constNull } from "fp-ts/lib/function";
+import { ChildrenArray } from "../../util";
+import { Geocoder } from "./Geocoder";
 
 const mapbox_api = config.mapboxApiKey;
 
@@ -54,18 +54,13 @@ const generateGeoJSON = (suppliersData: Array<FrontOfficeSupplier>) => {
   };
 };
 
-interface ReactMapGLWithAsyncMissingProps extends InteractiveMapProps {
-  asyncRender?: boolean;
-  getRef: (a: any) => void;
-}
-
-class ReactMapGLWithAsync extends React.PureComponent<
-  ReactMapGLWithAsyncMissingProps
-> {
-  render() {
-    return <ReactMapGL ref={this.props.getRef} {...(this.props as any)} />;
+const ReactMapGLWithAsync = React.forwardRef<
+  ReactMapGL,
+  React.ComponentProps<typeof ReactMapGL> & {
+    asyncRender?: boolean;
+    children: ChildrenArray;
   }
-}
+>((props, ref) => <ReactMapGL ref={ref} {...(props as any)} />);
 
 type IMapState = {
   viewport: {
@@ -91,6 +86,7 @@ interface IMapProps {
   onMapStateChange: (mapState: MapState) => unknown;
   supplier: Option<UUID>;
   onSupplierChange: (supplier: Option<UUID>) => unknown;
+  isMobile: boolean;
 }
 
 export default class Map extends React.Component<IMapProps, IMapState> {
@@ -105,7 +101,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
     userPosition: {},
   };
 
-  mapBoxRef: any = undefined;
+  mapBoxRef = React.createRef<InteractiveMap>();
   private _sourceRef: React.RefObject<Source> = React.createRef<Source>();
 
   componentDidMount() {
@@ -176,13 +172,13 @@ export default class Map extends React.Component<IMapProps, IMapState> {
 
   filterVisibleMarker = () => {
     requestAnimationFrame(() => {
-      if (!this.mapBoxRef) {
+      if (!this.mapBoxRef.current) {
         return;
       }
 
-      const visibleFeatures = this.mapBoxRef
+      const visibleFeatures = this.mapBoxRef.current
         .getMap()
-        .queryRenderedFeatures({ layers: ["visible-pharmacy"] });
+        .queryRenderedFeatures(undefined, { layers: ["visible-pharmacy"] });
 
       const { currentVisibleMarkers } = this.state;
       const newCurrentVisibleMarkers: IMapState["currentVisibleMarkers"] = {};
@@ -269,7 +265,7 @@ export default class Map extends React.Component<IMapProps, IMapState> {
           asyncRender
           onClick={this._onClick}
           interactiveLayerIds={["pharmacy-clusters"]}
-          getRef={a => (this.mapBoxRef = a)}
+          ref={this.mapBoxRef}
         >
           <Source
             id="pharmacy-markers"
@@ -342,9 +338,16 @@ export default class Map extends React.Component<IMapProps, IMapState> {
             longitude={userPosition.longitude}
           />
 
-          <NavigationControl
-            showCompass={false}
-            className={classes.navigationControl}
+          {!this.props.isMobile && (
+            <NavigationControl
+              showCompass={false}
+              className={classes.navigationControl}
+            />
+          )}
+
+          <Geocoder
+            mapRef={this.mapBoxRef}
+            onViewportChange={this.onViewportChange}
           />
         </ReactMapGLWithAsync>
 

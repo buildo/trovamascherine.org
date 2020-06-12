@@ -123,15 +123,15 @@ export const variants = styleMap({
     },
   },
   secondaryIcon: {
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    color: vars.white,
+    backgroundColor: vars.white,
+    color: vars.primary,
     padding: 0,
 
     "@media": {
       "(hover: hover)": {
         ":hover": {
           backgroundColor: vars.primaryHover2,
-          color: vars.primary,
+          color: vars.white,
         },
       },
     },

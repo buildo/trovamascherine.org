@@ -1,10 +1,11 @@
 import { style } from "treat";
 import { isMobileMediaQuery } from "../../useMatchMedia";
+import { spaceUnit } from "../../variables";
 
 export const pharmacistCTA = style({
   position: "absolute",
-  left: 84,
-  top: 10,
+  left: 16,
+  bottom: 12 * spaceUnit,
   pointerEvents: "none",
 
   "@media": {

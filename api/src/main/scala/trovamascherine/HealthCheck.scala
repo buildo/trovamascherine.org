@@ -1,25 +1,17 @@
 package trovamascherine
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import slick.jdbc.JdbcBackend
 import slick.driver.PostgresDriver.api._
-
-import trovamascherine.error.Recoverable
+import slick.jdbc.JdbcBackend
+import trovamascherine.error.DBError
+import zio.{IO, UIO}
 
 trait HealthCheck {
-  def healthCheck()(implicit ec: ExecutionContext): Future[Either[String, Unit]]
+  def healthCheck(): UIO[Unit]
 }
 
 object HealthCheck {
-  implicit class HealthCheckedDatabase(db: JdbcBackend#DatabaseDef)
-      extends HealthCheck
-      with Recoverable {
-    def healthCheck()(
-      implicit ec: ExecutionContext,
-    ): Future[Either[String, Unit]] =
-      recoverToEither {
-        db.run(sql"select true".as[Boolean]).map(_ => ())
-      }
+  implicit class HealthCheckedDatabase(db: JdbcBackend#DatabaseDef) extends HealthCheck {
+    def healthCheck(): UIO[Unit] =
+      IO.fromFuture { _ => db.run(sql"select true".as[Boolean]) }.unit.orDieWith(DBError)
   }
 }

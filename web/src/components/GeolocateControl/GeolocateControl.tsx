@@ -6,9 +6,7 @@ import {
 } from "../../util/geoUtils";
 import { GeolocateIcon } from "../Icons/GeolocateIcon";
 import { useGeolocateSupport } from "../../useGeolocateSupport";
-import { useFormatMessage } from "../../intl";
 import { Button } from "../Button/Button";
-import { some } from "fp-ts/lib/Option";
 
 type Props = {
   onGeolocate: (position: Position) => void;
@@ -16,7 +14,6 @@ type Props = {
 
 export function GeolocateControl(props: Props) {
   const isGeolocationSupported = useGeolocateSupport();
-  const formatMessage = useFormatMessage();
   const mapContext = useContext(_MapContext);
 
   function handleUserPosition(position: Position) {
@@ -44,12 +41,11 @@ export function GeolocateControl(props: Props) {
 
   return (
     <Button
-      variant="primary"
+      variant="primaryIcon"
       size="medium"
       disabled={!isGeolocationSupported}
       action={geolocateUser}
-      label={formatMessage("GeolocateControl.buttonLabel")}
-      icon={some(<GeolocateIcon width={20} height={20} />)}
+      icon={<GeolocateIcon width={44} height={24} />}
     />
   );
 }

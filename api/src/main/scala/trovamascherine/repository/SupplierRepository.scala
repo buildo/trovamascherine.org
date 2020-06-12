@@ -4,12 +4,11 @@ import java.util.UUID
 import java.time.Instant
 import java.sql.Timestamp
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import trovamascherine.error.Recoverable
+import zio.{IO, UIO}
+import trovamascherine.error.{DBError, Error}
 import trovamascherine.persistence.db.Tables.{
-  Supplier => SupplierTable,
   GoodSupply => GoodSupplyTable,
+  Supplier => SupplierTable,
   SupplierToken => SupplierTokenTable,
 }
 import trovamascherine.persistence.db.Tables.{GoodSupplyRow, SupplierRow, SupplierTokenRow}
@@ -17,33 +16,33 @@ import trovamascherine.persistence.db.Tables.profile.api._
 import trovamascherine.model._
 
 trait SupplierRepository {
-  def list(): Future[Either[String, List[Supplier]]]
+  def list(): IO[Error, List[Supplier]]
   def listInBoundingBox(
     minLongitude: Double,
     minLatitude: Double,
     maxLongitude: Double,
     maxLatitude: Double,
-  ): Future[Either[String, List[Supplier]]]
+  ): IO[Error, List[Supplier]]
   def read(
     supplierId: UUID,
-  ): Future[Either[String, Option[Supplier]]]
+  ): IO[Error, Option[Supplier]]
   def update(
     supplierId: UUID,
     data: List[Supply],
-  ): Future[Either[String, Unit]]
+  ): IO[Error, Unit]
   def updateConfig(
     supplierId: UUID,
     data: SupplierConfig,
-  ): Future[Either[String, Unit]]
+  ): IO[Error, Unit]
   def updateData(
     supplierId: UUID,
     data: SupplierDataUpdate,
-  ): Future[Either[String, Unit]]
-  def listEnabled(): Future[List[(UUID, String)]]
-  def listEnabledWithToken(): Future[Either[String, List[EmailSupplier]]]
-  def acceptTerms(supplierId: UUID): Future[Either[String, Unit]]
-  def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[SupplierData]]]
-  def setWelcomeEmailsSent(emails: List[String]): Future[Either[String, Unit]]
+  ): IO[Error, Unit]
+  def listEnabled(): IO[Error, List[(UUID, String)]]
+  def listEnabledWithToken(): IO[Error, List[EmailSupplier]]
+  def acceptTerms(supplierId: UUID): IO[Error, Unit]
+  def listWelcomeEmailNotSent(limit: Int): IO[Error, List[SupplierData]]
+  def setWelcomeEmailsSent(emails: List[Email]): IO[Error, Unit]
 }
 
 object SupplierConverters {
@@ -135,32 +134,32 @@ object SupplierConverters {
     }.toList
 }
 
-object SupplierRepository extends Recoverable {
+object SupplierRepository {
   import SupplierConverters._
 
   def create(
     db: Database,
-  )(implicit ec: ExecutionContext): SupplierRepository =
+  ): SupplierRepository =
     new SupplierRepository {
-      override def list(): Future[Either[String, List[Supplier]]] =
-        recoverToEither {
+      override def list(): UIO[List[Supplier]] =
+        IO.fromFuture { _ =>
           db.run(
-              (SupplierTable
-                .filter(_.enabled)
-                .joinLeft(GoodSupplyTable)
-                .on(_.id === _.supplierId))
-                .result,
-            )
-            .map(convertSupplierList)
-        }
+            (SupplierTable
+              .filter(_.enabled)
+              .joinLeft(GoodSupplyTable)
+              .on(_.id === _.supplierId))
+              .result,
+          )
+        }.map(convertSupplierList).orDieWith(DBError)
 
       override def listInBoundingBox(
         minLongitude: Double,
         minLatitude: Double,
         maxLongitude: Double,
         maxLatitude: Double,
-      ): Future[Either[String, List[Supplier]]] = recoverToEither {
-        db.run(
+      ): IO[Error, List[Supplier]] =
+        IO.fromFuture { _ =>
+          db.run(
             (SupplierTable
               .filter(_.enabled)
               .filter(s =>
@@ -170,115 +169,127 @@ object SupplierRepository extends Recoverable {
               .on(_.id === _.supplierId))
               .result,
           )
-          .map(convertSupplierList)
-      }
+        }.map(convertSupplierList).orDieWith(DBError)
 
       override def read(
         supplierId: UUID,
-      ): Future[Either[String, Option[Supplier]]] = recoverToEither {
-        db.run(
+      ): UIO[Option[Supplier]] =
+        IO.fromFuture { _ =>
+          db.run(
             (SupplierTable
               .filter(_.id === supplierId)
               .joinLeft(GoodSupplyTable)
               .on(_.id === _.supplierId))
               .result,
           )
-          .map(convertSupplier)
-      }
+        }.map(convertSupplier).orDieWith(DBError)
 
       override def update(
         supplierId: UUID,
         data: List[Supply],
-      ): Future[Either[String, Unit]] = recoverToEither {
-        db.run(for {
-          _ <- GoodSupplyTable
-            .filter(_.supplierId === supplierId)
-            .delete
-            .andThen {
-              GoodSupplyTable ++=
-                data.map { d =>
-                  GoodSupplyRow(
-                    supplierId = supplierId,
-                    good = Good.caseToString(d.good),
-                    quantity = d.quantity,
-                    lastupdatedon = Timestamp.from(Instant.now),
-                  )
-                }
-            }
-            .transactionally
-        } yield ())
-      }
+      ): UIO[Unit] =
+        IO.fromFuture { implicit ec =>
+          db.run(for {
+            _ <- GoodSupplyTable
+              .filter(_.supplierId === supplierId)
+              .delete
+              .andThen {
+                GoodSupplyTable ++=
+                  data.map { d =>
+                    GoodSupplyRow(
+                      supplierId = supplierId,
+                      good = Good.caseToString(d.good),
+                      quantity = d.quantity,
+                      lastupdatedon = Timestamp.from(Instant.now),
+                    )
+                  }
+              }
+              .transactionally
+          } yield ())
+        }.orDieWith(DBError)
 
       override def updateConfig(
         supplierId: UUID,
         data: SupplierConfig,
-      ): Future[Either[String, Unit]] = recoverToEither {
-        val updateQuery =
-          SupplierTable.filter(_.id === supplierId).map(_.showPhone).update(data.showPhoneNumber)
+      ): UIO[Unit] =
+        IO.fromFuture { implicit ec =>
+          {
+            val updateQuery =
+              SupplierTable
+                .filter(_.id === supplierId)
+                .map(_.showPhone)
+                .update(data.showPhoneNumber)
 
-        db.run(updateQuery.transactionally).map(_ => ())
-      }
+            db.run(updateQuery.transactionally).map(_ => ())
+          }
+        }.orDieWith(DBError)
 
       override def updateData(
         supplierId: UUID,
         data: SupplierDataUpdate,
-      ): Future[Either[String, Unit]] = recoverToEither {
-        val updateQuery =
-          SupplierTable.filter(_.id === supplierId).map(_.referencephone).update(data.phoneNumber)
+      ): UIO[Unit] =
+        IO.fromFuture { implicit ec =>
+          {
+            val updateQuery =
+              SupplierTable
+                .filter(_.id === supplierId)
+                .map(_.referencephone)
+                .update(data.phoneNumber)
 
-        db.run(updateQuery.transactionally).map(_ => ())
-      }
+            db.run(updateQuery.transactionally).map(_ => ())
+          }
+        }.orDieWith(DBError)
 
-      override def listEnabled(): Future[List[(UUID, String)]] = {
-        db.run(
+      override def listEnabled(): UIO[List[(UUID, String)]] =
+        IO.fromFuture { _ =>
+          db.run(
             SupplierTable.filter(_.enabled === true).map(s => (s.id, s.email)).result,
           )
-          .map(_.toList)
-      }
+        }.map(_.toList).orDieWith(DBError)
 
-      override def listEnabledWithToken(): Future[Either[String, List[EmailSupplier]]] =
-        recoverToEither {
-          db.run(
-              SupplierTable
-                .filter(_.enabled === true)
-                .joinLeft(SupplierTokenTable)
-                .on(_.id === _.supplierId)
-                .result,
-            )
-            .map(convertEmailSupplier)
-        }
-
-      override def acceptTerms(supplierId: UUID): Future[Either[String, Unit]] = recoverToEither {
-        val nowTimestamp = Timestamp.from(Instant.now())
-        db.run(
-          SupplierTable
-            .filter(_.id === supplierId)
-            .map(s => (s.termsAcceptedOn, s.privacyPolicyAcceptedOn))
-            .update((Some(nowTimestamp), Some(nowTimestamp)))
-            .map(_ => ()),
-        )
-      }
-
-      override def listWelcomeEmailNotSent(limit: Int): Future[Either[String, List[SupplierData]]] =
-        recoverToEither {
-          db.run(
-              SupplierTable
-                .filter(s => s.enabled === true && s.welcomeEmailSent === false)
-                .take(limit)
-                .result,
-            )
-            .map(convertSupplierDataList)
-        }
-
-      override def setWelcomeEmailsSent(emails: List[String]): Future[Either[String, Unit]] =
-        recoverToEither {
+      override def listEnabledWithToken(): UIO[List[EmailSupplier]] =
+        IO.fromFuture { _ =>
           db.run(
             SupplierTable
-              .filter(_.email.inSetBind(emails))
+              .filter(_.enabled === true)
+              .joinLeft(SupplierTokenTable)
+              .on(_.id === _.supplierId)
+              .result,
+          )
+        }.map(convertEmailSupplier).orDieWith(DBError)
+
+      override def acceptTerms(supplierId: UUID): UIO[Unit] =
+        IO.fromFuture { implicit ec =>
+          val nowTimestamp = Timestamp.from(Instant.now())
+          db.run(
+            SupplierTable
+              .filter(_.id === supplierId)
+              .map(s => (s.termsAcceptedOn, s.privacyPolicyAcceptedOn))
+              .update((Some(nowTimestamp), Some(nowTimestamp)))
+              .map(_ => ()),
+          )
+        }.orDieWith(DBError)
+
+      override def listWelcomeEmailNotSent(limit: Int): UIO[List[SupplierData]] =
+        IO.fromFuture { _ =>
+          db.run(
+            SupplierTable
+              .filter(s => s.enabled === true && s.welcomeEmailSent === false)
+              .take(limit)
+              .result,
+          )
+        }.map(convertSupplierDataList).orDieWith(DBError)
+
+      override def setWelcomeEmailsSent(emails: List[Email]): UIO[Unit] =
+        IO.fromFuture { implicit ec =>
+          val textEmails = emails.map(_.value)
+          db.run(
+            SupplierTable
+              .filter(_.email.inSetBind(textEmails))
               .map(_.welcomeEmailSent)
               .update(true)
               .map(_ => ()),
           )
-        }
+        }.orDieWith(DBError)
     }
 }

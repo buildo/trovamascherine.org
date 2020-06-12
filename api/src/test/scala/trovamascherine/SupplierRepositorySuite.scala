@@ -56,8 +56,7 @@ class SupplierRepositorySuite extends PersistenceTest {
         astiBoundingBox.maxLatitude,
       )
       .map(result => {
-        assert(result.isRight)
-        val supplierIds = result.right.get.map(_.data.id.toString).toSet
+        val supplierIds = result.map(_.data.id.toString).toSet
         assertEquals(supplierIds, expectedSuppliersFromAsti)
       })
   }
@@ -73,8 +72,7 @@ class SupplierRepositorySuite extends PersistenceTest {
         turinBoundingBox.maxLatitude,
       )
       .map(result => {
-        assert(result.isRight)
-        val supplierIds = result.right.get.map(_.data.id.toString).toSet
+        val supplierIds = result.map(_.data.id.toString).toSet
         assertEquals(supplierIds, expectedSuppliersFromTurin)
       })
   }
@@ -90,8 +88,7 @@ class SupplierRepositorySuite extends PersistenceTest {
         milanBoundingBox.maxLatitude,
       )
       .map(result => {
-        assert(result.isRight)
-        val supplierIds = result.right.get.map(_.data.id.toString).toSet
+        val supplierIds = result.map(_.data.id.toString).toSet
         assertEquals(supplierIds, expectedSuppliersFromMilan)
       })
   }

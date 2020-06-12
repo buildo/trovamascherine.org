@@ -2,41 +2,39 @@ package trovamascherine.service
 
 import java.util.UUID
 
-import scala.concurrent.{ExecutionContext, Future}
-
-import cats.data.EitherT
-import cats.instances.future._
-
+import zio.{IO, UIO}
 import trovamascherine.repository._
+import trovamascherine.error.Error
+import trovamascherine.repository.{AuthRepository, SupplierRepository}
 import trovamascherine.model._
 
 trait SupplierService {
-  def list(): Future[Either[String, List[Supplier]]]
+  def list(): IO[Error, List[Supplier]]
   def listInBoundingBox(
     minLongitude: Double,
     minLatitude: Double,
     maxLongitude: Double,
     maxLatitude: Double,
-  ): Future[Either[String, List[Supplier]]]
+  ): IO[Error, List[Supplier]]
   def read(
     supplierId: UUID,
-  ): Future[Either[String, Option[Supplier]]]
+  ): IO[Error, Option[Supplier]]
   def readByToken(
     token: String,
-  ): Future[Either[String, Option[Supplier]]]
+  ): IO[Error, Option[Supplier]]
   def update(
     token: String,
     data: List[Supply],
-  ): Future[Either[String, Unit]]
+  ): IO[Error, Unit]
   def updateConfig(
     token: String,
     data: SupplierConfig,
-  ): Future[Either[String, Unit]]
+  ): IO[Error, Unit]
   def updateData(
     token: String,
     data: SupplierDataUpdate,
-  ): Future[Either[String, Unit]]
-  def acceptTerms(token: String): Future[Either[String, Unit]]
+  ): IO[Error, Unit]
+  def acceptTerms(token: String): IO[Error, Unit]
 }
 
 object SupplierService {
@@ -44,9 +42,9 @@ object SupplierService {
     authRepo: AuthRepository,
     supplierRepo: SupplierRepository,
     historyRepo: HistoryRepository,
-  )(implicit ec: ExecutionContext): SupplierService =
+  ): SupplierService =
     new SupplierService {
-      override def list(): Future[Either[String, List[Supplier]]] =
+      override def list(): IO[Error, List[Supplier]] =
         supplierRepo.list()
 
       override def listInBoundingBox(
@@ -54,65 +52,49 @@ object SupplierService {
         minLatitude: Double,
         maxLongitude: Double,
         maxLatitude: Double,
-      ): Future[Either[String, List[Supplier]]] =
+      ): IO[Error, List[Supplier]] =
         supplierRepo.listInBoundingBox(minLongitude, minLatitude, maxLongitude, maxLatitude)
 
       override def read(
         supplierId: UUID,
-      ): Future[Either[String, Option[Supplier]]] =
+      ): IO[Error, Option[Supplier]] =
         supplierRepo.read(supplierId)
+
+      private[this] def checkToken(token: String): IO[Error, UUID] =
+        authRepo.getSupplierId(token).someOrFail(Error.InvalidToken(token))
 
       override def readByToken(
         token: String,
-      ): Future[Either[String, Option[Supplier]]] = {
-        (for {
-          maybeSupplierId <- EitherT(
-            authRepo.getSupplierId(token),
-          )
-          supplierId <- EitherT.fromEither(
-            maybeSupplierId.toRight(
-              "Invalid token",
-            ),
-          )
-          data <- EitherT(supplierRepo.read(supplierId))
-        } yield data).value
-      }
+      ): IO[Error, Option[Supplier]] =
+        for {
+          supplierId <- checkToken(token)
+          data <- supplierRepo.read(supplierId)
+        } yield data
 
       private def checkNoDuplicateSupplies(
         supplies: List[Supply],
-      ): EitherT[Future, String, Unit] = {
+      ): IO[Error, Unit] = {
         val goods = supplies.map(_.good)
         if (goods.distinct.length == goods.length)
-          EitherT.rightT(())
+          IO.unit
         else
-          EitherT.leftT("Duplicate goods found in supplies")
+          IO.fail(Error.DuplicateGoodsInSupplies)
       }
 
-      private def validateUpdate(token: String, data: List[Supply]): Future[Either[String, UUID]] =
-        (for {
+      private def validateUpdate(token: String, data: List[Supply]): IO[Error, UUID] =
+        for {
           _ <- checkNoDuplicateSupplies(data)
-          maybeSupplierId <- EitherT(
-            authRepo.getSupplierId(token),
-          )
-          supplierId <- EitherT.fromEither(
-            maybeSupplierId.toRight(
-              "Invalid token",
-            ),
-          )
-          supplier <- EitherT(supplierRepo.read(supplierId))
-          _ <- EitherT.fromEither(
-            supplier
-              .flatMap(_.data.termsAcceptedOn)
-              .toRight("Terms and conditions not accepted"),
-          )
-          _ <- EitherT.fromEither(
-            supplier
-              .flatMap(_.data.privacyPolicyAcceptedOn)
-              .toRight("Privacy policy not accepted"),
-          )
-        } yield supplierId).value
+          supplierId <- checkToken(token)
+          supplier <- supplierRepo.read(supplierId).someOrFail(Error.SupplierNotFound(supplierId))
+          _ <- UIO
+            .apply(supplier.data.termsAcceptedOn)
+            .someOrFail(Error.TermsNotAccepted(supplierId))
+          _ <- UIO
+            .apply(supplier.data.privacyPolicyAcceptedOn)
+            .someOrFail(Error.PrivacyPolicyNotAccepted(supplierId))
+        } yield supplierId
 
-      private def insertData(supplierId: UUID, data: List[Supply]): Future[Either[String, Unit]] = {
+      private def insertData(supplierId: UUID, data: List[Supply]): IO[Error, Unit] = {
         historyRepo.insert(supplierId, data)
         supplierRepo.update(supplierId, data)
       }
@@ -120,52 +102,37 @@ object SupplierService {
       override def update(
         token: String,
         data: List[Supply],
-      ): Future[Either[String, Unit]] = {
-        (for {
-          supplierId <- EitherT(validateUpdate(token, data))
-          result <- EitherT(insertData(supplierId, data))
-        } yield result).value
+      ): IO[Error, Unit] = {
+        for {
+          supplierId <- validateUpdate(token, data)
+          result <- insertData(supplierId, data)
+        } yield result
       }
 
       override def updateConfig(
         token: String,
         data: SupplierConfig,
-      ): Future[Either[String, Unit]] = {
-        (for {
-          maybeSupplierId <- EitherT(
-            authRepo.getSupplierId(token),
-          )
-          supplierId <- EitherT.fromOption(maybeSupplierId, "Invalid token")
-          result <- EitherT(supplierRepo.updateConfig(supplierId, data))
-        } yield result).value
+      ): IO[Error, Unit] = {
+        for {
+          supplierId <- checkToken(token)
+          result <- supplierRepo.updateConfig(supplierId, data)
+        } yield result
       }
 
       override def updateData(
         token: String,
         data: SupplierDataUpdate,
-      ): Future[Either[String, Unit]] = {
-        (for {
-          maybeSupplierId <- EitherT(
-            authRepo.getSupplierId(token),
-          )
-          supplierId <- EitherT.fromOption(maybeSupplierId, "Invalid token")
-          result <- EitherT(supplierRepo.updateData(supplierId, data))
-        } yield result).value
+      ): IO[Error, Unit] = {
+        for {
+          supplierId <- checkToken(token)
+          result <- supplierRepo.updateData(supplierId, data)
+        } yield result
       }
 
-      override def acceptTerms(token: String): Future[Either[String, Unit]] = {
-        (for {
-          maybeSupplierId <- EitherT(
-            authRepo.getSupplierId(token),
-          )
-          supplierId <- EitherT.fromEither(
-            maybeSupplierId.toRight(
-              "Invalid token",
-            ),
-          )
-          _ <- EitherT(supplierRepo.acceptTerms(supplierId))
-        } yield ()).value
-      }
-
+      override def acceptTerms(token: String): IO[Error, Unit] =
+        for {
+          supplierId <- checkToken(token)
+          _ <- supplierRepo.acceptTerms(supplierId)
+        } yield ()
     }
 }

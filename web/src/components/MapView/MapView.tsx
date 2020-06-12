@@ -16,6 +16,7 @@ import { Option } from "fp-ts/lib/Option";
 import { MapState, CurrentView } from "../../CurrentView";
 import { LocalStorage } from "../../util/LocalStorage";
 import { UUID } from "io-ts-types/lib/UUID";
+import { useIsMobile } from "../../useMatchMedia";
 
 type Props = {
   mapState: Option<MapState>;
@@ -40,6 +41,8 @@ export function MapView(props: Props) {
   const mapSearchResults = useAPI(getMapSearchResults);
   const [showPharmacistModal, setShowPharmacistModal] = React.useState(false);
   const formatMessage = useFormatMessage();
+  const isMobile = useIsMobile();
+
   return pipe(
     mapSearchResults,
     fold(
@@ -71,6 +74,7 @@ export function MapView(props: Props) {
                 supplier,
               });
             }}
+            isMobile={isMobile}
           />
 
           <Box
