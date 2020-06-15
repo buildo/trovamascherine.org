@@ -95,8 +95,10 @@ object SupplierService {
         } yield supplierId
 
       private def insertData(supplierId: UUID, data: List[Supply]): IO[Error, Unit] = {
-        historyRepo.insert(supplierId, data)
-        supplierRepo.update(supplierId, data)
+        for {
+          _ <- historyRepo.insert(supplierId, data)
+          r <- supplierRepo.update(supplierId, data)
+        } yield r
       }
 
       override def update(
