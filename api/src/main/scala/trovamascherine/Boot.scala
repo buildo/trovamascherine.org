@@ -109,12 +109,16 @@ object NotificationBoot extends FlywayMigrations with Logging {
     twicePerDayAfternoonEmailsTask.executes(config.notifications.twicePerDayAfternoonSchedule)
 
     val thricePerWeekEmailsTask = task {
-      runtime.unsafeRunSync(notificationService.sendEmails(NotificationFrequency.ThricePerWeek))
+      runtime.unsafeRunSync(
+        notificationService.resetTokenAndSendEmails(NotificationFrequency.ThricePerWeek),
+      )
     }
     thricePerWeekEmailsTask.executes(config.notifications.thricePerWeekSchedule)
 
     val oncePerWeekEmailsTask = task {
-      runtime.unsafeRunSync(notificationService.sendEmails(NotificationFrequency.OncePerWeek))
+      runtime.unsafeRunSync(
+        notificationService.resetTokenAndSendEmails(NotificationFrequency.OncePerWeek),
+      )
     }
     oncePerWeekEmailsTask.executes(config.notifications.oncePerWeekSchedule)
 

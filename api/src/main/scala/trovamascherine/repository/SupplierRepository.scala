@@ -38,7 +38,7 @@ trait SupplierRepository {
     supplierId: UUID,
     data: SupplierDataUpdate,
   ): IO[Error, Unit]
-  def listEnabled(): IO[Error, List[(UUID, String)]]
+  def listEnabled(frequency: NotificationFrequency): IO[Error, List[(UUID, String)]]
   def listEmailSupplierByNotificationFrequency(
     frequency: NotificationFrequency,
   ): IO[Error, List[EmailSupplier]]
@@ -249,10 +249,16 @@ object SupplierRepository {
           }
         }.orDieWith(DBError)
 
-      override def listEnabled(): UIO[List[(UUID, String)]] =
+      override def listEnabled(frequency: NotificationFrequency): UIO[List[(UUID, String)]] =
         IO.fromFuture { _ =>
           db.run(
-            SupplierTable.filter(_.enabled === true).map(s => (s.id, s.email)).result,
+            SupplierTable
+              .filter(r =>
+                r.enabled === true && r.notificationFrequency === NotificationFrequency
+                  .caseToString(frequency),
+              )
+              .map(s => (s.id, s.email))
+              .result,
           )
         }.map(_.toList).orDieWith(DBError)
 

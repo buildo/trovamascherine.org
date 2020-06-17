@@ -11,7 +11,7 @@ import zio.{IO, UIO}
 trait AuthRepository {
   def getSupplierId(token: String): UIO[Option[UUID]]
   def updateTokens(
-    updatedSuppliers: List[SupplierTokenUpdate],
+    tokenUpdates: List[SupplierTokenUpdate],
   ): UIO[Option[Int]]
 }
 
@@ -34,14 +34,14 @@ object AuthRepository {
         }.orDieWith(DBError)
 
       override def updateTokens(
-        updatedSuppliers: List[SupplierTokenUpdate],
+        tokenUpdates: List[SupplierTokenUpdate],
       ): UIO[Option[Int]] =
         IO.fromFuture { implicit ec =>
           val action = for {
             _ <- SupplierToken
-              .filter(_.supplierId.inSetBind(updatedSuppliers.map(_.supplierId)))
+              .filter(_.supplierId.inSetBind(tokenUpdates.map(_.supplierId)))
               .delete
-            updates <- SupplierToken ++= updatedSuppliers.map(s =>
+            updates <- SupplierToken ++= tokenUpdates.map(s =>
               SupplierTokenRow(s.supplierId, s.token),
             )
           } yield updates

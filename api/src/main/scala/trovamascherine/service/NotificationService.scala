@@ -109,19 +109,23 @@ class NotificationServiceImpl(
     } yield ()
   }
 
-  override def sendEmails(supplierNotificationFrequency: NotificationFrequency): IO[Error, Unit] =
+  override def sendEmails(supplierNotificationFrequency: NotificationFrequency): IO[Error, Unit] = {
+    logger.info(
+      s"Sending emails to suppliers with notification frequency ${NotificationFrequency.caseToString(supplierNotificationFrequency)}",
+    )
     for {
       suppliersToEmail <- supplierRepo.listEmailSupplierByNotificationFrequency(
         supplierNotificationFrequency,
       )
       _ <- enqueueEmails(suppliersToEmail)
     } yield ()
+  }
 
   override def resetTokenAndSendEmails(
     supplierNotificationFrequency: NotificationFrequency,
   ): IO[Error, Unit] = {
     for {
-      _ <- authService.resetTokens()
+      _ <- authService.resetTokens(supplierNotificationFrequency)
       result <- sendEmails(supplierNotificationFrequency)
     } yield result
   }
