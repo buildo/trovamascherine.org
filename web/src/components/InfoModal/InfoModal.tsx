@@ -45,7 +45,7 @@ export function InfoModal(props: Props) {
           italiani in collaborazione con{" "}
           <Link href="https://www.buildo.io/">buildo.io</Link> e con il
           Patrocinio di FOFI, Federfarma, FNPI, UNaFTiSP, MNLF, CULPI,
-          Federfardis.
+          Federfardis, CONASFA.
         </Text>
         <Space units={8} />
         <Text size={2} className={classes.text}>

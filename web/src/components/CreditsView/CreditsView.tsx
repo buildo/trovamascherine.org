@@ -14,6 +14,8 @@ const names = [
   "Riccardo Ancona",
   "Stefano Baghino",
   "Claudio Caletti",
+  "Simone Camito",
+  "Emanuele Cardelli",
   "Andrea Casasco",
   "Luca Cioria",
   "Giovanni Fassio",
