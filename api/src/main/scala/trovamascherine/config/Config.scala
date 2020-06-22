@@ -19,6 +19,7 @@ case class NotificationsConfig(
   welcomeAttachmentPath: String,
   baseUrl: String,
   updateBaseUrl: String,
+  settingsBaseUrl: String,
   from: String,
   subject: String,
 )

@@ -68,6 +68,7 @@ class NotificationServiceImpl(
             "url" -> s"${config.updateBaseUrl}${supplier.token}",
             "supplier_name" -> supplier.name,
             "supplier_address" -> s"${supplier.address} - ${supplier.city}",
+            "url_settings" -> s"${config.settingsBaseUrl}${supplier.token}",
           ),
         ),
       )
