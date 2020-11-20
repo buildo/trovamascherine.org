@@ -26,6 +26,7 @@ export function UpdateSummary(props: Props) {
           termoScanner={props.values.scanner}
           alchool={props.values.alchool}
           pulsossimetro={props.values.pulsossimetri}
+          bomboleossigeno={props.values.bomboleossigeno}
         />
       </Box>
       <Space units={2} />

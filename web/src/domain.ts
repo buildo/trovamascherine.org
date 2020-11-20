@@ -15,6 +15,7 @@ export const Good = t.keyof(
     Termoscanner: true,
     Alchool: true,
     Pulsossimetro: true,
+    BombolaOssigeno: true,
   },
   "Good"
 );

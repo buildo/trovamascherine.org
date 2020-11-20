@@ -10,7 +10,8 @@ interface GoodStatus {
     | "Gel"
     | "Termoscanner"
     | "Alchool"
-    | "Pulsossimetro";
+    | "Pulsossimetro"
+    | "Bomboleossigeno";
   quantity: number;
 }
 

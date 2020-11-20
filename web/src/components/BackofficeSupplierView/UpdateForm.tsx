@@ -37,6 +37,7 @@ type FormState = {
   scanner: string;
   alchool: string;
   pulsossimetri: string;
+  bomboleossigeno: string;
   acceptance: boolean;
 };
 
@@ -61,6 +62,7 @@ export const Values = t.type(
     scanner: t.number,
     alchool: t.number,
     pulsossimetri: t.number,
+    bomboleossigeno: t.number,
   },
   "Values"
 );
@@ -79,6 +81,7 @@ function error<K extends keyof Errors>(k: K, message: string): Errors {
     scanner: O.none,
     alchool: O.none,
     pulsossimetri: O.none,
+    bomboleossigeno: O.none,
     acceptance: O.none,
     [k]: O.some(message),
   };
@@ -100,6 +103,7 @@ const errorsSemigroup: Semigroup<Errors> = getStructSemigroup({
   scanner: errorSemigroup,
   alchool: errorSemigroup,
   pulsossimetri: errorSemigroup,
+  bomboleossigeno: errorSemigroup,
   acceptance: errorSemigroup,
 });
 
@@ -145,6 +149,10 @@ function validateForm(
         PositiveFromString.decode(formState.pulsossimetri),
         E.mapLeft(() => error("pulsossimetri", errorMessages.pulsossimetri))
       ),
+      bomboleossigeno: pipe(
+        PositiveFromString.decode(formState.bomboleossigeno),
+        E.mapLeft(() => error("bomboleossigeno", errorMessages.bomboleossigeno))
+      ),
       acceptance: pipe(
         formState.acceptance,
         E.fromPredicate(identity, () =>
@@ -162,6 +170,7 @@ function validateForm(
         scanner,
         alchool,
         pulsossimetri,
+        bomboleossigeno,
       }) => ({
         mascherineFFP,
         mascherineChirurgiche,
@@ -171,6 +180,7 @@ function validateForm(
         scanner,
         alchool,
         pulsossimetri,
+        bomboleossigeno,
       })
     )
   );
@@ -195,6 +205,7 @@ export function UpdateViewForm(props: Props) {
     scanner: String(props.previousValues.scanner),
     alchool: String(props.previousValues.alchool),
     pulsossimetri: String(props.previousValues.pulsossimetri),
+    bomboleossigeno: String(props.previousValues.bomboleossigeno),
     acceptance: !props.requireAcceptance,
   });
   const [
@@ -221,6 +232,8 @@ export function UpdateViewForm(props: Props) {
     alchool: formState.alchool === String(props.previousValues.alchool),
     pulsossimetri:
       formState.pulsossimetri === String(props.previousValues.pulsossimetri),
+    bomboleossigeno:
+      formState.bomboleossigeno === String(props.previousValues.bomboleossigeno),
   };
   function onSubmit() {
     const validated = validateForm(formState, {
@@ -232,6 +245,7 @@ export function UpdateViewForm(props: Props) {
       scanner: formatMessage("UpdateViewForm.errorScanner"),
       alchool: formatMessage("UpdateViewForm.errorAlchool"),
       pulsossimetri: formatMessage("UpdateViewForm.errorPulsossimetri"),
+      bomboleossigeno: formatMessage("UpdateViewForm.errorBomboleossigeno"),
       acceptance: formatMessage("UpdateViewForm.errorAcceptance"),
     });
     if (E.isRight(validated)) {
@@ -284,6 +298,12 @@ export function UpdateViewForm(props: Props) {
           id="UpdateViewForm.labelPulsossimetri"
         />,
       ] as Children[]).concat(changed.pulsossimetri ? [changedLabel] : []),
+      bomboleossigeno: ([
+        <FormattedMessage
+          tagName="span"
+          id="UpdateViewForm.labelBomboleossigeno"
+        />,
+      ] as Children[]).concat(changed.bomboleossigeno ? [changedLabel] : []),
     },
     R.map(labels => intercalateChildren(<>&nbsp;</>, labels))
   );
@@ -443,6 +463,23 @@ export function UpdateViewForm(props: Props) {
               placeholder={formatMessage(
                 "UpdateViewForm.placeholderPulsossimetri"
               )}
+              clearable={O.some("0")}
+              width="100%"
+            />
+          </FieldSet>
+          <Space units={6} />
+          <FieldSet>
+            <TextField
+              type="number"
+              error={pipe(
+                submittedWithInlineErrors,
+                O.chain(e => e.bomboleossigeno)
+              )}
+              value={formState.bomboleossigeno}
+              onChange={onChange("bomboleossigeno")}
+              label={labels.bomboleossigeno}
+              labelSize={1}
+              placeholder={formatMessage("UpdateViewForm.placeholderBomboleossigeno")}
               clearable={O.some("0")}
               width="100%"
             />

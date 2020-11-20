@@ -12,4 +12,5 @@ import io.buildo.enumero.annotations.enum
   object MascherinaLavabile
   object Alchool
   object Pulsossimetro
+  object BombolaOssigeno
 }

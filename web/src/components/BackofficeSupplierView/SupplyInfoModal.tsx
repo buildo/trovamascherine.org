@@ -106,6 +106,16 @@ export function SupplyInfoModal(props: Props): JSX.Element {
 
         <Space units={10} />
 
+        <Title size={3}>Bombole di Ossigeno</Title>
+        <Space units={4} />
+        <Text size={2}>
+          Inserire la somma delle unità di bombole di ossigeno disponibili alla
+          vendita, di qualsiasi volume. Non inserire le bombole di ossigeno non disponibili alla vendita e/o
+          pre-ordinate da clienti.
+        </Text>
+
+        <Space units={10} />
+
         <Label size={2}>
           Per ulteriori informazioni sui Dispositivi di Protezione Individuale
           puoi consultare l'apposita sezione del sito INAIL{" "}

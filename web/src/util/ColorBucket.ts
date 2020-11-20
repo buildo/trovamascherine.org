@@ -28,7 +28,8 @@ type Good =
   | "Gel"
   | "Termoscanner"
   | "Alchool"
-  | "Pulsossimetro";
+  | "Pulsossimetro"
+  | "Bomboleossigeno";
 
 function getBoundsFromGood(good: Good) {
   switch (good) {
@@ -48,6 +49,9 @@ function getBoundsFromGood(good: Good) {
       return { x: 50, y: 200 };
     }
     case "Pulsossimetro": {
+      return { x: 5, y: 15 };
+    }
+    case "Bomboleossigeno": {
       return { x: 5, y: 15 };
     }
   }

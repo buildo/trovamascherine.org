@@ -74,6 +74,11 @@ function _PharmacyModal(props: Props) {
     getOrElse(defaultQuantity)
   );
 
+  const bomboleossigeno = pipe(
+    quantityByGood("BombolaOssigeno", supplies),
+    getOrElse(defaultQuantity)
+  );
+
   const isMobile = useIsMobile();
   const space = isMobile ? <Space units={4} /> : <Space units={8} />;
   const buttonSize = isMobile ? "small" : "medium";
@@ -151,6 +156,7 @@ function _PharmacyModal(props: Props) {
                 termoScanner={termoScanner}
                 alchool={alchool}
                 pulsossimetro={pulsossimetro}
+                bomboleossigeno={bomboleossigeno}
               />
               {space}
             </>

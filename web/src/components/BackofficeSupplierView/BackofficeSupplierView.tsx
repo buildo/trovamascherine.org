@@ -63,6 +63,8 @@ function fromAPIGood(good: HandledGood): keyof Values {
       return "alchool";
     case "Pulsossimetro":
       return "pulsossimetri";
+    case "BombolaOssigeno":
+      return "bomboleossigeno";
   }
 }
 
@@ -84,6 +86,7 @@ function fromAPISupplies(
         scanner: 0,
         alchool: 0,
         pulsossimetri: 0,
+        bomboleossigeno: 0,
       }
     ),
     Values.decode,

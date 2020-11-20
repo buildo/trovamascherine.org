@@ -22,6 +22,7 @@ type Props = {
   termoScanner: number;
   alchool: number;
   pulsossimetro: number;
+  bomboleossigeno: number;
 };
 
 export function GoodStatusDetails(props: Props) {
@@ -99,6 +100,10 @@ export function GoodStatusDetails(props: Props) {
           <GoodStatusDetailBox
             good="Pulsossimetro"
             quantity={props.pulsossimetro}
+          />
+          <GoodStatusDetailBox
+            good="Bomboleossigeno"
+            quantity={props.bomboleossigeno}
           />
         </Box>
       </Box>

@@ -12,6 +12,7 @@ import { Title } from "../Text/Title";
 import { useIsMobile } from "../../useMatchMedia";
 import { AlchoolIcon } from "../Icons/AlchoolIcon";
 import { PulseMeterIcon } from "../Icons/ PulseMeterIcon";
+import { OxigenCylinderIcon } from "../Icons/OxigenCylinderIcon";
 
 interface GoodStatus {
   good:
@@ -20,7 +21,8 @@ interface GoodStatus {
     | "Gel"
     | "Termoscanner"
     | "Alchool"
-    | "Pulsossimetro";
+    | "Pulsossimetro"
+    | "Bomboleossigeno";
   quantity: number;
 }
 
@@ -58,6 +60,8 @@ function renderIconFromName(name: GoodStatus["good"]) {
       return AlchoolIcon;
     case "Pulsossimetro":
       return PulseMeterIcon;
+    case "Bomboleossigeno":
+      return OxigenCylinderIcon;
   }
 }
 
@@ -79,6 +83,8 @@ function GoodStatusDetail(props: GoodStatus) {
         return formatMessage("GoodStatusDetail.labelAlchool");
       case "Pulsossimetro":
         return formatMessage("GoodStatusDetail.labelPulsossimetro");
+      case "Bomboleossigeno":
+        return formatMessage("GoodStatusDetail.labelBomboleossigeno");
     }
   })();
   const isMobile = useIsMobile();

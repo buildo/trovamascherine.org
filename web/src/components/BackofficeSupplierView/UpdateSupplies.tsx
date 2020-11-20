@@ -37,6 +37,7 @@ function toAPISupplies(values: Values): Array<SupplyData> {
     { good: "Termoscanner", quantity: values.scanner },
     { good: "Alchool", quantity: values.alchool },
     { good: "Pulsossimetro", quantity: values.pulsossimetri },
+    { good: "BombolaOssigeno", quantity: values.bomboleossigeno },
   ];
 }
 
