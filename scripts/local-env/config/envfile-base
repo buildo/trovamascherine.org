@@ -1,5 +1,0 @@
-REACT_APP_API_ENDPOINT=http://trovamascherine-api/api
-REACT_APP_DATA_STUDIO_URL=https://datastudio.google.com/embed/reporting/1WP5N3M5OdLKidwUPDLVxWb4txKnADODl/page/VBpNB
-TROVAMASCHERINE_DB_URL=jdbc:postgresql://db/trovamascherine
-TROVAMASCHERINE_DB_PASSWORD=trovamascherine
-TROVAMASCHERINE_DB_MIGRATE=true

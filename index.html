@@ -1,9 +1,54 @@
-import * as React from "react";
-import { IconProps } from "./IconProps";
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Trova le mascherine e gli altri DPI più vicini a te"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <!--
+      manifest.json provides metadata used when your web app is installed on a
+      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+    -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <!--
+      Notice the use of %PUBLIC_URL% in the tags above.
+      It will be replaced with the URL of the `public` folder during the build.
+      Only files inside the `public` folder can be referenced from the HTML.
 
-export function HeaderLogo(props: IconProps) {
-  return (
-    <svg width={props.width} height={props.height} viewBox="0 0 202.588 30.996">
+      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+      work correctly both with client-side routing and a non-root public URL.
+      Learn how to configure a non-root public URL by running `npm run build`.
+    -->
+    <style>
+      body {
+          font-family: 'Titillium Web'; 
+          font-size: 22px;
+          
+          display: flex;
+          flex-direction: column;
+          width: 70%;
+          margin-left: auto;
+          margin-right: auto;
+        }
+      svg {
+        color: #4eaaad;
+        margin-top: 50px;
+        margin-bottom: 50px;
+      }
+      </style>
+    <title>TrovaMascherine</title>
+  </head>
+  <body>
+    <svg viewBox="0 0 202.588 30.996">
       <path
         fill="currentColor"
         d="M504.743,1224.8a9.279,9.279,0,0,1,.063-1.07,24.991,24.991,0,0,1-4.368-2.9,22.185,22.185,0,0,1-2.241-2.059,15.328,15.328,0,0,0,1.07,4.687c1.457,1.48,3.422,1.948,5.51,2.242C504.755,1225.417,504.743,1225.121,504.743,1224.8Z"
@@ -109,5 +154,31 @@ export function HeaderLogo(props: IconProps) {
         />
       </g>
     </svg>
-  );
-}
+    <p>
+      Trovamascherine.org è un progetto senza scopo di lucro nato nel 2020 con lo scopo
+      di fornire, in maniera sicura, veloce e gratuita, un servizio ai cittadini
+      per trovare nella propria zona dispositivi come mascherine, gel
+      disinfettanti, guanti monouso e termoscanner.
+
+      Il progetto è stato attivo durante le fasi più acute dell'emergenza, aiutando farmacisti e cittadini nel garantire la sicurezza per tutti.
+    </p>
+    <p>
+      Come funzionava? Il sito web fornisce l’aggiornamento giornaliero della disponibilità di
+      ciascun prodotto da parte di ogni Farmacia e Parafarmacia italiana
+      aderente all’iniziativa.
+    </p>
+    <p>
+      Trovamascherine.org è nato da un gruppo di professionisti
+      italiani in collaborazione con
+      <a href="https://www.buildo.io/">buildo.io</a> e con il Patrocinio di
+      FOFI, Federfarma, FNPI, UNaFTiSP, MNLF, CULPI, Federfardis, CONASFA.
+    </p>
+    <p>
+      Il progetto è stato sviluppato grazie alla generosità e passione di più di
+      20 professionisti italiani, ed è cresciuto grazie al costante contributo da
+      parte delle Farmacie e Parafarmacie aderenti ma anche al supporto attivo
+      dei cittadini che ci supportano quotidianamente nella promozione del
+      progetto nelle loro città di riferimento.
+    </p>
+  </body>
+</html>
